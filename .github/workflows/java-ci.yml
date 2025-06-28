@@ -1,0 +1,36 @@
+name: Java CI
+
+on:
+  push:
+    branches: ['main', 'refactor/project-structure']
+  pull_request:
+    branches: ['main']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Build with javac
+        run: |
+          find src/main -name "*.java" > sources.txt
+          mkdir -p out
+          javac -d out @sources.txt
+      - name: Run tests (if any)
+        run: |
+          if [ -d src/test ]; then
+            find src/test -name "*.java" > test_sources.txt
+            if [ -s test_sources.txt ]; then
+              javac -cp out -d out @test_sources.txt
+              # Add your test runner command here if you use a framework
+            else
+              echo "No test sources found."
+            fi
+          else
+            echo "No test directory found."
+          fi
