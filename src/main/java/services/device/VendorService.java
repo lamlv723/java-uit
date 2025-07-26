@@ -1,17 +1,38 @@
 package services.device;
 
 import java.util.List;
-
+import java.util.ArrayList;
+import dao.device.VendorDAOImpl;
+import dao.device.interfaces.VendorDAO;
 import models.device.Vendor;
 
-public interface VendorService {
-    void addVendor(Vendor vendor, String currentUserRole);
+public class VendorService {
+    private VendorDAO vendorDAO;
 
-    void updateVendor(Vendor vendor, String currentUserRole);
+    public VendorService() {
+        this.vendorDAO = new VendorDAOImpl();
+    }
 
-    void deleteVendor(int vendorId, String currentUserRole);
+    public void addVendor(Vendor vendor, String currentUserRole) {
+        // TODO: Add role-based validation if needed
+        vendorDAO.addVendor(vendor);
+    }
 
-    Vendor getVendorById(int vendorId);
+    public void updateVendor(Vendor vendor, String currentUserRole) {
+        // TODO: Add role-based validation if needed
+        vendorDAO.updateVendor(vendor);
+    }
 
-    List<Vendor> getAllVendors();
+    public void deleteVendor(int vendorId, String currentUserRole) {
+        // TODO: Add role-based validation if needed
+        vendorDAO.deleteVendor(vendorId);
+    }
+
+    public Vendor getVendorById(int vendorId) {
+        return vendorDAO.getVendorById(vendorId);
+    }
+
+    public List<Vendor> getAllVendors() {
+        return vendorDAO.getAllVendors();
+    }
 }

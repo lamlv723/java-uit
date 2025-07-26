@@ -1,17 +1,37 @@
 package services.device;
 
+import dao.device.AssetRequestItemDAOImpl;
+import dao.device.interfaces.AssetRequestItemDAO;
+import models.device.AssetRequestItem;
 import java.util.List;
 
-import models.device.AssetRequestItem;
+public class AssetRequestItemService {
+    private AssetRequestItemDAO assetRequestItemDAO;
 
-public interface AssetRequestItemService {
-    void addAssetRequestItem(AssetRequestItem item, String currentUserRole);
+    public AssetRequestItemService() {
+        this.assetRequestItemDAO = new AssetRequestItemDAOImpl();
+    }
 
-    void updateAssetRequestItem(AssetRequestItem item, String currentUserRole);
+    public void addAssetRequestItem(AssetRequestItem item, String currentUserRole) {
+        // TODO: Add role-based logic if needed
+        assetRequestItemDAO.addAssetRequestItem(item);
+    }
 
-    void deleteAssetRequestItem(int requestItemId, String currentUserRole);
+    public void updateAssetRequestItem(AssetRequestItem item, String currentUserRole) {
+        // TODO: Add role-based logic if needed
+        assetRequestItemDAO.updateAssetRequestItem(item);
+    }
 
-    AssetRequestItem getAssetRequestItemById(int requestItemId);
+    public void deleteAssetRequestItem(int id, String currentUserRole) {
+        // TODO: Add role-based logic if needed
+        assetRequestItemDAO.deleteAssetRequestItem(id);
+    }
 
-    List<AssetRequestItem> getAllAssetRequestItems();
+    public AssetRequestItem getAssetRequestItemById(int id) {
+        return assetRequestItemDAO.getAssetRequestItemById(id);
+    }
+
+    public List<AssetRequestItem> getAllAssetRequestItems() {
+        return assetRequestItemDAO.getAllAssetRequestItems();
+    }
 }

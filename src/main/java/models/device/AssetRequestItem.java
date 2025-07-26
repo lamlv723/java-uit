@@ -7,6 +7,27 @@ import java.util.Date;
 @Entity
 @Table(name = "AssetRequestItem")
 public class AssetRequestItem {
+    // Convenience getter/setter for UI compatibility
+    public Integer getAssetId() {
+        return asset != null ? asset.getAssetId() : null;
+    }
+
+    public void setAssetId(Integer assetId) {
+        if (this.asset == null)
+            this.asset = new Asset();
+        this.asset.setAssetId(assetId);
+    }
+
+    private Integer quantity;
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "request_item_id")

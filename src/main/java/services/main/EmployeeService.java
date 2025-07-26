@@ -1,17 +1,37 @@
 package services.main;
 
 import java.util.List;
-
+import dao.main.EmployeeDAOImpl;
+import dao.main.interfaces.EmployeeDAO;
 import models.main.Employee;
 
-public interface EmployeeService {
-    void addEmployee(Employee employee, String currentUserRole);
+public class EmployeeService {
+    private EmployeeDAO employeeDAO;
 
-    void updateEmployee(Employee employee, String currentUserRole);
+    public EmployeeService() {
+        this.employeeDAO = new EmployeeDAOImpl();
+    }
 
-    void deleteEmployee(int employeeId, String currentUserRole);
+    public void addEmployee(Employee employee, String currentUserRole) {
+        // TODO: Add role-based validation if needed
+        employeeDAO.addEmployee(employee);
+    }
 
-    Employee getEmployeeById(int employeeId);
+    public void updateEmployee(Employee employee, String currentUserRole) {
+        // TODO: Add role-based validation if needed
+        employeeDAO.updateEmployee(employee);
+    }
 
-    List<Employee> getAllEmployees();
+    public void deleteEmployee(int employeeId, String currentUserRole) {
+        // TODO: Add role-based validation if needed
+        employeeDAO.deleteEmployee(employeeId);
+    }
+
+    public Employee getEmployeeById(int employeeId) {
+        return employeeDAO.getEmployeeById(employeeId);
+    }
+
+    public List<Employee> getAllEmployees() {
+        return employeeDAO.getAllEmployees();
+    }
 }

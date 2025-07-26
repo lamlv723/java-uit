@@ -1,17 +1,37 @@
 package services.main;
 
 import java.util.List;
-
+import dao.main.DepartmentDAOImpl;
+import dao.main.interfaces.DepartmentDAO;
 import models.main.Department;
 
-public interface DepartmentService {
-    void addDepartment(Department department, String currentUserRole);
+public class DepartmentService {
+    private DepartmentDAO departmentDAO;
 
-    void updateDepartment(Department department, String currentUserRole);
+    public DepartmentService() {
+        this.departmentDAO = new DepartmentDAOImpl();
+    }
 
-    void deleteDepartment(int departmentId, String currentUserRole);
+    public void addDepartment(Department department, String currentUserRole) {
+        // TODO: Add role-based validation if needed
+        departmentDAO.addDepartment(department);
+    }
 
-    Department getDepartmentById(int departmentId);
+    public void updateDepartment(Department department, String currentUserRole) {
+        // TODO: Add role-based validation if needed
+        departmentDAO.updateDepartment(department);
+    }
 
-    List<Department> getAllDepartments();
+    public void deleteDepartment(int departmentId, String currentUserRole) {
+        // TODO: Add role-based validation if needed
+        departmentDAO.deleteDepartment(departmentId);
+    }
+
+    public Department getDepartmentById(int departmentId) {
+        return departmentDAO.getDepartmentById(departmentId);
+    }
+
+    public List<Department> getAllDepartments() {
+        return departmentDAO.getAllDepartments();
+    }
 }

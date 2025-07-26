@@ -1,17 +1,38 @@
+
 package services.device;
 
+import dao.device.AssetRequestDAOImpl;
+import dao.device.interfaces.AssetRequestDAO;
+import models.device.AssetRequest;
 import java.util.List;
 
-import models.device.AssetRequest;
+public class AssetRequestService {
+    private AssetRequestDAO assetRequestDAO;
 
-public interface AssetRequestService {
-    void addAssetRequest(AssetRequest request, String currentUserRole);
+    public AssetRequestService() {
+        this.assetRequestDAO = new AssetRequestDAOImpl();
+    }
 
-    void updateAssetRequest(AssetRequest request, String currentUserRole);
+    public void addAssetRequest(AssetRequest request, String currentUserRole) {
+        // TODO: Add role-based logic if needed
+        assetRequestDAO.addAssetRequest(request);
+    }
 
-    void deleteAssetRequest(int requestId, String currentUserRole);
+    public void updateAssetRequest(AssetRequest request, String currentUserRole) {
+        // TODO: Add role-based logic if needed
+        assetRequestDAO.updateAssetRequest(request);
+    }
 
-    AssetRequest getAssetRequestById(int requestId);
+    public void deleteAssetRequest(int requestId, String currentUserRole) {
+        // TODO: Add role-based logic if needed
+        assetRequestDAO.deleteAssetRequest(requestId);
+    }
 
-    List<AssetRequest> getAllAssetRequests();
+    public AssetRequest getAssetRequestById(int requestId) {
+        return assetRequestDAO.getAssetRequestById(requestId);
+    }
+
+    public List<AssetRequest> getAllAssetRequests() {
+        return assetRequestDAO.getAllAssetRequests();
+    }
 }

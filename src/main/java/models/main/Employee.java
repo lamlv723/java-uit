@@ -87,6 +87,22 @@ public class Employee {
         this.department = department;
     }
 
+    // Convenience methods for departmentId (for UI compatibility)
+    public Integer getDepartmentId() {
+        return department != null ? department.getDepartmentId() : null;
+    }
+
+    public void setDepartmentId(Integer departmentId) {
+        if (departmentId == null) {
+            this.department = null;
+        } else {
+            if (this.department == null) {
+                this.department = new Department();
+            }
+            this.department.setDepartmentId(departmentId);
+        }
+    }
+
     public String getRole() {
         return role;
     }

@@ -123,4 +123,13 @@ public class Asset {
     public void setVendor(Vendor vendor) {
         this.vendor = vendor;
     }
+
+    // Convenience getter/setter for UI compatibility
+    public String getName() {
+        return getAssetName();
+    }
+
+    public void setName(String name) {
+        setAssetName(name);
+    }
 }

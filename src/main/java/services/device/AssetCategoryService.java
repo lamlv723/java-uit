@@ -1,17 +1,37 @@
 package services.device;
 
+import dao.device.AssetCategoryDAOImpl;
+import dao.device.interfaces.AssetCategoryDAO;
+import models.device.AssetCategory;
 import java.util.List;
 
-import models.device.AssetCategory;
+public class AssetCategoryService {
+    private AssetCategoryDAO assetCategoryDAO;
 
-public interface AssetCategoryService {
-    void addAssetCategory(AssetCategory category, String currentUserRole);
+    public AssetCategoryService() {
+        this.assetCategoryDAO = new AssetCategoryDAOImpl();
+    }
 
-    void updateAssetCategory(AssetCategory category, String currentUserRole);
+    public void addAssetCategory(AssetCategory category, String currentUserRole) {
+        // TODO: Add role-based logic if needed
+        assetCategoryDAO.addAssetCategory(category);
+    }
 
-    void deleteAssetCategory(int categoryId, String currentUserRole);
+    public void updateAssetCategory(AssetCategory category, String currentUserRole) {
+        // TODO: Add role-based logic if needed
+        assetCategoryDAO.updateAssetCategory(category);
+    }
 
-    AssetCategory getAssetCategoryById(int categoryId);
+    public void deleteAssetCategory(int categoryId, String currentUserRole) {
+        // TODO: Add role-based logic if needed
+        assetCategoryDAO.deleteAssetCategory(categoryId);
+    }
 
-    List<AssetCategory> getAllAssetCategories();
+    public AssetCategory getAssetCategoryById(int categoryId) {
+        return assetCategoryDAO.getAssetCategoryById(categoryId);
+    }
+
+    public List<AssetCategory> getAllAssetCategories() {
+        return assetCategoryDAO.getAllAssetCategories();
+    }
 }
