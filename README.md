@@ -93,16 +93,35 @@ src/
   main/
     java/
       constants/
+        AppConstants.java
       controllers/
         device/
+          AssetController.java
         main/
         user/
       dao/
+        AssetDAO.java
       database/
+        init.sql
+        sample_data.sql
       exceptions/
+        DataAccessException.java
+        NotFoundException.java
+        ValidationException.java
       models/
+        Asset.java
+        AssetCategory.java
+        AssetRequest.java
+        AssetRequestItem.java
+        Department.java
+        Employee.java
+        Vendor.java
       services/
+        AssetService.java
       utils/
+        DateUtils.java
+        StringUtils.java
+        ValidationUtils.java
       views/
         common/
         device/
@@ -110,12 +129,11 @@ src/
         user/
       config/
         EnvConfig.java
+        HibernateUtil.java
         MySQLConnection.java
       App.java
     resources/
-      database/
-        init.sql
-        sample_data.sql
+      hibernate.cfg.xml
       icons/
       images/
   test/
@@ -136,19 +154,19 @@ src/
 - Trigger MySQL đã được viết lại đúng cú pháp.
 - Xem file `init.sql` đã chỉnh sửa cho MySQL trong thư mục `src/main/database/`.
 
-## Design Patterns
+## Design Patterns & Kiến trúc dự án
 
 Dự án áp dụng nhiều mẫu thiết kế (Design Patterns) nổi bật nhằm tăng tính mở rộng, dễ bảo trì và chuẩn hóa kiến trúc phần mềm:
 
 - **DAO (Data Access Object):**
 
   - Tách biệt logic truy xuất dữ liệu với logic nghiệp vụ, giúp việc thay đổi nguồn dữ liệu (MySQL, file, v.v.) dễ dàng hơn.
-  - Mỗi entity (ví dụ: Thiết bị, Nhân viên, Phòng ban) đều có lớp DAO riêng để thực hiện các thao tác CRUD.
+  - Mỗi entity (ví dụ: Thiết bị, Nhân viên, Phòng ban) đều có lớp DAO riêng để thực hiện các thao tác CRUD. (Ví dụ: `AssetDAO`)
 
 - **MVC (Model - View - Controller):**
 
   - Tổ chức code theo 3 lớp: Model (dữ liệu, nghiệp vụ), View (giao diện), Controller (điều phối luồng xử lý).
-  - Giúp giao diện và logic xử lý tách biệt, dễ mở rộng và kiểm thử.
+  - Giúp giao diện và logic xử lý tách biệt, dễ mở rộng và kiểm thử. (Ví dụ: `AssetController`, `AssetService`, các view trong `views/`)
 
 - **Singleton (Kết nối Database):**
 
@@ -159,7 +177,17 @@ Dự án áp dụng nhiều mẫu thiết kế (Design Patterns) nổi bật nh�
   - Tạo các đối tượng (ví dụ: View, Controller) một cách linh hoạt, ẩn đi chi tiết khởi tạo.
   - Giúp dễ dàng mở rộng khi thêm loại đối tượng mới mà không cần sửa code cũ.
 
-Việc áp dụng các pattern này giúp dự án có cấu trúc rõ ràng, dễ bảo trì, mở rộng và tuân thủ các nguyên tắc lập trình hướng đối tượng.
+## Tiện ích (Utilities) & Constants
+
+- **AppConstants:** Quản lý các hằng số dùng chung cho toàn bộ ứng dụng (trạng thái thiết bị, thông báo, vai trò, định dạng ngày tháng, ...).
+- **DateUtils, StringUtils, ValidationUtils:** Các hàm tiện ích hỗ trợ xử lý ngày tháng, chuỗi, kiểm tra dữ liệu đầu vào (validate email, số điện thoại, ...).
+
+## Xử lý Exception
+
+- **Custom Exception:**
+  - `DataAccessException`, `NotFoundException`, `ValidationException` giúp quản lý lỗi rõ ràng, dễ kiểm soát và debug hơn trong quá trình phát triển.
+
+Việc áp dụng các pattern, tiện ích và exception này giúp dự án có cấu trúc rõ ràng, dễ bảo trì, mở rộng và tuân thủ các nguyên tắc lập trình hướng đối tượng.
 
 ## Đóng góp
 

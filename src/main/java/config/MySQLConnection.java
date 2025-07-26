@@ -14,11 +14,12 @@ public class MySQLConnection {
         String url = String.format("jdbc:mysql://%s:%s/%s?useUnicode=true&characterEncoding=UTF-8", host, port, db);
         return DriverManager.getConnection(url, user, pass);
     }
+
     public static void main(String[] args) {
         try (Connection conn = getConnection()) {
             System.out.println("Kết nối MySQL thành công!");
         } catch (SQLException e) {
-            System.err.println("Kết nối MySQL thất bại: " + e.getMessage());
+            System.err.println(e.getMessage());
         }
     }
 }
