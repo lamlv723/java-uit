@@ -28,7 +28,7 @@ Quản lý mượn/trả thiết bị trong công ty với các chức năng:
 Để tạo database và migrate, sử dụng:
 
 ```bash
-mysql -u root -p < src/main/database/init.sql
+mysql -u root -p < src/main/java/database/init.sql
 ```
 
 (Nhập mật khẩu khi được hỏi)
@@ -38,7 +38,7 @@ mysql -u root -p < src/main/database/init.sql
 Sau khi migration xong, để thêm dữ liệu mẫu cho các bảng (phục vụ test/demo), chạy:
 
 ```bash
-mysql -u root -p < src/main/database/sample_data.sql
+mysql -u root -p < src/main/java/database/sample_data.sql
 ```
 
 (Có thể chỉnh sửa file sample_data.sql nếu muốn thay đổi dữ liệu mẫu)
@@ -91,33 +91,34 @@ DB_PASSWORD=your_password
 ```
 src/
   main/
-    constants/
-    controllers/
-      device/
-      main/
-      user/
-    dao/
-    database/
-      init.sql
-      sample_data.sql
-    exceptions/
     java/
-      App.java
+      constants/
+      controllers/
+        device/
+        main/
+        user/
+      dao/
+      database/
+      exceptions/
+      models/
+      services/
+      utils/
+      views/
+        common/
+        device/
+        main/
+        user/
       config/
         EnvConfig.java
         MySQLConnection.java
-    models/
-    services/
-    utils/
-    views/
-      common/
-      device/
-      main/
-      user/
-resources/
-  icons/
-  images/
-test/
+      App.java
+    resources/
+      database/
+        init.sql
+        sample_data.sql
+      icons/
+      images/
+  test/
 ```
 
 ## Phân quyền chức năng
@@ -137,7 +138,28 @@ test/
 
 ## Design Patterns
 
-- Áp dụng các pattern: DAO, MVC, Singleton (DB connection), Factory ...
+Dự án áp dụng nhiều mẫu thiết kế (Design Patterns) nổi bật nhằm tăng tính mở rộng, dễ bảo trì và chuẩn hóa kiến trúc phần mềm:
+
+- **DAO (Data Access Object):**
+
+  - Tách biệt logic truy xuất dữ liệu với logic nghiệp vụ, giúp việc thay đổi nguồn dữ liệu (MySQL, file, v.v.) dễ dàng hơn.
+  - Mỗi entity (ví dụ: Thiết bị, Nhân viên, Phòng ban) đều có lớp DAO riêng để thực hiện các thao tác CRUD.
+
+- **MVC (Model - View - Controller):**
+
+  - Tổ chức code theo 3 lớp: Model (dữ liệu, nghiệp vụ), View (giao diện), Controller (điều phối luồng xử lý).
+  - Giúp giao diện và logic xử lý tách biệt, dễ mở rộng và kiểm thử.
+
+- **Singleton (Kết nối Database):**
+
+  - Đảm bảo chỉ có một kết nối tới database trong suốt vòng đời ứng dụng, tránh lãng phí tài nguyên.
+  - Lớp `MySQLConnection` được triển khai theo pattern này.
+
+- **Factory:**
+  - Tạo các đối tượng (ví dụ: View, Controller) một cách linh hoạt, ẩn đi chi tiết khởi tạo.
+  - Giúp dễ dàng mở rộng khi thêm loại đối tượng mới mà không cần sửa code cũ.
+
+Việc áp dụng các pattern này giúp dự án có cấu trúc rõ ràng, dễ bảo trì, mở rộng và tuân thủ các nguyên tắc lập trình hướng đối tượng.
 
 ## Đóng góp
 

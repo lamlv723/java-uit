@@ -1,0 +1,11 @@
+# Ignore artifacts:
+node_modules/
+build/
+dist/
+target/
+*.class
+*.jar
+*.war
+*.iml
+.idea/
+.vscode/
