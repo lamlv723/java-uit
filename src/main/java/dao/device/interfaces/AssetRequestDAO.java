@@ -1,5 +1,5 @@
 
-package dao.device;
+package dao.device.interfaces;
 
 import models.device.AssetRequest;
 import java.util.List;

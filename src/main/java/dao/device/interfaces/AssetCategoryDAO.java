@@ -1,5 +1,4 @@
-
-package dao.device;
+package dao.device.interfaces;
 
 import models.device.AssetCategory;
 import java.util.List;

@@ -1,4 +1,4 @@
-package dao.device;
+package dao.main.interfaces;
 
 import java.util.List;
 

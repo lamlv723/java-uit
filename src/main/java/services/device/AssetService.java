@@ -1,12 +1,12 @@
 package services.device;
 
-import dao.device.AssetDAO;
+import dao.device.AssetDAOImpl;
 import models.device.Asset;
 
 import java.util.List;
 
 public class AssetService {
-    private AssetDAO assetDAO = new AssetDAO();
+    private AssetDAOImpl assetDAO = new AssetDAOImpl();
 
     public void addAsset(Asset asset) {
         assetDAO.save(asset);

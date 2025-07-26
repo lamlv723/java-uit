@@ -6,9 +6,9 @@
     <session-factory>
         <!-- Database connection settings -->
         <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
-        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/asset_management?useSSL=false&amp;serverTimezone=UTC</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/asset_management?useSSL=false&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=true</property>
         <property name="hibernate.connection.username">root</property>
-        <property name="hibernate.connection.password">password</property>
+        <property name="hibernate.connection.password"></property>
 
         <!-- JDBC connection pool (use the built-in) -->
         <property name="hibernate.connection.pool_size">5</property>
@@ -31,6 +31,14 @@
         <property name="hibernate.hbm2ddl.auto">update</property>
 
         <!-- Mapping classes (add your entity classes here) -->
-        <!-- <mapping class="com.assetmanagement.models.YourEntity"/> -->
+        <mapping class="models.main.Department"/>
+        <mapping class="models.main.Employee"/>
+        <mapping class="models.device.Asset"/>
+        <mapping class="models.device.AssetCategory"/>
+        <mapping class="models.device.AssetRequest"/>
+        <mapping class="models.device.AssetRequestItem"/>
+        <mapping class="models.device.Vendor"/>
+
+
     </session-factory>
 </hibernate-configuration>

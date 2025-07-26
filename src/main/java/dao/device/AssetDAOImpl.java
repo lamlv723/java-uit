@@ -5,10 +5,11 @@ import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import config.HibernateUtil;
 import models.device.Asset;
-
+import dao.device.interfaces.AssetDAO;
 import java.util.List;
 
-public class AssetDAO {
+public class AssetDAOImpl implements AssetDAO {
+    @Override
     public void save(Asset asset) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -22,12 +23,14 @@ public class AssetDAO {
         }
     }
 
+    @Override
     public Asset getById(int id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.get(Asset.class, id);
         }
     }
 
+    @Override
     public List<Asset> getAll() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Query<Asset> query = session.createQuery("from Asset", Asset.class);
@@ -35,6 +38,7 @@ public class AssetDAO {
         }
     }
 
+    @Override
     public void update(Asset asset) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -48,6 +52,7 @@ public class AssetDAO {
         }
     }
 
+    @Override
     public void delete(Asset asset) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
