@@ -2,7 +2,7 @@ name: Java CI
 
 on:
   push:
-    branches: ["main", "refactor/project-structure"]
+    branches: ["main"]
   pull_request:
     branches: ["main"]
 
@@ -18,5 +18,8 @@ jobs:
           distribution: "temurin"
       - name: Build with Maven
         run: mvn -B compile
+      - name: Load .env
+        run: |
+          if [ -f .env.example ]; then cp .env.example .env; else echo "DUMMY_KEY=DUMMY_VALUE" > .env; fi
       - name: Run tests with Maven
         run: mvn -B test

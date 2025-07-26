@@ -1,17 +1,27 @@
 package controllers.device;
 
-import models.Asset;
-import services.AssetService;
+import services.device.AssetService;
+
 import java.util.List;
 
-public class AssetController {
-    private AssetService assetService = new AssetService();
+import models.device.Asset;
 
-    public void createAsset(Asset asset) {
+public class AssetController {
+    private AssetService assetService;
+
+    public AssetController(AssetService assetService) {
+        this.assetService = assetService;
+    }
+
+    public AssetService getAssetService() {
+        return assetService;
+    }
+
+    public void addAsset(Asset asset) {
         assetService.addAsset(asset);
     }
 
-    public Asset getAsset(int id) {
+    public Asset getAssetById(int id) {
         return assetService.getAssetById(id);
     }
 

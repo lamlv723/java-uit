@@ -1,4 +1,4 @@
-# Asset Management System (Java Swing + MySQL)
+# Enterprise Asset Management System (Java Swing, Hibernate, Maven, MySQL)
 
 ## Mô tả dự án
 
@@ -85,6 +85,21 @@ DB_PASSWORD=your_password
   mvn exec:java -Dexec.mainClass=App
   ```
 - Hoặc chạy file `App.java` trong IDE (nằm trong package `main`)
+
+### 5. Kiểm thử tự động
+
+- Đảm bảo đã build project trước (nếu chưa, chạy `mvn compile`).
+- Để chạy toàn bộ unit test, sử dụng lệnh sau ở thư mục gốc:
+  ```bash
+  mvn test
+  ```
+- Kết quả test sẽ hiển thị trên terminal và lưu trong thư mục `target/surefire-reports/`.
+- Các file test nằm trong `src/test/java/`.
+
+Tài liệu tham khảo
+
+- [JUnit 5 User Guide](https://junit.org/junit5/docs/current/user-guide/)
+- [Mockito Documentation](https://site.mockito.org/)
 
 ## Cấu trúc thư mục
 
