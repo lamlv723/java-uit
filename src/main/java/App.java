@@ -1,6 +1,7 @@
 import config.MySQLConnection;
 import java.sql.Connection;
 import java.sql.SQLException;
+import views.main.MainView;
 
 public class App {
     public static void main(String[] args) {
@@ -11,7 +12,6 @@ public class App {
             System.err.println("Ket noi MySQL thất bại: " + e.getMessage());
             return;
         }
-        // ...existing code...
-        System.out.println("Hello world!");
+        javax.swing.SwingUtilities.invokeLater(() -> new MainView().setVisible(true));
     }
 }

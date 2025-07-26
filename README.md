@@ -28,7 +28,7 @@ Quản lý mượn/trả thiết bị trong công ty với các chức năng:
 Để tạo database và migrate, sử dụng:
 
 ```bash
-mysql -u root -p < src/main/database/init.sql
+mysql -u root -p < src/main/java/database/init.sql
 ```
 
 (Nhập mật khẩu khi được hỏi)
@@ -38,7 +38,7 @@ mysql -u root -p < src/main/database/init.sql
 Sau khi migration xong, để thêm dữ liệu mẫu cho các bảng (phục vụ test/demo), chạy:
 
 ```bash
-mysql -u root -p < src/main/database/sample_data.sql
+mysql -u root -p < src/main/java/database/sample_data.sql
 ```
 
 (Có thể chỉnh sửa file sample_data.sql nếu muốn thay đổi dữ liệu mẫu)
@@ -91,33 +91,34 @@ DB_PASSWORD=your_password
 ```
 src/
   main/
-    constants/
-    controllers/
-      device/
-      main/
-      user/
-    dao/
-    database/
-      init.sql
-      sample_data.sql
-    exceptions/
     java/
-      App.java
+      constants/
+      controllers/
+        device/
+        main/
+        user/
+      dao/
+      database/
+      exceptions/
+      models/
+      services/
+      utils/
+      views/
+        common/
+        device/
+        main/
+        user/
       config/
         EnvConfig.java
         MySQLConnection.java
-    models/
-    services/
-    utils/
-    views/
-      common/
-      device/
-      main/
-      user/
-resources/
-  icons/
-  images/
-test/
+      App.java
+    resources/
+      database/
+        init.sql
+        sample_data.sql
+      icons/
+      images/
+  test/
 ```
 
 ## Phân quyền chức năng
