@@ -39,7 +39,9 @@ class AssetCategoryDAOImplTest {
         sessionFactoryMock = mock(SessionFactory.class);
         sessionMock = mock(org.hibernate.Session.class);
         transactionMock = mock(org.hibernate.Transaction.class);
-        hibernateUtilMockedStatic.when(() -> HibernateUtil.getSessionFactory()).thenReturn(sessionFactoryMock);
+
+        hibernateUtilMockedStatic.when(HibernateUtil::getSessionFactory).thenReturn(sessionFactoryMock);
+
         when(sessionFactoryMock.openSession()).thenReturn(sessionMock);
         when(sessionMock.beginTransaction()).thenReturn(transactionMock);
     }
