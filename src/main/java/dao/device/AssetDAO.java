@@ -1,10 +1,11 @@
-package dao;
+package dao.device;
 
-import models.Asset;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import config.HibernateUtil;
+import models.device.Asset;
+
 import java.util.List;
 
 public class AssetDAO {

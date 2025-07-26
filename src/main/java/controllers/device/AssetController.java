@@ -1,8 +1,10 @@
 package controllers.device;
 
-import models.Asset;
-import services.AssetService;
+import services.device.AssetService;
+
 import java.util.List;
+
+import models.device.Asset;
 
 public class AssetController {
     private AssetService assetService = new AssetService();

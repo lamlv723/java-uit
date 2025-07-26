@@ -1,4 +1,4 @@
-# Asset Management System (Java Swing + MySQL)
+# Enterprise Asset Management System (Java Swing, Hibernate, Maven, MySQL)
 
 ## Mô tả dự án
 

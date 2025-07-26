@@ -1,7 +1,8 @@
-package services;
+package services.device;
 
-import dao.AssetDAO;
-import models.Asset;
+import dao.device.AssetDAO;
+import models.device.Asset;
+
 import java.util.List;
 
 public class AssetService {
