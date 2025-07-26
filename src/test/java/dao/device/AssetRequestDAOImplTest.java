@@ -4,8 +4,6 @@ import models.device.AssetRequest;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import config.HibernateUtil;
 
 import java.util.Arrays;
@@ -13,39 +11,20 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.AfterAll;
 
 class AssetRequestDAOImplTest {
-    private static MockedStatic<HibernateUtil> hibernateUtilMockedStatic;
     private AssetRequestDAOImpl assetRequestDAO;
     private SessionFactory sessionFactoryMock;
     private org.hibernate.Session sessionMock;
     private org.hibernate.Transaction transactionMock;
 
-    // Static holder for sessionFactoryMock to be used in static lambda
-    private static SessionFactory sessionFactoryStaticHolder;
-
-    @BeforeAll
-    static void beforeAll() {
-        hibernateUtilMockedStatic = Mockito.mockStatic(HibernateUtil.class);
-        hibernateUtilMockedStatic.when(HibernateUtil::getSessionFactory)
-                .thenAnswer(invocation -> sessionFactoryStaticHolder);
-    }
-
-    @AfterAll
-    static void afterAll() {
-        hibernateUtilMockedStatic.close();
-    }
-
     @BeforeEach
     void setUp() {
         assetRequestDAO = new AssetRequestDAOImpl();
         sessionFactoryMock = mock(SessionFactory.class);
-        sessionFactoryStaticHolder = sessionFactoryMock;
         sessionMock = mock(org.hibernate.Session.class);
         transactionMock = mock(org.hibernate.Transaction.class);
-
+        HibernateUtil.setSessionFactory(sessionFactoryMock);
         when(sessionFactoryMock.openSession()).thenReturn(sessionMock);
         when(sessionMock.beginTransaction()).thenReturn(transactionMock);
     }
