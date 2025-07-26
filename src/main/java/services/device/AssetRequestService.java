@@ -35,4 +35,24 @@ public class AssetRequestService {
     public List<AssetRequest> getAllAssetRequests() {
         return assetRequestDAO.getAllAssetRequests();
     }
+
+    /**
+     * Xử lý toàn bộ logic nghiệp vụ khi thêm AssetRequest từ dữ liệu đầu vào dạng
+     * String.
+     * Trả về null nếu thành công, trả về thông báo lỗi nếu có lỗi.
+     */
+    public String addAssetRequestFromInput(String title, String desc, String currentUserRole) {
+        if (title == null || title.isEmpty()) {
+            return "Tiêu đề không được để trống!";
+        }
+        AssetRequest req = new AssetRequest();
+        req.setRequestType(title); // Dùng requestType làm tiêu đề
+        req.setStatus(desc); // Dùng status làm mô tả
+        try {
+            addAssetRequest(req, currentUserRole);
+        } catch (Exception ex) {
+            return "Lỗi khi thêm yêu cầu: " + ex.getMessage();
+        }
+        return null;
+    }
 }

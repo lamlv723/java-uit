@@ -44,15 +44,13 @@ public class AssetCategoryManagementView extends JFrame {
             if (option == JOptionPane.OK_OPTION) {
                 String name = tfName.getText().trim();
                 String desc = tfDesc.getText().trim();
-                if (!name.isEmpty()) {
-                    AssetCategory cat = new AssetCategory();
-                    cat.setCategoryName(name);
-                    cat.setDescription(desc);
-                    assetCategoryController.addAssetCategory(cat, "ADMIN"); // TODO: lấy role thực tế nếu có
+                // Gọi service xử lý nghiệp vụ, trả về lỗi nếu có
+                String error = assetCategoryController.getAssetCategoryService().addAssetCategoryFromInput(name, desc,
+                        "ADMIN");
+                if (error == null) {
                     loadDataToTable();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Tên danh mục không được để trống!", "Lỗi",
-                            JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });

@@ -13,6 +13,10 @@ public class EmployeeController {
         this.employeeService = employeeService;
     }
 
+    public EmployeeService getEmployeeService() {
+        return employeeService;
+    }
+
     public void addEmployee(Employee employee, String currentUserRole) {
         employeeService.addEmployee(employee, currentUserRole);
     }

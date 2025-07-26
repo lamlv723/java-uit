@@ -53,6 +53,7 @@ public class EmployeeManagementView extends JFrame {
             };
             int option = JOptionPane.showConfirmDialog(this, message, "Thêm Nhân viên", JOptionPane.OK_CANCEL_OPTION);
             if (option == JOptionPane.OK_OPTION) {
+                // Thu thập dữ liệu từ UI
                 String firstName = tfFirstName.getText().trim();
                 String lastName = tfLastName.getText().trim();
                 String email = tfEmail.getText().trim();
@@ -61,31 +62,13 @@ public class EmployeeManagementView extends JFrame {
                 String role = tfRole.getText().trim();
                 String username = tfUsername.getText().trim();
                 String password = tfPassword.getText().trim();
-                if (!firstName.isEmpty() && !lastName.isEmpty() && !email.isEmpty() && !username.isEmpty()
-                        && !password.isEmpty()) {
-                    Employee emp = new Employee();
-                    emp.setFirstName(firstName);
-                    emp.setLastName(lastName);
-                    emp.setEmail(email);
-                    emp.setPhoneNumber(phone);
-                    emp.setRole(role);
-                    emp.setUsername(username);
-                    emp.setPassword(password);
-                    if (!deptIdStr.isEmpty()) {
-                        try {
-                            int deptId = Integer.parseInt(deptIdStr);
-                            emp.setDepartmentId(deptId);
-                        } catch (NumberFormatException ex) {
-                            JOptionPane.showMessageDialog(this, "ID phòng ban phải là số!", "Lỗi",
-                                    JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                    }
-                    employeeController.addEmployee(emp, "ADMIN"); // TODO: lấy role thực tế nếu có
+                // Gọi service xử lý nghiệp vụ, trả về lỗi nếu có
+                String error = employeeController.getEmployeeService().addEmployeeFromInput(firstName, lastName, email,
+                        phone, deptIdStr, role, username, password, "ADMIN");
+                if (error == null) {
                     loadDataToTable();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Các trường bắt buộc không được để trống!", "Lỗi",
-                            JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });

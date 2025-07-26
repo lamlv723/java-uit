@@ -42,16 +42,14 @@ public class AssetRequestItemManagementView extends JFrame {
             int option = JOptionPane.showConfirmDialog(this, message, "Thêm Chi tiết YC Tài sản",
                     JOptionPane.OK_CANCEL_OPTION);
             if (option == JOptionPane.OK_OPTION) {
-                try {
-                    int assetId = Integer.parseInt(tfAssetId.getText().trim());
-                    int quantity = Integer.parseInt(tfQuantity.getText().trim());
-                    AssetRequestItem item = new AssetRequestItem();
-                    item.setAssetId(assetId);
-                    item.setQuantity(quantity);
-                    assetRequestItemController.addAssetRequestItem(item, "ADMIN");
+                String assetIdStr = tfAssetId.getText().trim();
+                String quantityStr = tfQuantity.getText().trim();
+                String error = assetRequestItemController.getAssetRequestItemService()
+                        .addAssetRequestItemFromInput(assetIdStr, quantityStr, "ADMIN");
+                if (error == null) {
                     loadDataToTable();
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this, "Dữ liệu không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });

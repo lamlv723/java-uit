@@ -13,6 +13,10 @@ public class AssetCategoryController {
         this.assetCategoryService = assetCategoryService;
     }
 
+    public AssetCategoryService getAssetCategoryService() {
+        return assetCategoryService;
+    }
+
     public void addAssetCategory(AssetCategory category, String currentUserRole) {
         assetCategoryService.addAssetCategory(category, currentUserRole);
     }

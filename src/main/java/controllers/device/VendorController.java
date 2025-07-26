@@ -13,6 +13,10 @@ public class VendorController {
         this.vendorService = vendorService;
     }
 
+    public VendorService getVendorService() {
+        return vendorService;
+    }
+
     public void addVendor(Vendor vendor, String currentUserRole) {
         vendorService.addVendor(vendor, currentUserRole);
     }

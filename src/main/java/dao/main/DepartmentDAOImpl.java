@@ -6,9 +6,14 @@ import config.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 
 public class DepartmentDAOImpl implements DepartmentDAO {
+    private static final Logger logger = LoggerFactory.getLogger(DepartmentDAOImpl.class);
+
     @Override
     public void addDepartment(Department department) {
         Transaction tx = null;
@@ -19,7 +24,7 @@ public class DepartmentDAOImpl implements DepartmentDAO {
         } catch (Exception e) {
             if (tx != null)
                 tx.rollback();
-            e.printStackTrace();
+            logger.error("Error adding department: {}", e.getMessage(), e);
         }
     }
 
@@ -33,7 +38,7 @@ public class DepartmentDAOImpl implements DepartmentDAO {
         } catch (Exception e) {
             if (tx != null)
                 tx.rollback();
-            e.printStackTrace();
+            logger.error("Error updating department: {}", e.getMessage(), e);
         }
     }
 
@@ -50,7 +55,7 @@ public class DepartmentDAOImpl implements DepartmentDAO {
         } catch (Exception e) {
             if (tx != null)
                 tx.rollback();
-            e.printStackTrace();
+            logger.error("Error deleting department with id {}: {}", departmentId, e.getMessage(), e);
         }
     }
 
@@ -59,7 +64,7 @@ public class DepartmentDAOImpl implements DepartmentDAO {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.get(Department.class, departmentId);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error getting department by id {}: {}", departmentId, e.getMessage(), e);
             return null;
         }
     }
@@ -70,7 +75,7 @@ public class DepartmentDAOImpl implements DepartmentDAO {
             Query<Department> query = session.createQuery("FROM Department", Department.class);
             return query.getResultList();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error getting all departments: {}", e.getMessage(), e);
             return null;
         }
     }

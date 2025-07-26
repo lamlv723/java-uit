@@ -1,3 +1,4 @@
+
 package services.device;
 
 import dao.device.AssetRequestItemDAOImpl;
@@ -33,5 +34,29 @@ public class AssetRequestItemService {
 
     public List<AssetRequestItem> getAllAssetRequestItems() {
         return assetRequestItemDAO.getAllAssetRequestItems();
+    }
+
+    /**
+     * Xử lý toàn bộ logic nghiệp vụ khi thêm AssetRequestItem từ dữ liệu đầu vào
+     * dạng String.
+     * Trả về null nếu thành công, trả về thông báo lỗi nếu có lỗi.
+     */
+    public String addAssetRequestItemFromInput(String assetIdStr, String quantityStr, String currentUserRole) {
+        int assetId, quantity;
+        try {
+            assetId = Integer.parseInt(assetIdStr);
+            quantity = Integer.parseInt(quantityStr);
+        } catch (Exception ex) {
+            return "Dữ liệu không hợp lệ!";
+        }
+        AssetRequestItem item = new AssetRequestItem();
+        item.setAssetId(assetId);
+        item.setQuantity(quantity);
+        try {
+            addAssetRequestItem(item, currentUserRole);
+        } catch (Exception ex) {
+            return "Lỗi khi thêm chi tiết yêu cầu: " + ex.getMessage();
+        }
+        return null;
     }
 }

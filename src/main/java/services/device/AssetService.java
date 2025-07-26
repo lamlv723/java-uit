@@ -1,3 +1,4 @@
+
 package services.device;
 
 import dao.device.AssetDAOImpl;
@@ -26,5 +27,24 @@ public class AssetService {
 
     public void deleteAsset(Asset asset) {
         assetDAO.delete(asset);
+    }
+
+    /**
+     * Xử lý toàn bộ logic nghiệp vụ khi thêm Asset từ dữ liệu đầu vào dạng String.
+     * Trả về null nếu thành công, trả về thông báo lỗi nếu có lỗi.
+     */
+    public String addAssetFromInput(String name, String desc) {
+        if (name == null || name.isEmpty()) {
+            return "Tên tài sản không được để trống!";
+        }
+        Asset asset = new Asset();
+        asset.setName(name);
+        asset.setDescription(desc);
+        try {
+            addAsset(asset);
+        } catch (Exception ex) {
+            return "Lỗi khi thêm tài sản: " + ex.getMessage();
+        }
+        return null;
     }
 }

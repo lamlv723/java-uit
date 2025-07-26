@@ -18,11 +18,7 @@ public class VendorManagementView extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        // You must provide a concrete implementation of VendorService here, e.g.
-        // VendorServiceImpl
-        // TODO: Replace null with a concrete implementation, e.g. new
-        // VendorServiceImpl()
-        vendorController = new VendorController(null);
+        vendorController = new VendorController(new VendorService());
         table = new VendorTable();
         loadDataToTable();
         JScrollPane scrollPane = new JScrollPane(table);
@@ -57,18 +53,13 @@ public class VendorManagementView extends JFrame {
                 String phone = tfPhone.getText().trim();
                 String email = tfEmail.getText().trim();
                 String address = tfAddress.getText().trim();
-                if (!name.isEmpty()) {
-                    Vendor vendor = new Vendor();
-                    vendor.setVendorName(name);
-                    vendor.setContactPerson(contact);
-                    vendor.setPhoneNumber(phone);
-                    vendor.setEmail(email);
-                    vendor.setAddress(address);
-                    vendorController.addVendor(vendor, "ADMIN"); // TODO: lấy role thực tế nếu có
+                // Gọi service xử lý nghiệp vụ, trả về lỗi nếu có
+                String error = vendorController.getVendorService().addVendorFromInput(name, contact, phone, email,
+                        address, "ADMIN");
+                if (error == null) {
                     loadDataToTable();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Tên nhà cung cấp không được để trống!", "Lỗi",
-                            JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });

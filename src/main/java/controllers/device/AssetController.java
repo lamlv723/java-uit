@@ -7,13 +7,21 @@ import java.util.List;
 import models.device.Asset;
 
 public class AssetController {
-    private AssetService assetService = new AssetService();
+    private AssetService assetService;
 
-    public void createAsset(Asset asset) {
+    public AssetController(AssetService assetService) {
+        this.assetService = assetService;
+    }
+
+    public AssetService getAssetService() {
+        return assetService;
+    }
+
+    public void addAsset(Asset asset) {
         assetService.addAsset(asset);
     }
 
-    public Asset getAsset(int id) {
+    public Asset getAssetById(int id) {
         return assetService.getAssetById(id);
     }
 

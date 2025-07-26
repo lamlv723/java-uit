@@ -1,3 +1,4 @@
+
 package dao.device;
 
 import models.device.Vendor;
@@ -6,9 +7,14 @@ import config.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 
 public class VendorDAOImpl implements VendorDAO {
+    private static final Logger logger = LoggerFactory.getLogger(VendorDAOImpl.class);
+
     @Override
     public void addVendor(Vendor vendor) {
         Transaction tx = null;
@@ -19,7 +25,7 @@ public class VendorDAOImpl implements VendorDAO {
         } catch (Exception e) {
             if (tx != null)
                 tx.rollback();
-            e.printStackTrace();
+            logger.error("Error adding vendor: {}", e.getMessage(), e);
         }
     }
 
@@ -33,7 +39,7 @@ public class VendorDAOImpl implements VendorDAO {
         } catch (Exception e) {
             if (tx != null)
                 tx.rollback();
-            e.printStackTrace();
+            logger.error("Error updating vendor: {}", e.getMessage(), e);
         }
     }
 
@@ -49,7 +55,7 @@ public class VendorDAOImpl implements VendorDAO {
         } catch (Exception e) {
             if (tx != null)
                 tx.rollback();
-            e.printStackTrace();
+            logger.error("Error deleting vendor with id {}: {}", vendorId, e.getMessage(), e);
         }
     }
 
@@ -58,7 +64,7 @@ public class VendorDAOImpl implements VendorDAO {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.get(Vendor.class, vendorId);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error getting vendor by id {}: {}", vendorId, e.getMessage(), e);
             return null;
         }
     }
@@ -69,7 +75,7 @@ public class VendorDAOImpl implements VendorDAO {
             Query<Vendor> query = session.createQuery("FROM Vendor", Vendor.class);
             return query.getResultList();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error getting all vendors: {}", e.getMessage(), e);
             return null;
         }
     }

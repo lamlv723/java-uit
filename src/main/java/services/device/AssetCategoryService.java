@@ -1,3 +1,4 @@
+
 package services.device;
 
 import dao.device.AssetCategoryDAOImpl;
@@ -33,5 +34,25 @@ public class AssetCategoryService {
 
     public List<AssetCategory> getAllAssetCategories() {
         return assetCategoryDAO.getAllAssetCategories();
+    }
+
+    /**
+     * Xử lý toàn bộ logic nghiệp vụ khi thêm AssetCategory từ dữ liệu đầu vào dạng
+     * String.
+     * Trả về null nếu thành công, trả về thông báo lỗi nếu có lỗi.
+     */
+    public String addAssetCategoryFromInput(String name, String desc, String currentUserRole) {
+        if (name == null || name.isEmpty()) {
+            return "Tên danh mục không được để trống!";
+        }
+        AssetCategory cat = new AssetCategory();
+        cat.setCategoryName(name);
+        cat.setDescription(desc);
+        try {
+            addAssetCategory(cat, currentUserRole);
+        } catch (Exception ex) {
+            return "Lỗi khi thêm danh mục: " + ex.getMessage();
+        }
+        return null;
     }
 }

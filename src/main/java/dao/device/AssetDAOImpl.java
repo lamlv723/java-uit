@@ -6,9 +6,14 @@ import org.hibernate.query.Query;
 import config.HibernateUtil;
 import models.device.Asset;
 import dao.device.interfaces.AssetDAO;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 
 public class AssetDAOImpl implements AssetDAO {
+    private static final Logger logger = LoggerFactory.getLogger(AssetDAOImpl.class);
+
     @Override
     public void save(Asset asset) {
         Transaction transaction = null;
@@ -19,7 +24,7 @@ public class AssetDAOImpl implements AssetDAO {
         } catch (Exception e) {
             if (transaction != null)
                 transaction.rollback();
-            e.printStackTrace();
+            logger.error("Error saving asset: {}", e.getMessage(), e);
         }
     }
 
@@ -27,6 +32,9 @@ public class AssetDAOImpl implements AssetDAO {
     public Asset getById(int id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.get(Asset.class, id);
+        } catch (Exception e) {
+            logger.error("Error getting asset by id {}: {}", id, e.getMessage(), e);
+            return null;
         }
     }
 
@@ -35,6 +43,9 @@ public class AssetDAOImpl implements AssetDAO {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Query<Asset> query = session.createQuery("from Asset", Asset.class);
             return query.list();
+        } catch (Exception e) {
+            logger.error("Error getting all assets: {}", e.getMessage(), e);
+            return null;
         }
     }
 
@@ -48,7 +59,7 @@ public class AssetDAOImpl implements AssetDAO {
         } catch (Exception e) {
             if (transaction != null)
                 transaction.rollback();
-            e.printStackTrace();
+            logger.error("Error updating asset: {}", e.getMessage(), e);
         }
     }
 
@@ -62,7 +73,7 @@ public class AssetDAOImpl implements AssetDAO {
         } catch (Exception e) {
             if (transaction != null)
                 transaction.rollback();
-            e.printStackTrace();
+            logger.error("Error deleting asset: {}", e.getMessage(), e);
         }
     }
 }

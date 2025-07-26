@@ -6,9 +6,14 @@ import config.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 
 public class AssetCategoryDAOImpl implements AssetCategoryDAO {
+    private static final Logger logger = LoggerFactory.getLogger(AssetCategoryDAOImpl.class);
+
     @Override
     public void addAssetCategory(AssetCategory category) {
         Transaction tx = null;
@@ -19,7 +24,7 @@ public class AssetCategoryDAOImpl implements AssetCategoryDAO {
         } catch (Exception e) {
             if (tx != null)
                 tx.rollback();
-            e.printStackTrace();
+            logger.error("Error adding asset category: {}", e.getMessage(), e);
         }
     }
 
@@ -33,7 +38,7 @@ public class AssetCategoryDAOImpl implements AssetCategoryDAO {
         } catch (Exception e) {
             if (tx != null)
                 tx.rollback();
-            e.printStackTrace();
+            logger.error("Error updating asset category: {}", e.getMessage(), e);
         }
     }
 
@@ -49,7 +54,7 @@ public class AssetCategoryDAOImpl implements AssetCategoryDAO {
         } catch (Exception e) {
             if (tx != null)
                 tx.rollback();
-            e.printStackTrace();
+            logger.error("Error deleting asset category with id {}: {}", categoryId, e.getMessage(), e);
         }
     }
 
@@ -58,7 +63,7 @@ public class AssetCategoryDAOImpl implements AssetCategoryDAO {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.get(AssetCategory.class, categoryId);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error getting asset category by id {}: {}", categoryId, e.getMessage(), e);
             return null;
         }
     }
@@ -69,7 +74,7 @@ public class AssetCategoryDAOImpl implements AssetCategoryDAO {
             Query<AssetCategory> query = session.createQuery("FROM AssetCategory", AssetCategory.class);
             return query.getResultList();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error getting all asset categories: {}", e.getMessage(), e);
             return null;
         }
     }

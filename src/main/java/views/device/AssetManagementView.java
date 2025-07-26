@@ -18,7 +18,7 @@ public class AssetManagementView extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        assetController = new AssetController();
+        assetController = new AssetController(new services.device.AssetService());
         table = new AssetTable();
         loadDataToTable();
         JScrollPane scrollPane = new JScrollPane(table);
@@ -43,15 +43,12 @@ public class AssetManagementView extends JFrame {
             if (option == JOptionPane.OK_OPTION) {
                 String name = tfName.getText().trim();
                 String desc = tfDesc.getText().trim();
-                if (!name.isEmpty()) {
-                    Asset asset = new Asset();
-                    asset.setName(name);
-                    asset.setDescription(desc);
-                    assetController.createAsset(asset);
+                // Gọi service xử lý nghiệp vụ, trả về lỗi nếu có
+                String error = assetController.getAssetService().addAssetFromInput(name, desc);
+                if (error == null) {
                     loadDataToTable();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Tên tài sản không được để trống!", "Lỗi",
-                            JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -65,7 +62,7 @@ public class AssetManagementView extends JFrame {
                 return;
             }
             Integer id = (Integer) table.getValueAt(row, 0);
-            Asset asset = assetController.getAsset(id);
+            Asset asset = assetController.getAssetById(id);
             if (asset == null) {
                 JOptionPane.showMessageDialog(this, "Không tìm thấy tài sản!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
@@ -101,7 +98,7 @@ public class AssetManagementView extends JFrame {
                 return;
             }
             Integer id = (Integer) table.getValueAt(row, 0);
-            Asset asset = assetController.getAsset(id);
+            Asset asset = assetController.getAssetById(id);
             if (asset == null) {
                 JOptionPane.showMessageDialog(this, "Không tìm thấy tài sản!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;

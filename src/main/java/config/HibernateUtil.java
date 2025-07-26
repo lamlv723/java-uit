@@ -3,9 +3,13 @@ package config;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.HibernateException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class HibernateUtil {
+    private static final Logger logger = LoggerFactory.getLogger(HibernateUtil.class);
     private static final SessionFactory sessionFactory;
 
     static {
@@ -23,7 +27,7 @@ public class HibernateUtil {
 
             sessionFactory = config.buildSessionFactory();
         } catch (HibernateException ex) {
-            System.err.println("Initial SessionFactory creation failed." + ex);
+            logger.error("Initial SessionFactory creation failed.", ex);
             throw new ExceptionInInitializerError(ex);
         }
     }

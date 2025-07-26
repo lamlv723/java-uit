@@ -13,6 +13,10 @@ public class AssetRequestController {
         this.assetRequestService = assetRequestService;
     }
 
+    public AssetRequestService getAssetRequestService() {
+        return assetRequestService;
+    }
+
     public void addAssetRequest(AssetRequest request, String currentUserRole) {
         assetRequestService.addAssetRequest(request, currentUserRole);
     }

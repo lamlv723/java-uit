@@ -44,26 +44,13 @@ public class DepartmentManagementView extends JFrame {
             if (option == JOptionPane.OK_OPTION) {
                 String name = tfName.getText().trim();
                 String headIdStr = tfHeadId.getText().trim();
-                if (!name.isEmpty()) {
-                    Department dept = new Department();
-                    dept.setDepartmentName(name);
-                    if (!headIdStr.isEmpty()) {
-                        try {
-                            int headId = Integer.parseInt(headIdStr);
-                            Employee head = new Employee();
-                            head.setEmployeeId(headId);
-                            dept.setHeadEmployee(head);
-                        } catch (NumberFormatException ex) {
-                            JOptionPane.showMessageDialog(this, "ID trưởng phòng phải là số!", "Lỗi",
-                                    JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                    }
-                    departmentController.addDepartment(dept, "ADMIN"); // TODO: lấy role thực tế nếu có
+                // Gọi service xử lý nghiệp vụ, trả về lỗi nếu có
+                String error = departmentController.getDepartmentService().addDepartmentFromInput(name, headIdStr,
+                        "ADMIN");
+                if (error == null) {
                     loadDataToTable();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Tên phòng ban không được để trống!", "Lỗi",
-                            JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });

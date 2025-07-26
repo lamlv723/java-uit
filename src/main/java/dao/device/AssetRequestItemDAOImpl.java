@@ -8,9 +8,14 @@ import dao.device.interfaces.AssetRequestItemDAO;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 
 public class AssetRequestItemDAOImpl implements AssetRequestItemDAO {
+    private static final Logger logger = LoggerFactory.getLogger(AssetRequestItemDAOImpl.class);
+
     @Override
     public void addAssetRequestItem(AssetRequestItem item) {
         Transaction tx = null;
@@ -21,7 +26,7 @@ public class AssetRequestItemDAOImpl implements AssetRequestItemDAO {
         } catch (Exception e) {
             if (tx != null)
                 tx.rollback();
-            e.printStackTrace();
+            logger.error("Error adding asset request item: {}", e.getMessage(), e);
         }
     }
 
@@ -35,7 +40,7 @@ public class AssetRequestItemDAOImpl implements AssetRequestItemDAO {
         } catch (Exception e) {
             if (tx != null)
                 tx.rollback();
-            e.printStackTrace();
+            logger.error("Error updating asset request item: {}", e.getMessage(), e);
         }
     }
 
@@ -52,7 +57,7 @@ public class AssetRequestItemDAOImpl implements AssetRequestItemDAO {
         } catch (Exception e) {
             if (tx != null)
                 tx.rollback();
-            e.printStackTrace();
+            logger.error("Error deleting asset request item with id {}: {}", requestItemId, e.getMessage(), e);
         }
     }
 
@@ -61,7 +66,7 @@ public class AssetRequestItemDAOImpl implements AssetRequestItemDAO {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.get(AssetRequestItem.class, requestItemId);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error getting asset request item by id {}: {}", requestItemId, e.getMessage(), e);
             return null;
         }
     }
@@ -72,7 +77,7 @@ public class AssetRequestItemDAOImpl implements AssetRequestItemDAO {
             Query<AssetRequestItem> query = session.createQuery("FROM AssetRequestItem", AssetRequestItem.class);
             return query.getResultList();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error getting all asset request items: {}", e.getMessage(), e);
             return null;
         }
     }

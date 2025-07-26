@@ -13,6 +13,10 @@ public class DepartmentController {
         this.departmentService = departmentService;
     }
 
+    public DepartmentService getDepartmentService() {
+        return departmentService;
+    }
+
     public void addDepartment(Department department, String currentUserRole) {
         departmentService.addDepartment(department, currentUserRole);
     }

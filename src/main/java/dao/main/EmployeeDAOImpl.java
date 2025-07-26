@@ -6,9 +6,14 @@ import config.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 
 public class EmployeeDAOImpl implements EmployeeDAO {
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeDAOImpl.class);
+
     @Override
     public void addEmployee(Employee employee) {
         Transaction tx = null;
@@ -19,7 +24,7 @@ public class EmployeeDAOImpl implements EmployeeDAO {
         } catch (Exception e) {
             if (tx != null)
                 tx.rollback();
-            e.printStackTrace();
+            logger.error("Error adding employee: {}", e.getMessage(), e);
         }
     }
 
@@ -33,7 +38,7 @@ public class EmployeeDAOImpl implements EmployeeDAO {
         } catch (Exception e) {
             if (tx != null)
                 tx.rollback();
-            e.printStackTrace();
+            logger.error("Error updating employee: {}", e.getMessage(), e);
         }
     }
 
@@ -49,7 +54,7 @@ public class EmployeeDAOImpl implements EmployeeDAO {
         } catch (Exception e) {
             if (tx != null)
                 tx.rollback();
-            e.printStackTrace();
+            logger.error("Error deleting employee with id {}: {}", employeeId, e.getMessage(), e);
         }
     }
 
@@ -58,7 +63,7 @@ public class EmployeeDAOImpl implements EmployeeDAO {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.get(Employee.class, employeeId);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error getting employee by id {}: {}", employeeId, e.getMessage(), e);
             return null;
         }
     }
@@ -69,7 +74,7 @@ public class EmployeeDAOImpl implements EmployeeDAO {
             Query<Employee> query = session.createQuery("FROM Employee", Employee.class);
             return query.getResultList();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error getting all employees: {}", e.getMessage(), e);
             return null;
         }
     }

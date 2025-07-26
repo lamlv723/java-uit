@@ -3,8 +3,12 @@ package config;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MySQLConnection {
+    private static final Logger logger = LoggerFactory.getLogger(MySQLConnection.class);
+
     public static Connection getConnection() throws SQLException {
         String host = EnvConfig.get("DB_HOST");
         String port = EnvConfig.get("DB_PORT");
@@ -17,9 +21,9 @@ public class MySQLConnection {
 
     public static void main(String[] args) {
         try (Connection conn = getConnection()) {
-            System.out.println("Kết nối MySQL thành công!");
+            logger.info("Kết nối MySQL thành công!");
         } catch (SQLException e) {
-            System.err.println(e.getMessage());
+            logger.error("Kết nối MySQL thất bại: {}", e.getMessage(), e);
         }
     }
 }
