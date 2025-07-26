@@ -20,9 +20,14 @@ class AssetDAOImplTest {
     private org.hibernate.Session sessionMock;
     private org.hibernate.Transaction transactionMock;
 
+    // Static holder for sessionFactoryMock to be used in static lambda
+    private static SessionFactory sessionFactoryStaticHolder;
+
     @BeforeAll
     static void beforeAll() {
         hibernateUtilMockedStatic = Mockito.mockStatic(HibernateUtil.class);
+        hibernateUtilMockedStatic.when(HibernateUtil::getSessionFactory)
+                .thenAnswer(invocation -> sessionFactoryStaticHolder);
     }
 
     @AfterAll
@@ -34,9 +39,9 @@ class AssetDAOImplTest {
     void setUp() {
         assetDAO = new AssetDAOImpl();
         sessionFactoryMock = mock(SessionFactory.class);
+        sessionFactoryStaticHolder = sessionFactoryMock;
         sessionMock = mock(org.hibernate.Session.class);
         transactionMock = mock(org.hibernate.Transaction.class);
-        hibernateUtilMockedStatic.when(HibernateUtil::getSessionFactory).thenReturn(sessionFactoryMock);
         when(sessionFactoryMock.openSession()).thenReturn(sessionMock);
         when(sessionMock.beginTransaction()).thenReturn(transactionMock);
     }
