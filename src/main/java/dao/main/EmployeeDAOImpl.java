@@ -78,4 +78,20 @@ public class EmployeeDAOImpl implements EmployeeDAO {
             return null;
         }
     }
+
+    @Override
+    public Employee getEmployeeByUsernameAndPassword(String username, String password) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<Employee> query = session.createQuery(
+                    "FROM Employee WHERE username = :username AND password = :password",
+                    Employee.class);
+            query.setParameter("username", username);
+            query.setParameter("password", password);
+            return query.uniqueResult();
+        } catch (Exception e) {
+            logger.error("Error getting employee by username and password: {}", e.getMessage(), e);
+            return null;
+        }
+    }
+
 }

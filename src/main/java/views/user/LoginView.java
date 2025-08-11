@@ -1,5 +1,10 @@
 package views.user;
 
+import controllers.user.UserSession;
+import dao.main.EmployeeDAOImpl;
+import models.main.Employee;
+import views.main.MainView;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -64,17 +69,24 @@ public class LoginView extends JFrame {
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // TODO: Triển khai logic xác thực tại đây
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
-                statusLabel.setText("Đang đăng nhập...");
-                System.out.println("Tên đăng nhập: " + username);
-                System.out.println("Mật khẩu: " + password);
 
-                // Mở MainView và đóng LoginView (tạm thời)
-                // Sau khi có logic xác thực, bạn sẽ thay đổi đoạn code này
-                // new views.main.MainView().setVisible(true);
-                // dispose();
+                EmployeeDAOImpl employeeDAO = new EmployeeDAOImpl();
+                Employee employee = employeeDAO.getEmployeeByUsernameAndPassword(username, password);
+
+                if (employee != null) {
+                    // Đăng nhập thành công
+                    UserSession.getInstance().setLoggedInEmployee(employee);
+                    JOptionPane.showMessageDialog(LoginView.this, "Đăng nhập thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+
+                    // Mở MainView và đóng LoginView
+                    new MainView().setVisible(true);
+                    dispose();
+                } else {
+                    // Đăng nhập thất bại
+                    statusLabel.setText("Tên đăng nhập hoặc mật khẩu không đúng.");
+                }
             }
         });
     }
