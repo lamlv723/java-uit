@@ -25,6 +25,14 @@ public class AssetController {
         return assetService.getAssetById(id);
     }
 
+    public Asset getAssetByName(String name) {
+        return assetService.getAssetByName(name);
+    }
+
+    public Asset getAssetByAssetTag(String assetTag) {
+        return assetService.getAssetByAssetTag(assetTag);
+    }
+
     public List<Asset> getAllAssets() {
         return assetService.getAllAssets();
     }
@@ -36,4 +44,13 @@ public class AssetController {
     public void deleteAsset(Asset asset) {
         assetService.deleteAsset(asset);
     }
+
+    public void updateAssetStatus(int assetId, String status) {
+    Asset asset = assetService.getAssetById(assetId);
+    if (asset != null) {
+        asset.setStatus(status);
+        assetService.updateAsset(asset);
+    }
+    }
+
 }

@@ -11,7 +11,7 @@ public class AssetRequestTable extends JTable {
     public AssetRequestTable() {
         super();
         model = new DefaultTableModel(new Object[][] {},
-                new String[] { "ID", "Nhân viên", "Loại yêu cầu", "Ngày yêu cầu", "Trạng thái" }) {
+                new String[] {"Mã tài sản", "Nhân viên", "Ngày yêu cầu", "Ngày trả", "Trạng thái" }) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -21,19 +21,19 @@ public class AssetRequestTable extends JTable {
     }
 
     public void setAssetRequestData(Object[][] data) {
-        model.setDataVector(data, new String[] { "ID", "Nhân viên", "Loại yêu cầu", "Ngày yêu cầu", "Trạng thái" });
+        model.setDataVector(data, new String[] {"Mã tài sản", "Nhân viên", "Ngày yêu cầu", "Ngày trả", "Trạng thái" });
     }
 
     public void setAssetRequestData(List<AssetRequest> requests) {
         Object[][] data = new Object[requests.size()][5];
         for (int i = 0; i < requests.size(); i++) {
             AssetRequest r = requests.get(i);
-            data[i][0] = r.getRequestId();
+            data[i][0] = r.getAsset().getAssetTag();
             data[i][1] = r.getEmployee() != null
                     ? (r.getEmployee().getFirstName() + " " + r.getEmployee().getLastName())
                     : "";
-            data[i][2] = r.getRequestType();
-            data[i][3] = r.getRequestDate();
+            data[i][2] = r.getRequestDate();
+            data[i][3] = r.getReturnDate();
             data[i][4] = r.getStatus();
         }
         setAssetRequestData(data);
