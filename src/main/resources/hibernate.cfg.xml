@@ -29,7 +29,6 @@
 
         <!-- Drop and re-create the database schema on startup -->
         <property name="hibernate.hbm2ddl.auto">update</property>
-        <property name="hibernate.connection.release_mode">on_close</property>
 
         <!-- Mapping classes (add your entity classes here) -->
         <mapping class="models.main.Department"/>

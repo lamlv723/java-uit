@@ -1,8 +1,6 @@
 package dao.device;
 
 import models.device.Asset;
-import models.device.AssetCategory;
-
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
@@ -51,13 +49,6 @@ class AssetDAOImplTest {
     @Test
     void testSave() {
         Asset asset = new Asset();
-
-        // Thêm AssetCategory giả để tránh lỗi IllegalArgument
-        AssetCategory mockCategory = new AssetCategory();
-        mockCategory.setCategoryId(1); // ID giả định
-        when(sessionMock.get(AssetCategory.class, 1)).thenReturn(mockCategory);
-        asset.setCategory(mockCategory);
-
         assetDAO.save(asset);
         verify(sessionMock, times(1)).save(asset);
         verify(transactionMock, times(1)).commit();
@@ -75,11 +66,8 @@ class AssetDAOImplTest {
     void testGetAll() {
         List<Asset> assets = Arrays.asList(new Asset(), new Asset());
         org.hibernate.query.Query queryMock = mock(org.hibernate.query.Query.class);
-
-        // Mock đúng query với ORDER BY
-        when(sessionMock.createQuery("FROM Asset ORDER BY assetTag ASC", Asset.class)).thenReturn(queryMock);
-        when(queryMock.getResultList()).thenReturn(assets);
-
+        when(sessionMock.createQuery("from Asset", Asset.class)).thenReturn(queryMock);
+        when(queryMock.list()).thenReturn(assets);
         List<Asset> result = assetDAO.getAll();
         assertEquals(2, result.size());
     }

@@ -13,8 +13,4 @@ public interface AssetDAO {
     void update(Asset asset);
 
     void delete(Asset asset);
-
-    Asset getByName(String name);
-
-    Asset getByAssetTag(String assetTag);
 }
