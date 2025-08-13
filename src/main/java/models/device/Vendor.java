@@ -26,6 +26,12 @@ public class Vendor {
     private String address;
 
     // Getters and setters
+    public Vendor(String name) {
+        this.vendorName = name;
+    }
+
+    public Vendor() {}
+
     public Integer getVendorId() {
         return vendorId;
     }
@@ -72,5 +78,9 @@ public class Vendor {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+    
+    public String toString() {
+        return vendorName; // Hiển thị tên nhà cung cấp trong JComboBox
     }
 }

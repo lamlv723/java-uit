@@ -17,6 +17,13 @@ public class AssetCategory {
     private String description;
 
     // Getters and setters
+    public AssetCategory(String name) {
+        this.categoryName = name;
+    }
+
+    public AssetCategory() {}
+
+
     public Integer getCategoryId() {
         return categoryId;
     }
@@ -39,5 +46,9 @@ public class AssetCategory {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String toString() {
+        return categoryName; // Hiển thị tên danh mục trong JComboBox
     }
 }
