@@ -1,3 +1,4 @@
+
 package services.device;
 
 import dao.device.AssetRequestItemDAOImpl;
@@ -41,8 +42,6 @@ public class AssetRequestItemService {
      * Trả về null nếu thành công, trả về thông báo lỗi nếu có lỗi.
      */
     public String addAssetRequestItemFromInput(String assetIdStr, String quantityStr, String currentUserRole) {
-        // Lưu ý: phương thức này chỉ phù hợp với demo đơn giản. 
-        // Trong thực tế, việc thêm item cần liên kết với một AssetRequest cụ thể.
         int assetId, quantity;
         try {
             assetId = Integer.parseInt(assetIdStr);

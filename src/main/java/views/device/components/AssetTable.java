@@ -7,12 +7,11 @@ import models.device.Asset;
 
 public class AssetTable extends JTable {
     private DefaultTableModel model;
-    private List<Asset> assetList; // <-- Thêm dòng này
 
     public AssetTable() {
         super();
         model = new DefaultTableModel(new Object[][] {},
-                new String[] {"Mã tài sản", "Tên tài sản", "Loại", "Nhà cung cấp", "Tình trạng" }) {
+                new String[] { "ID", "Tên tài sản", "Loại", "Nhà cung cấp", "Tình trạng" }) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -22,28 +21,21 @@ public class AssetTable extends JTable {
     }
 
     public void setAssetData(Object[][] data) {
-        model.setDataVector(data, new String[] {"Mã tài sản", "Tên tài sản", "Loại", "Nhà cung cấp", "Tình trạng" });
+        model.setDataVector(data, new String[] { "ID", "Tên tài sản", "Loại", "Nhà cung cấp", "Tình trạng" });
     }
 
+    // Nhận List<Asset>
     public void setAssetData(List<Asset> assets) {
-        this.assetList = assets; // <-- Gán danh sách gốc
-        Object[][] data = new Object[assets.size()][5]; // <-- Chỉ 4 cột hiển thị
+        Object[][] data = new Object[assets.size()][5];
         for (int i = 0; i < assets.size(); i++) {
             Asset a = assets.get(i);
-            data[i][0] = a.getAssetTag();
+            data[i][0] = a.getAssetId();
             data[i][1] = a.getAssetName();
             data[i][2] = a.getCategory() != null ? a.getCategory().getCategoryName() : "";
             data[i][3] = a.getVendor() != null ? a.getVendor().getVendorName() : "";
             data[i][4] = a.getStatus();
         }
         setAssetData(data);
-    }
-
-    public Asset getAssetAt(int rowIndex) {
-        if (assetList != null && rowIndex >= 0 && rowIndex < assetList.size()) {
-            return assetList.get(rowIndex);
-        }
-        return null;
     }
 
     public DefaultTableModel getModel() {

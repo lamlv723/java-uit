@@ -12,9 +12,6 @@ public class Asset {
     @Column(name = "asset_id")
     private Integer assetId;
 
-    @Column(name = "asset_tag", nullable = false)
-    private String assetTag;
-
     @Column(name = "asset_name", nullable = false)
     private String assetName;
 
@@ -53,14 +50,6 @@ public class Asset {
 
     public void setAssetId(Integer assetId) {
         this.assetId = assetId;
-    }
-
-    public String getAssetTag() {
-        return assetTag;
-    }
-
-    public void setAssetTag(String assetTag) {
-        this.assetTag = assetTag;
     }
 
     public String getAssetName() {

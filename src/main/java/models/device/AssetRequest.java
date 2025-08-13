@@ -40,14 +40,6 @@ public class AssetRequest {
     @Temporal(TemporalType.DATE)
     private Date expectedReturnDate;
 
-    @Column(name = "return_date")
-    @Temporal(TemporalType.DATE)
-    private Date returnDate;
-
-    @OneToOne
-    @JoinColumn(name = "asset_id")
-    private Asset asset;
-
     // Getters and setters
     public Integer getRequestId() {
         return requestId;
@@ -111,21 +103,5 @@ public class AssetRequest {
 
     public void setExpectedReturnDate(Date expectedReturnDate) {
         this.expectedReturnDate = expectedReturnDate;
-    }
-
-    public Date getReturnDate() {
-        return returnDate;
-    }
-
-    public void setReturnDate(Date returnDate) {
-        this.returnDate = returnDate;
-    }
-
-    public Asset getAsset() {
-        return asset;
-    }
-
-    public void setAsset(Asset asset) {
-        this.asset = asset;
     }
 }
