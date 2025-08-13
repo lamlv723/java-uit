@@ -76,7 +76,6 @@ CREATE TABLE
 CREATE TABLE
     Asset (
         asset_id INT PRIMARY KEY AUTO_INCREMENT, -- ID duy nhất của tài sản, tự động tăng
-        asset_tag VARCHAR(100) UNIQUE NOT NULL, -- Mã tài sản, duy nhất và không được NULL
         asset_name VARCHAR(255) NOT NULL, -- Tên tài sản
         description TEXT, -- Mô tả chi tiết về tài sản
         serial_number VARCHAR(100) UNIQUE NOT NULL, -- Số seri, duy nhất và không được NULL
@@ -102,11 +101,8 @@ CREATE TABLE
         approver_id INT, -- ID nhân viên phê duyệt (FK tới Employee, có thể NULL)
         approval_date DATETIME, -- Ngày phê duyệt
         expected_return_date DATE, -- Ngày dự kiến trả (chỉ áp dụng cho yêu cầu mượn)
-        return_date DATE, -- Ngày thực tế trả
-        asset_id INT, 
         FOREIGN KEY (employee_id) REFERENCES Employee (employee_id),
-        FOREIGN KEY (approver_id) REFERENCES Employee (employee_id),
-        FOREIGN KEY (asset_id) REFERENCES Asset (asset_id)
+        FOREIGN KEY (approver_id) REFERENCES Employee (employee_id)
     );
 
 -- Bảng: AssetRequestItem (Chi tiết yêu cầu tài sản)
@@ -125,7 +121,7 @@ CREATE TABLE
         UNIQUE (request_id, asset_id)
     );
 
-
+GO
 --
 DELIMITER //
 CREATE TRIGGER trg_UpdateAssetStatusOnBorrow AFTER INSERT ON AssetRequestItem FOR EACH ROW
