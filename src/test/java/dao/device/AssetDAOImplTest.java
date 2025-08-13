@@ -75,9 +75,9 @@ class AssetDAOImplTest {
     void testGetAll() {
         List<Asset> assets = Arrays.asList(new Asset(), new Asset());
         org.hibernate.query.Query queryMock = mock(org.hibernate.query.Query.class);
-        when(sessionMock.createQuery("FROM Asset", Asset.class)).thenReturn(queryMock);
 
-        // SỬA LỖI TẠI ĐÂY: Giả lập phương thức getResultList() thay vì list()
+        // Mock đúng query với ORDER BY
+        when(sessionMock.createQuery("FROM Asset ORDER BY assetTag ASC", Asset.class)).thenReturn(queryMock);
         when(queryMock.getResultList()).thenReturn(assets);
 
         List<Asset> result = assetDAO.getAll();

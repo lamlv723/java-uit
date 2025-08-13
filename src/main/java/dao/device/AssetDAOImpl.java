@@ -11,6 +11,7 @@ import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
+import java.util.Collections;
 
 public class AssetDAOImpl implements AssetDAO {
     private static final Logger logger = LoggerFactory.getLogger(AssetDAOImpl.class);
@@ -94,7 +95,7 @@ public class AssetDAOImpl implements AssetDAO {
             return query.getResultList();
         } catch (Exception e) {
             logger.error("❌ Error getting all assets: {}", e.getMessage(), e);
-            return null;
+            return Collections.emptyList(); // tránh NullPointer ở runtime
         }
     }
 
