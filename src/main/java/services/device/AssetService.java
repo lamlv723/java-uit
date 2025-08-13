@@ -29,6 +29,14 @@ public class AssetService {
         assetDAO.delete(asset);
     }
 
+    public Asset getAssetByName(String name) {
+        return assetDAO.getByName(name);
+    }
+
+    public Asset getAssetByAssetTag(String assetTag) {
+        return assetDAO.getByAssetTag(assetTag);
+    }
+
     /**
      * Xử lý toàn bộ logic nghiệp vụ khi thêm Asset từ dữ liệu đầu vào dạng String.
      * Trả về null nếu thành công, trả về thông báo lỗi nếu có lỗi.
