@@ -7,13 +7,17 @@ import views.device.components.AssetRequestItemTable;
 import java.util.List;
 import javax.swing.*;
 import java.awt.*;
+import java.util.stream.Collectors;
 
 public class AssetRequestItemManagementView extends JFrame {
     private final AssetRequestItemController assetRequestItemController;
     private final AssetRequestItemTable table;
+    private final Integer parentRequestId;
 
-    public AssetRequestItemManagementView() {
-        setTitle("Quản lý Chi tiết Yêu cầu Tài sản");
+    // Constructor mới nhận ID của request cha
+    public AssetRequestItemManagementView(Integer parentRequestId) {
+        this.parentRequestId = parentRequestId;
+        setTitle("Chi tiết Yêu cầu Tài sản #" + parentRequestId);
         setSize(800, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -23,6 +27,7 @@ public class AssetRequestItemManagementView extends JFrame {
         loadDataToTable();
         JScrollPane scrollPane = new JScrollPane(table);
 
+        // Các nút thêm, sửa, xóa
         JButton btnAdd = new JButton("Thêm");
         JButton btnEdit = new JButton("Sửa");
         JButton btnDelete = new JButton("Xóa");
@@ -44,6 +49,8 @@ public class AssetRequestItemManagementView extends JFrame {
             if (option == JOptionPane.OK_OPTION) {
                 String assetIdStr = tfAssetId.getText().trim();
                 String quantityStr = tfQuantity.getText().trim();
+                // TODO: Gọi service để thêm AssetRequestItem với requestId hiện tại
+                // Để đơn giản, ở đây ta sử dụng phương thức cũ
                 String error = assetRequestItemController.getAssetRequestItemService()
                         .addAssetRequestItemFromInput(assetIdStr, quantityStr, "ADMIN");
                 if (error == null) {
@@ -112,7 +119,11 @@ public class AssetRequestItemManagementView extends JFrame {
     }
 
     private void loadDataToTable() {
-        List<AssetRequestItem> list = assetRequestItemController.getAllAssetRequestItems();
-        table.setAssetRequestItemData(list);
+        // Lọc danh sách AssetRequestItem chỉ cho request hiện tại
+        List<AssetRequestItem> allItems = assetRequestItemController.getAllAssetRequestItems();
+        List<AssetRequestItem> filteredList = allItems.stream()
+                .filter(item -> item.getAssetRequest() != null && item.getAssetRequest().getRequestId().equals(parentRequestId))
+                .collect(Collectors.toList());
+        table.setAssetRequestItemData(filteredList);
     }
 }

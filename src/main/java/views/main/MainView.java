@@ -2,6 +2,12 @@ package views.main;
 
 import javax.swing.*;
 import java.awt.*;
+import views.device.AssetRequestManagementView;
+import views.device.AssetCategoryManagementView;
+import views.device.AssetManagementView;
+import views.device.VendorManagementView;
+import views.main.DepartmentManagementView;
+import views.main.EmployeeManagementView;
 
 public class MainView extends JFrame {
     public MainView() {
@@ -14,14 +20,12 @@ public class MainView extends JFrame {
         JMenuBar menuBar = new JMenuBar();
         JMenu menuDevice = new JMenu("Thiết bị");
         JMenuItem mnuAssetCategory = new JMenuItem("Danh mục tài sản");
-        JMenuItem mnuAsset = new JMenuItem("Tài sản");
+        JMenuItem mnuAsset = new JMenuItem("Quản lý tài sản");
         JMenuItem mnuAssetRequest = new JMenuItem("Yêu cầu tài sản");
-        JMenuItem mnuAssetRequestItem = new JMenuItem("Chi tiết yêu cầu");
         JMenuItem mnuVendor = new JMenuItem("Nhà cung cấp");
         menuDevice.add(mnuAssetCategory);
         menuDevice.add(mnuAsset);
         menuDevice.add(mnuAssetRequest);
-        menuDevice.add(mnuAssetRequestItem);
         menuDevice.add(mnuVendor);
 
         JMenu menuMain = new JMenu("Chính");
@@ -35,13 +39,16 @@ public class MainView extends JFrame {
         setJMenuBar(menuBar);
 
         // Action mở các view quản lý
-        mnuAssetCategory.addActionListener(e -> new views.device.AssetCategoryManagementView().setVisible(true));
-        mnuAsset.addActionListener(e -> new views.device.AssetManagementView().setVisible(true));
-        mnuAssetRequest.addActionListener(e -> new views.device.AssetRequestManagementView().setVisible(true));
-        mnuAssetRequestItem.addActionListener(e -> new views.device.AssetRequestItemManagementView().setVisible(true));
-        mnuVendor.addActionListener(e -> new views.device.VendorManagementView().setVisible(true));
-        mnuDepartment.addActionListener(e -> new views.main.DepartmentManagementView().setVisible(true));
-        mnuEmployee.addActionListener(e -> new views.main.EmployeeManagementView().setVisible(true));
+        mnuAssetCategory.addActionListener(e -> new AssetCategoryManagementView().setVisible(true));
+        mnuAsset.addActionListener(e -> new AssetManagementView().setVisible(true));
+        mnuAssetRequest.addActionListener(e -> new AssetRequestManagementView().setVisible(true));
+        mnuVendor.addActionListener(e -> new VendorManagementView().setVisible(true));
+        mnuDepartment.addActionListener(e -> new DepartmentManagementView().setVisible(true));
+        mnuEmployee.addActionListener(e -> new EmployeeManagementView().setVisible(true));
+
+        // Dòng gây lỗi đã được xóa
+        // mnuAssetRequestItem.addActionListener(e -> new views.device.AssetRequestItemManagementView().setVisible(true));
+
 
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());

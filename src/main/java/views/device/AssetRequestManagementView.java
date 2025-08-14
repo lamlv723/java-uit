@@ -46,7 +46,7 @@ public class AssetRequestManagementView extends JFrame {
                 // Gọi service xử lý nghiệp vụ, trả về lỗi nếu có
                 String error = assetRequestController.getAssetRequestService().addAssetRequestFromInput(title, desc,
                         "ADMIN");
-                if (error == null) {
+                if (error == null) {                    
                     loadDataToTable();
                 } else {
                     JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
