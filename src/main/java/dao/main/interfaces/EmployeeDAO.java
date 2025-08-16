@@ -14,4 +14,6 @@ public interface EmployeeDAO {
     Employee getEmployeeById(int employeeId);
 
     List<Employee> getAllEmployees();
+
+    Employee getEmployeeByUsernameAndPassword(String username, String password);
 }

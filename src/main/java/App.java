@@ -1,7 +1,7 @@
 import config.MySQLConnection;
 import java.sql.Connection;
 import java.sql.SQLException;
-import views.main.MainView;
+import views.user.LoginView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +20,9 @@ public class App {
             logger.error("Ket noi MySQL thất bại: {}", e.getMessage(), e);
             return;
         }
-        javax.swing.SwingUtilities.invokeLater(() -> new MainView().setVisible(true));
+
+        // Hiển thị login trước
+        javax.swing.SwingUtilities.invokeLater(() -> new LoginView().setVisible(true));
     }
 
     private static boolean isTestMode(String[] args) {

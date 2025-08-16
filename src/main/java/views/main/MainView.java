@@ -1,5 +1,8 @@
 package views.main;
 
+import controllers.user.UserSession;
+import views.user.LoginView;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -10,6 +13,7 @@ public class MainView extends JFrame {
         setSize(600, 400);
         setLocationRelativeTo(null);
 
+        /************************ MENU BAR ************************/
         // Menu quản lý CRUD
         JMenuBar menuBar = new JMenuBar();
         JMenu menuDevice = new JMenu("Thiết bị");
@@ -34,6 +38,30 @@ public class MainView extends JFrame {
         menuBar.add(menuMain);
         setJMenuBar(menuBar);
 
+        // PERSONAL PROFILE
+        // Tạo menu cho người dùng hiện tại
+        JMenu menuUser = new JMenu();
+        if (UserSession.getInstance().getLoggedInEmployee() != null) {
+            String firstName = UserSession.getInstance().getLoggedInEmployee().getFirstName();
+            String lastName = UserSession.getInstance().getLoggedInEmployee().getLastName();
+            String fullName = String.join(" ", firstName, lastName);
+            menuUser.setText(fullName);
+        }
+
+        JMenuItem mnuSettings = new JMenuItem("Cài đặt");
+        JMenuItem mnuLogout = new JMenuItem("Đăng xuất");
+
+        // Thêm các menu con vào menu người dùng
+        menuUser.add(mnuSettings);
+        menuUser.add(mnuLogout);
+
+        // Thêm menu người dùng vào menu bar và căn lề phải
+        menuBar.add(Box.createHorizontalGlue()); // Đẩy menu sang phải
+        menuBar.add(menuUser);
+        setJMenuBar(menuBar);
+
+
+        /************************ ACTIONS ************************/
         // Action mở các view quản lý
         mnuAssetCategory.addActionListener(e -> new views.device.AssetCategoryManagementView().setVisible(true));
         mnuAsset.addActionListener(e -> new views.device.AssetManagementView().setVisible(true));
@@ -50,6 +78,16 @@ public class MainView extends JFrame {
                 SwingConstants.CENTER);
         panel.add(label, BorderLayout.CENTER);
         add(panel);
+
+        // Action cho nút Đăng xuất
+        mnuLogout.addActionListener(e -> {
+            // Xóa phiên làm việc hiện tại
+            UserSession.getInstance().clearSession();
+
+            // Đóng MainView và mở lại LoginView
+            dispose();
+            new LoginView().setVisible(true);
+        });
     }
 
     public static void main(String[] args) {
