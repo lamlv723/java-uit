@@ -65,6 +65,9 @@ public class LoginView extends JFrame {
 
         add(panel);
 
+        // Đặt nút Đăng nhập làm nút mặc định khi nhấn Enter
+        this.getRootPane().setDefaultButton(loginButton);
+
         // Action Listener cho nút Đăng nhập
         loginButton.addActionListener(new ActionListener() {
             @Override
