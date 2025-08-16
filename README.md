@@ -12,7 +12,7 @@ Quản lý mượn/trả thiết bị trong công ty với các chức năng:
 
 ## Yêu cầu hệ thống
 
-- Java JDK 8 trở lên
+- Java JDK 8 trở lên (Recommend JDK 17)
 - MySQL 8+
 - IDE: IntelliJ IDEA, NetBeans, Eclipse, VS Code...
 - Thư viện JDBC cho MySQL (mysql-connector-java)
@@ -95,6 +95,7 @@ DB_PASSWORD=your_password
   ```
 - Kết quả test sẽ hiển thị trên terminal và lưu trong thư mục `target/surefire-reports/`.
 - Các file test nằm trong `src/test/java/`.
+- Sử dụng JDK 17 (cập nhật JAVA_HOME nếu cần thiết) nếu gặp lỗi với Mockito inline
 
 Tài liệu tham khảo
 
