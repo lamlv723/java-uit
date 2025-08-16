@@ -1,12 +1,19 @@
 package constants;
 
 public class AppConstants {
-    // Asset Status
-    public static final String ASSET_AVAILABLE = "AVAILABLE";
-    public static final String ASSET_BORROWED = "BORROWED";
-    public static final String ASSET_MAINTENANCE = "MAINTENANCE";
-    public static final String ASSET_LOST = "LOST";
-    public static final String ASSET_DAMAGED = "DAMAGED";
+    // Asset Status (THEO CHUẨN TRONG DB TRIGGER)
+    public static final String ASSET_AVAILABLE = "available";
+    public static final String ASSET_BORROWED = "borrow";
+
+    // Request Status (THEO CHUẨN TRONG DB TRIGGER)
+    public static final String REQUEST_PENDING = "Pending";
+    public static final String REQUEST_APPROVED = "Approved";
+    public static final String REQUEST_REJECTED = "Rejected";
+    public static final String REQUEST_COMPLETED = "Completed";
+
+    // Request Types
+    public static final String REQUEST_TYPE_BORROW = "borrow";
+    public static final String REQUEST_TYPE_RETURN = "return";
 
     // Messages
     public static final String ERROR_NOT_FOUND = "Resource not found.";

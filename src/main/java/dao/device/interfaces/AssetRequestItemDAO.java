@@ -13,4 +13,8 @@ public interface AssetRequestItemDAO {
     AssetRequestItem getAssetRequestItemById(int requestItemId);
 
     List<AssetRequestItem> getAllAssetRequestItems();
+
+    List<AssetRequestItem> getItemsByRequestId(int requestId);
+
+    void deleteItemsByRequestId(int requestId);
 }

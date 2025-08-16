@@ -81,4 +81,31 @@ public class AssetRequestItemDAOImpl implements AssetRequestItemDAO {
             return null;
         }
     }
+
+    public List<AssetRequestItem> getItemsByRequestId(int requestId) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<AssetRequestItem> query = session.createQuery("FROM AssetRequestItem WHERE request_id = :requestId", AssetRequestItem.class);
+            query.setParameter("requestId", requestId);
+            return query.getResultList();
+        } catch (Exception e) {
+            logger.error("Error getting items by request id {}: {}", requestId, e.getMessage(), e);
+            return null;
+        }
+    }
+
+    @Override
+    public void deleteItemsByRequestId(int requestId) {
+        Transaction tx = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+            // Sử dụng HQL (Hibernate Query Language) để xóa tất cả các item có requestId tương ứng
+            Query query = session.createQuery("DELETE FROM AssetRequestItem WHERE request_id = :requestId");
+            query.setParameter("requestId", requestId);
+            query.executeUpdate(); // Thực thi lệnh xóa
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            logger.error("Error deleting asset request items by request id {}: {}", requestId, e.getMessage(), e);
+        }
+    }
 }

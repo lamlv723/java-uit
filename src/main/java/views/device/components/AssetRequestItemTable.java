@@ -10,7 +10,7 @@ public class AssetRequestItemTable extends JTable {
 
     public AssetRequestItemTable() {
         super();
-        model = new DefaultTableModel(new Object[][] {}, new String[] { "ID", "Request ID", "Asset ID", "Borrow Date",
+        model = new DefaultTableModel(new Object[][] {}, new String[] { "ID", "Request ID", "Asset ID", "Tên tài sản", "Borrow Date",
                 "Return Date", "Condition Borrow", "Condition Return" }) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -20,25 +20,31 @@ public class AssetRequestItemTable extends JTable {
         setModel(model);
     }
 
+    // PHƯƠNG THỨC CŨ - Chúng ta sẽ không dùng trực tiếp setDataVector nữa
     public void setAssetRequestItemData(Object[][] data) {
-        model.setDataVector(data, new String[] { "ID", "Request ID", "Asset ID", "Borrow Date", "Return Date",
+        model.setDataVector(data, new String[] { "ID", "Request ID", "Asset ID", "Tên tài sản", "Borrow Date", "Return Date",
                 "Condition Borrow", "Condition Return" });
     }
 
-    // Thêm phương thức tiện lợi để nhận List<AssetRequestItem>
+    // --- PHẦN SỬA LỖI ---
+    // Sửa lại phương thức này để cập nhật bảng một cách triệt để hơn
     public void setAssetRequestItemData(List<AssetRequestItem> items) {
-        Object[][] data = new Object[items.size()][7];
-        for (int i = 0; i < items.size(); i++) {
-            AssetRequestItem item = items.get(i);
-            data[i][0] = item.getRequestItemId();
-            data[i][1] = item.getAssetRequest() != null ? item.getAssetRequest().getRequestId() : "";
-            data[i][2] = item.getAsset() != null ? item.getAsset().getAssetId() : "";
-            data[i][3] = item.getBorrowDate();
-            data[i][4] = item.getReturnDate();
-            data[i][5] = item.getConditionOnBorrow();
-            data[i][6] = item.getConditionOnReturn();
+        // Xóa tất cả các dòng hiện có
+        model.setRowCount(0);
+
+        // Thêm lại từng dòng với dữ liệu mới
+        for (AssetRequestItem item : items) {
+            model.addRow(new Object[]{
+                item.getRequestItemId(),
+                item.getAssetRequest() != null ? item.getAssetRequest().getRequestId() : "",
+                item.getAsset() != null ? item.getAsset().getAssetId() : "",
+                item.getAsset() != null ? item.getAsset().getAssetName() : "N/A",
+                item.getBorrowDate(),
+                item.getReturnDate(),
+                item.getConditionOnBorrow(),
+                item.getConditionOnReturn()
+            });
         }
-        setAssetRequestItemData(data);
     }
 
     public DefaultTableModel getModel() {

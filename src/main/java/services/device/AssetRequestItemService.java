@@ -59,4 +59,9 @@ public class AssetRequestItemService {
         }
         return null;
     }
+
+    public List<AssetRequestItem> getAssetRequestItemsByRequestId(int requestId) {
+        // Giả sử AssetRequestItemDAOImpl đã có phương thức getItemsByRequestId
+        return assetRequestItemDAO.getItemsByRequestId(requestId);
+    }
 }

@@ -36,4 +36,8 @@ public class AssetRequestItemController {
     public List<AssetRequestItem> getAllAssetRequestItems() {
         return assetRequestItemService.getAllAssetRequestItems();
     }
+
+    public List<AssetRequestItem> getAssetRequestItemsByRequestId(int requestId) {
+        return assetRequestItemService.getAssetRequestItemsByRequestId(requestId);
+    }
 }
