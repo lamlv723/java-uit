@@ -76,4 +76,15 @@ public class AssetDAOImpl implements AssetDAO {
             logger.error("Error deleting asset: {}", e.getMessage(), e);
         }
     }
+
+    @Override
+    public List<Asset> getAllAvailableAssets() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<Asset> query = session.createQuery("FROM Asset WHERE status = 'Available'", Asset.class);
+            return query.list();
+        } catch (Exception e) {
+            logger.error("Error getting all available assets: {}", e.getMessage(), e);
+            return null;
+        }
+    }
 }

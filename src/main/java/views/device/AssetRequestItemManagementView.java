@@ -5,14 +5,42 @@ import services.device.AssetRequestItemService;
 import models.device.AssetRequestItem;
 import views.device.components.AssetRequestItemTable;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class AssetRequestItemManagementView extends JFrame {
     private final AssetRequestItemController assetRequestItemController;
     private final AssetRequestItemTable table;
+    private final Integer specificRequestId; // Dùng để xác định đây là view chi tiết hay view tổng
 
+    /**
+     * Biến static này sẽ giữ tham chiếu đến cửa sổ "Xem tất cả chi tiết".
+     * Khi một request mới được tạo ở cửa sổ khác, nó sẽ gọi đến biến này để làm mới dữ liệu.
+     */
+    public static AssetRequestItemManagementView generalInstance = null;
+
+    /**
+     * Constructor cho cửa sổ xem TẤT CẢ items (QLCTYCTS tổng).
+     * Được gọi từ menu chính.
+     */
     public AssetRequestItemManagementView() {
+        this(null); // Gọi constructor chính với requestId là null
+        generalInstance = this; // Đặt tham chiếu static để các cửa sổ khác có thể truy cập
+        setTitle("Quản lý Chi tiết Yêu cầu Tài sản (Tất cả)");
+
+        // Đảm bảo khi cửa sổ tổng bị đóng, tham chiếu static được dọn dẹp
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+                generalInstance = null;
+            }
+        });
+    }
+
+    public AssetRequestItemManagementView(Integer requestId) {
+        this.specificRequestId = requestId;
         setTitle("Quản lý Chi tiết Yêu cầu Tài sản");
         setSize(800, 500);
         setLocationRelativeTo(null);
@@ -23,96 +51,25 @@ public class AssetRequestItemManagementView extends JFrame {
         loadDataToTable();
         JScrollPane scrollPane = new JScrollPane(table);
 
-        JButton btnAdd = new JButton("Thêm");
-        JButton btnEdit = new JButton("Sửa");
-        JButton btnDelete = new JButton("Xóa");
-        JPanel panelButtons = new JPanel();
-        panelButtons.add(btnAdd);
-        panelButtons.add(btnEdit);
-        panelButtons.add(btnDelete);
-
-        // Action for Add
-        btnAdd.addActionListener(e -> {
-            JTextField tfAssetId = new JTextField();
-            JTextField tfQuantity = new JTextField();
-            Object[] message = {
-                    "ID Tài sản:", tfAssetId,
-                    "Số lượng:", tfQuantity
-            };
-            int option = JOptionPane.showConfirmDialog(this, message, "Thêm Chi tiết YC Tài sản",
-                    JOptionPane.OK_CANCEL_OPTION);
-            if (option == JOptionPane.OK_OPTION) {
-                String assetIdStr = tfAssetId.getText().trim();
-                String quantityStr = tfQuantity.getText().trim();
-                String error = assetRequestItemController.getAssetRequestItemService()
-                        .addAssetRequestItemFromInput(assetIdStr, quantityStr, "ADMIN");
-                if (error == null) {
-                    loadDataToTable();
-                } else {
-                    JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-
-        // Action for Edit
-        btnEdit.addActionListener(e -> {
-            int row = table.getSelectedRow();
-            if (row == -1) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn một dòng để sửa!", "Thông báo",
-                        JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-            Integer id = (Integer) table.getValueAt(row, 0);
-            AssetRequestItem item = assetRequestItemController.getAssetRequestItemById(id);
-            if (item == null) {
-                JOptionPane.showMessageDialog(this, "Không tìm thấy chi tiết!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            JTextField tfAssetId = new JTextField(String.valueOf(item.getAssetId()));
-            JTextField tfQuantity = new JTextField(String.valueOf(item.getQuantity()));
-            Object[] message = {
-                    "ID Tài sản:", tfAssetId,
-                    "Số lượng:", tfQuantity
-            };
-            int option = JOptionPane.showConfirmDialog(this, message, "Sửa Chi tiết YC Tài sản",
-                    JOptionPane.OK_CANCEL_OPTION);
-            if (option == JOptionPane.OK_OPTION) {
-                try {
-                    int assetId = Integer.parseInt(tfAssetId.getText().trim());
-                    int quantity = Integer.parseInt(tfQuantity.getText().trim());
-                    item.setAssetId(assetId);
-                    item.setQuantity(quantity);
-                    assetRequestItemController.updateAssetRequestItem(item, "ADMIN");
-                    loadDataToTable();
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this, "Dữ liệu không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-
-        // Action for Delete
-        btnDelete.addActionListener(e -> {
-            int row = table.getSelectedRow();
-            if (row == -1) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn một dòng để xóa!", "Thông báo",
-                        JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-            Integer id = (Integer) table.getValueAt(row, 0);
-            int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa chi tiết này?", "Xác nhận xóa",
-                    JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION) {
-                assetRequestItemController.deleteAssetRequestItem(id, "ADMIN");
-                loadDataToTable();
-            }
-        });
-
         getContentPane().add(scrollPane, BorderLayout.CENTER);
-        getContentPane().add(panelButtons, BorderLayout.SOUTH);
+    }
+
+    public void refreshData() {
+        loadDataToTable();
     }
 
     private void loadDataToTable() {
-        List<AssetRequestItem> list = assetRequestItemController.getAllAssetRequestItems();
-        table.setAssetRequestItemData(list);
+        List<AssetRequestItem> allItems = assetRequestItemController.getAllAssetRequestItems();
+        
+        if (specificRequestId != null) {
+            // Nếu đây là cửa sổ chi tiết, lọc danh sách chỉ hiển thị các item của request này
+            List<AssetRequestItem> filteredList = allItems.stream()
+                .filter(item -> specificRequestId.equals(item.getAssetRequest().getRequestId()))
+                .collect(Collectors.toList());
+            table.setAssetRequestItemData(filteredList);
+        } else {
+            // Nếu là cửa sổ tổng, hiển thị tất cả
+            table.setAssetRequestItemData(allItems);
+        }
     }
 }

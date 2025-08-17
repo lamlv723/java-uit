@@ -13,4 +13,7 @@ public interface AssetDAO {
     void update(Asset asset);
 
     void delete(Asset asset);
+
+    List<Asset> getAllAvailableAssets();
+
 }

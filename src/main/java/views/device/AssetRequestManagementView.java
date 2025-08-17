@@ -2,10 +2,18 @@ package views.device;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
+
 import controllers.device.AssetRequestController;
+import controllers.user.UserSession;
+import models.device.Asset;
+import models.main.Employee;
 import services.device.AssetRequestService;
 import models.device.AssetRequest;
+import services.device.AssetService;
+import services.main.EmployeeService;
 import views.device.components.AssetRequestTable;
 
 public class AssetRequestManagementView extends JFrame {
@@ -26,28 +34,108 @@ public class AssetRequestManagementView extends JFrame {
         JButton btnAdd = new JButton("Thêm");
         JButton btnEdit = new JButton("Sửa");
         JButton btnDelete = new JButton("Xóa");
+        JButton btnApprove = new JButton("Approve");
+        JButton btnReject = new JButton("Reject");
+        JButton btnComplete = new JButton("Complete");
+        JButton btnViewDetails = new JButton("Xem chi tiết");
         JPanel panelButtons = new JPanel();
         panelButtons.add(btnAdd);
         panelButtons.add(btnEdit);
         panelButtons.add(btnDelete);
+        panelButtons.add(btnApprove);
+        panelButtons.add(btnReject);
+        panelButtons.add(btnComplete);
+        panelButtons.add(btnViewDetails);
 
-        // Action for Add
+        String currentUserRole = UserSession.getInstance().getCurrentUserRole();
+        if (!"Admin".equals(currentUserRole)) {
+            // User chỉ được Thêm, Xem chi tiết, và Hoàn tất yêu cầu của chính mình
+            btnDelete.setVisible(false);
+            btnApprove.setVisible(false);
+            btnReject.setVisible(false);
+        }
+
         btnAdd.addActionListener(e -> {
-            JTextField tfTitle = new JTextField();
-            JTextField tfDesc = new JTextField();
-            Object[] message = {
-                    "Tiêu đề yêu cầu:", tfTitle,
-                    "Mô tả:", tfDesc
-            };
-            int option = JOptionPane.showConfirmDialog(this, message, "Thêm Yêu cầu", JOptionPane.OK_CANCEL_OPTION);
+            // Panel chính cho dialog
+            JComponent employeeComponent;
+            if ("Admin".equals(currentUserRole)) {
+                JComboBox<String> employeeComboBox = new JComboBox<>();
+                EmployeeService employeeService = new services.main.EmployeeService();
+                List<Employee> employees = employeeService.getAllEmployees();
+                if (employees != null) {
+                    for (Employee emp : employees) {
+                        employeeComboBox
+                                .addItem(emp.getEmployeeId() + ": " + emp.getFirstName() + " " + emp.getLastName());
+                    }
+                }
+                employeeComponent = employeeComboBox;
+            } else {
+                Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
+                JTextField employeeField = new JTextField(currentUser.getFirstName() + " " + currentUser.getLastName());
+                employeeField.setEditable(false);
+                employeeComponent = employeeField;
+            }
+
+            AssetService assetService = new AssetService();
+            List<Asset> availableAssets = assetService.getAllAvailableAssets();
+            DefaultListModel<String> listModel = new DefaultListModel<>();
+            if (availableAssets != null) {
+                for (Asset asset : availableAssets) {
+                    listModel.addElement(asset.getAssetId() + ": " + asset.getAssetName());
+                }
+            }
+            JList<String> assetList = new JList<>(listModel);
+            assetList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+            JScrollPane assetScrollPane = new JScrollPane(assetList);
+            assetScrollPane.setPreferredSize(new Dimension(250, 100));
+
+            JComboBox<String> typeComboBox = new JComboBox<>(new String[] { "borrow", "return" });
+
+            JPanel panel = new JPanel(new GridLayout(0, 2, 5, 5));
+            panel.add(new JLabel("Nhân viên:"));
+            panel.add(employeeComponent);
+            panel.add(new JLabel("Loại yêu cầu:"));
+            panel.add(typeComboBox);
+            panel.add(new JLabel("Chọn tài sản:"));
+            panel.add(assetScrollPane);
+            // Hiển thị dialog
+            int option = JOptionPane.showConfirmDialog(this, panel, "Tạo Yêu cầu mới", JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE);
+
+            // Xử lý kết quả
             if (option == JOptionPane.OK_OPTION) {
-                String title = tfTitle.getText().trim();
-                String desc = tfDesc.getText().trim();
-                // Gọi service xử lý nghiệp vụ, trả về lỗi nếu có
-                String error = assetRequestController.getAssetRequestService().addAssetRequestFromInput(title, desc,
-                        "ADMIN");
+                int employeeId;
+                if ("Admin".equals(currentUserRole)) {
+                    String selectedEmployee = (String) ((JComboBox<?>) employeeComponent).getSelectedItem();
+                    employeeId = Integer.parseInt(selectedEmployee.split(":")[0]);
+                } else {
+                    employeeId = UserSession.getInstance().getLoggedInEmployee().getEmployeeId();
+                }
+
+                String requestType = (String) typeComboBox.getSelectedItem();
+                List<String> selectedAssets = assetList.getSelectedValuesList();
+
+                if (selectedAssets.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Vui lòng chọn ít nhất một tài sản!", "Lỗi",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                List<Integer> assetIds = new ArrayList<>();
+                for (String assetStr : selectedAssets) {
+                    assetIds.add(Integer.parseInt(assetStr.split(":")[0]));
+                }
+
+                // Gọi service để tạo request
+                String error = assetRequestController.getAssetRequestService().createRequestWithItems(employeeId,
+                        requestType, assetIds, currentUserRole);
+
                 if (error == null) {
-                    loadDataToTable();
+                    JOptionPane.showMessageDialog(this, "Tạo yêu cầu thành công!");
+                    loadDataToTable(); // Tải lại bảng
+                    if (AssetRequestItemManagementView.generalInstance != null) {
+                        AssetRequestItemManagementView.generalInstance.refreshData();
+                    }
                 } else {
                     JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
@@ -104,6 +192,80 @@ public class AssetRequestManagementView extends JFrame {
             if (confirm == JOptionPane.YES_OPTION) {
                 assetRequestController.deleteAssetRequest(id, "ADMIN"); // TODO: lấy role thực tế nếu có
                 loadDataToTable();
+            }
+        });
+
+        btnApprove.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một yêu cầu để duyệt!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            Integer requestId = (Integer) table.getValueAt(row, 0);
+            int approverId = UserSession.getInstance().getLoggedInEmployee().getEmployeeId();
+
+            String error = assetRequestController.getAssetRequestService().approveRequest(requestId, approverId);
+
+            if (error == null) {
+                JOptionPane.showMessageDialog(this, "Đã duyệt yêu cầu thành công!");
+                loadDataToTable();
+                // Đồng bộ hóa các cửa sổ khác nếu cần
+                if (AssetRequestItemManagementView.generalInstance != null) {
+                    AssetRequestItemManagementView.generalInstance.refreshData();
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+
+        btnReject.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một yêu cầu để từ chối!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            Integer requestId = (Integer) table.getValueAt(row, 0);
+            int approverId = UserSession.getInstance().getLoggedInEmployee().getEmployeeId();
+
+            String error = assetRequestController.getAssetRequestService().rejectRequest(requestId, approverId);
+
+            if (error == null) {
+                JOptionPane.showMessageDialog(this, "Đã từ chối yêu cầu thành công!");
+                loadDataToTable();
+                // Đồng bộ hóa các cửa sổ khác nếu cần
+                if (AssetRequestItemManagementView.generalInstance != null) {
+                    AssetRequestItemManagementView.generalInstance.refreshData();
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        btnComplete.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một yêu cầu để hoàn tất!", "Thông báo",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            Integer id = (Integer) table.getValueAt(row, 0);
+
+            // Logic kiểm tra quyền cho nút Complete
+            AssetRequest selectedReq = assetRequestController.getAssetRequestById(id);
+            int currentUserId = UserSession.getInstance().getLoggedInEmployee().getEmployeeId();
+            if (!"Admin".equals(currentUserRole) && selectedReq.getEmployee().getEmployeeId() != currentUserId) {
+                JOptionPane.showMessageDialog(this, "Bạn chỉ có thể hoàn tất yêu cầu do chính bạn tạo.", "Lỗi",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String error = assetRequestController.getAssetRequestService().completeBorrowRequest(id);
+            if (error == null) {
+                JOptionPane.showMessageDialog(this, "Đã hoàn tất yêu cầu thành công!");
+                loadDataToTable();
+            } else {
+                JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
         });
 

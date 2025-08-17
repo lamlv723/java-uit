@@ -47,4 +47,8 @@ public class AssetService {
         }
         return null;
     }
+
+    public List<Asset> getAllAvailableAssets() {
+        return assetDAO.getAllAvailableAssets();
+    }
 }
