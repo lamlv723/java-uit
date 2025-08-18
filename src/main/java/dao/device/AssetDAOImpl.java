@@ -87,4 +87,20 @@ public class AssetDAOImpl implements AssetDAO {
             return null;
         }
     }
+
+    @Override
+    public List<Asset> getBorrowedAssetsByEmployeeId(int employeeId) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<Asset> query = session.createQuery(
+                    "SELECT i.asset FROM AssetRequestItem i " +
+                            "WHERE i.assetRequest.employee.employeeId = :employeeId " +
+                            "AND i.asset.status = 'Borrowed' AND i.assetRequest.status = 'Completed'",
+                    Asset.class);
+            query.setParameter("employeeId", employeeId);
+            return query.list();
+        } catch (Exception e) {
+            logger.error("Error getting borrowed assets by employee id {}: {}", employeeId, e.getMessage(), e);
+            return new java.util.ArrayList<>();
+        }
+    }
 }

@@ -16,4 +16,6 @@ public interface AssetDAO {
 
     List<Asset> getAllAvailableAssets();
 
+    List<Asset> getBorrowedAssetsByEmployeeId(int employeeId);
+
 }

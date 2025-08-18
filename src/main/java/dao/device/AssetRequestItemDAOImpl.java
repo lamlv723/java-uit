@@ -86,7 +86,7 @@ public class AssetRequestItemDAOImpl implements AssetRequestItemDAO {
      public List<AssetRequestItem> getAssetRequestItemsByRequestId(int requestId) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Query<AssetRequestItem> query = session.createQuery(
-                    "FROM AssetRequestItem WHERE assetRequest.id = :requestId", AssetRequestItem.class);
+                    "FROM AssetRequestItem WHERE assetRequest.requestId = :requestId", AssetRequestItem.class);
             query.setParameter("requestId", requestId);
             return query.getResultList();
         } catch (Exception e) {

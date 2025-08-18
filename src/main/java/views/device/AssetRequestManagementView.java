@@ -91,6 +91,41 @@ public class AssetRequestManagementView extends JFrame {
 
             JComboBox<String> typeComboBox = new JComboBox<>(new String[] { "borrow", "return" });
 
+            Runnable updateAssetList = () -> {
+                String selectedType = (String) typeComboBox.getSelectedItem();
+                listModel.clear();
+
+                // int employeeId;
+                // if ("Admin".equals(currentUserRole)) {
+                //     String selectedEmployee = (String) employeeComponent.getSelectedItem();
+                //     if (selectedEmployee == null)
+                //         return;
+                //     employeeId = Integer.parseInt(selectedEmployee.split(":")[0]);
+                // } else {
+                //     employeeId = UserSession.getInstance().getLoggedInEmployee().getEmployeeId();
+                // }
+
+                List<Asset> assetsToShow;
+                if ("borrow".equals(selectedType)) {
+                    assetsToShow = assetService.getAllAvailableAssets();
+                } else { // "return"
+                    assetsToShow = assetService.getBorrowedAssetsByEmployee(UserSession.getInstance().getLoggedInEmployee().getEmployeeId());
+                }
+
+                if (assetsToShow != null) {
+                    for (Asset asset : assetsToShow) {
+                        listModel.addElement(asset.getAssetId() + ": " + asset.getAssetName());
+                    }
+                }
+            };
+
+            typeComboBox.addActionListener(event -> updateAssetList.run());
+            // if ("Admin".equals(currentUserRole)) {
+            //     employeeComponent.addActionListener(event -> updateAssetList.run());
+            // }
+
+            updateAssetList.run();
+
             JPanel panel = new JPanel(new GridLayout(0, 2, 5, 5));
             panel.add(new JLabel("Nhân viên:"));
             panel.add(employeeComponent);
@@ -204,6 +239,7 @@ public class AssetRequestManagementView extends JFrame {
             Integer requestId = (Integer) table.getValueAt(row, 0);
             int approverId = UserSession.getInstance().getLoggedInEmployee().getEmployeeId();
 
+            AssetRequest selectedRequest = assetRequestController.getAssetRequestById(requestId);
             String error = assetRequestController.getAssetRequestService().approveRequest(requestId, approverId);
 
             if (error == null) {
@@ -260,13 +296,30 @@ public class AssetRequestManagementView extends JFrame {
                 return;
             }
 
-            String error = assetRequestController.getAssetRequestService().completeBorrowRequest(id);
+            String error;
+            if ("borrow".equals(selectedReq.getRequestType())) {
+                error = assetRequestController.getAssetRequestService().completeBorrowRequest(id);
+            } else {
+                error = assetRequestController.getAssetRequestService().completeReturnRequest(id);
+            }
             if (error == null) {
                 JOptionPane.showMessageDialog(this, "Đã hoàn tất yêu cầu thành công!");
                 loadDataToTable();
             } else {
                 JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
+        });
+
+        btnViewDetails.addActionListener(e -> {
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một yêu cầu để xem chi tiết.", "Thông báo",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            Integer requestId = (Integer) table.getValueAt(selectedRow, 0);
+            AssetRequestItemManagementView detailsView = new AssetRequestItemManagementView(requestId);
+            detailsView.setVisible(true);
         });
 
         getContentPane().add(scrollPane, BorderLayout.CENTER);
