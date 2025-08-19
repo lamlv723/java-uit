@@ -94,7 +94,7 @@ public class AssetDAOImpl implements AssetDAO {
             Query<Asset> query = session.createQuery(
                     "SELECT i.asset FROM AssetRequestItem i " +
                             "WHERE i.assetRequest.employee.employeeId = :employeeId " +
-                            "AND i.asset.status = 'Borrowed' AND i.assetRequest.status = 'Completed'",
+                            "AND i.asset.status = 'Borrowed'",
                     Asset.class);
             query.setParameter("employeeId", employeeId);
             return query.list();

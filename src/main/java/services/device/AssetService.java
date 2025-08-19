@@ -52,7 +52,7 @@ public class AssetService {
         return assetDAO.getAllAvailableAssets();
     }
 
-    public List<Asset> getBorrowedAssetsByEmployee(int employeeId) {
+    public List<Asset> getBorrowedAssetsByEmployeeId(int employeeId) {
         return assetDAO.getBorrowedAssetsByEmployeeId(employeeId);
     }
 }

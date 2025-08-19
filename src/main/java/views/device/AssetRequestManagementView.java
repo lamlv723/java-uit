@@ -47,7 +47,8 @@ public class AssetRequestManagementView extends JFrame {
         panelButtons.add(btnComplete);
         panelButtons.add(btnViewDetails);
 
-        String currentUserRole = UserSession.getInstance().getCurrentUserRole();
+        Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
+        String currentUserRole = currentUser.getRole();
         if (!"Admin".equals(currentUserRole)) {
             // User chỉ được Thêm, Xem chi tiết, và Hoàn tất yêu cầu của chính mình
             btnDelete.setVisible(false);
@@ -60,7 +61,7 @@ public class AssetRequestManagementView extends JFrame {
             JComponent employeeComponent;
             if ("Admin".equals(currentUserRole)) {
                 JComboBox<String> employeeComboBox = new JComboBox<>();
-                EmployeeService employeeService = new services.main.EmployeeService();
+                EmployeeService employeeService = new EmployeeService();
                 List<Employee> employees = employeeService.getAllEmployees();
                 if (employees != null) {
                     for (Employee emp : employees) {
@@ -70,46 +71,42 @@ public class AssetRequestManagementView extends JFrame {
                 }
                 employeeComponent = employeeComboBox;
             } else {
-                Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
                 JTextField employeeField = new JTextField(currentUser.getFirstName() + " " + currentUser.getLastName());
                 employeeField.setEditable(false);
                 employeeComponent = employeeField;
             }
 
             AssetService assetService = new AssetService();
-            List<Asset> availableAssets = assetService.getAllAvailableAssets();
             DefaultListModel<String> listModel = new DefaultListModel<>();
-            if (availableAssets != null) {
-                for (Asset asset : availableAssets) {
-                    listModel.addElement(asset.getAssetId() + ": " + asset.getAssetName());
-                }
-            }
             JList<String> assetList = new JList<>(listModel);
             assetList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
             JScrollPane assetScrollPane = new JScrollPane(assetList);
             assetScrollPane.setPreferredSize(new Dimension(250, 100));
 
-            JComboBox<String> typeComboBox = new JComboBox<>(new String[] { "borrow", "return" });
-
+            JComboBox<String> requestTypeComboBox = new JComboBox<>(new String[] { "borrow", "return" });
+            
             Runnable updateAssetList = () -> {
-                String selectedType = (String) typeComboBox.getSelectedItem();
+                String selectedType = (String) requestTypeComboBox.getSelectedItem();
                 listModel.clear();
 
-                // int employeeId;
-                // if ("Admin".equals(currentUserRole)) {
-                //     String selectedEmployee = (String) employeeComponent.getSelectedItem();
-                //     if (selectedEmployee == null)
-                //         return;
-                //     employeeId = Integer.parseInt(selectedEmployee.split(":")[0]);
-                // } else {
-                //     employeeId = UserSession.getInstance().getLoggedInEmployee().getEmployeeId();
-                // }
+                int employeeIdToFilter;
+
+                // Xác định employeeId dựa trên vai trò và lựa chọn
+                if (employeeComponent instanceof JComboBox) { // Admin
+                    String selectedEmployee = (String) ((JComboBox<?>) employeeComponent).getSelectedItem();
+                    if (selectedEmployee == null) return; // Nếu chưa chọn ai thì không làm gì
+                    employeeIdToFilter = Integer.parseInt(selectedEmployee.split(":")[0]);
+                } else { // Nhân viên thường
+                    employeeIdToFilter = currentUser.getEmployeeId();
+                }
 
                 List<Asset> assetsToShow;
                 if ("borrow".equals(selectedType)) {
+                    // Yêu cầu mượn: luôn hiển thị tài sản có sẵn
                     assetsToShow = assetService.getAllAvailableAssets();
                 } else { // "return"
-                    assetsToShow = assetService.getBorrowedAssetsByEmployee(UserSession.getInstance().getLoggedInEmployee().getEmployeeId());
+                    // Yêu cầu trả: hiển thị tài sản mà nhân viên được chọn đang mượn
+                    assetsToShow = assetService.getBorrowedAssetsByEmployeeId(employeeIdToFilter);
                 }
 
                 if (assetsToShow != null) {
@@ -119,10 +116,10 @@ public class AssetRequestManagementView extends JFrame {
                 }
             };
 
-            typeComboBox.addActionListener(event -> updateAssetList.run());
-            // if ("Admin".equals(currentUserRole)) {
-            //     employeeComponent.addActionListener(event -> updateAssetList.run());
-            // }
+            requestTypeComboBox.addActionListener(event -> updateAssetList.run());
+            if (employeeComponent instanceof JComboBox) {
+                ((JComboBox<?>) employeeComponent).addActionListener(event -> updateAssetList.run());
+            }
 
             updateAssetList.run();
 
@@ -130,7 +127,7 @@ public class AssetRequestManagementView extends JFrame {
             panel.add(new JLabel("Nhân viên:"));
             panel.add(employeeComponent);
             panel.add(new JLabel("Loại yêu cầu:"));
-            panel.add(typeComboBox);
+            panel.add(requestTypeComboBox);
             panel.add(new JLabel("Chọn tài sản:"));
             panel.add(assetScrollPane);
             // Hiển thị dialog
@@ -144,10 +141,10 @@ public class AssetRequestManagementView extends JFrame {
                     String selectedEmployee = (String) ((JComboBox<?>) employeeComponent).getSelectedItem();
                     employeeId = Integer.parseInt(selectedEmployee.split(":")[0]);
                 } else {
-                    employeeId = UserSession.getInstance().getLoggedInEmployee().getEmployeeId();
+                    employeeId = currentUser.getEmployeeId();
                 }
 
-                String requestType = (String) typeComboBox.getSelectedItem();
+                String requestType = (String) requestTypeComboBox.getSelectedItem();
                 List<String> selectedAssets = assetList.getSelectedValuesList();
 
                 if (selectedAssets.isEmpty()) {
@@ -233,7 +230,8 @@ public class AssetRequestManagementView extends JFrame {
         btnApprove.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row == -1) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn một yêu cầu để duyệt!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một yêu cầu để duyệt!", "Thông báo",
+                        JOptionPane.WARNING_MESSAGE);
                 return;
             }
             Integer requestId = (Integer) table.getValueAt(row, 0);
@@ -254,11 +252,11 @@ public class AssetRequestManagementView extends JFrame {
             }
         });
 
-
         btnReject.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row == -1) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn một yêu cầu để từ chối!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một yêu cầu để từ chối!", "Thông báo",
+                        JOptionPane.WARNING_MESSAGE);
                 return;
             }
             Integer requestId = (Integer) table.getValueAt(row, 0);
