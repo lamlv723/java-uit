@@ -40,37 +40,24 @@ public class AssetRequestService {
 
     public String deleteAssetRequest(int requestId, String currentUserRole) {
         // TODO: Add role-based logic if needed
-        Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-
-            // First, delete all AssetRequestItems associated with this request
-            Query<AssetRequestItem> query = session.createQuery(
-                    "FROM AssetRequestItem WHERE assetRequest.requestId = :requestId", AssetRequestItem.class);
-            query.setParameter("requestId", requestId);
-            List<AssetRequestItem> items = query.getResultList();
-
-            for (AssetRequestItem item : items) {
-                session.delete(item);
+        try {
+            // Lấy danh sách các item liên quan đến yêu cầu
+            List<AssetRequestItem> itemsToDelete = assetRequestItemDAO.getAssetRequestItemsByRequestId(requestId);
+            
+            // Xóa từng item chi tiết trong yêu cầu
+            for (AssetRequestItem item : itemsToDelete) {
+                assetRequestItemDAO.deleteAssetRequestItem(item.getRequestItemId());
             }
-
-            // Then, delete the AssetRequest itself
-            AssetRequest request = session.get(AssetRequest.class, requestId);
-            if (request != null) {
-                session.delete(request);
-            }
-
-            transaction.commit();
-            return null; // Success
+            
+            // Xóa yêu cầu chính
+            assetRequestDAO.deleteAssetRequest(requestId);
+            
+            return null; // Trả về null nếu thành công
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
             e.printStackTrace();
             return "Lỗi khi xóa yêu cầu: " + e.getMessage();
         }
     }
-
 
     public AssetRequest getAssetRequestById(int requestId) {
         return assetRequestDAO.getAssetRequestById(requestId);
