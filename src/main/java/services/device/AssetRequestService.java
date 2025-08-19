@@ -234,7 +234,6 @@ public class AssetRequestService {
                 originalBorrowItem.setReturnDate(returnDate);
                 session.update(originalBorrowItem);
 
-                // *** SỬA LỖI: Cập nhật item của yêu cầu trả thay vì xóa nó ***
                 // Sao chép ngày mượn và gán ngày trả để cửa sổ chi tiết hiển thị đầy đủ
                 tempReturnItem.setBorrowDate(originalBorrowItem.getBorrowDate());
                 tempReturnItem.setReturnDate(returnDate);
