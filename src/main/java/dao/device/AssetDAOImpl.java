@@ -91,10 +91,12 @@ public class AssetDAOImpl implements AssetDAO {
     @Override
     public List<Asset> getBorrowedAssetsByEmployeeId(int employeeId) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            // *** SỬA LỖI: Chỉ lấy các tài sản từ các yêu cầu mượn chưa được trả ***
             Query<Asset> query = session.createQuery(
                     "SELECT i.asset FROM AssetRequestItem i " +
                             "WHERE i.assetRequest.employee.employeeId = :employeeId " +
-                            "AND i.asset.status = 'Borrowed'",
+                            "AND i.assetRequest.requestType = 'borrow' " +
+                            "AND i.returnDate IS NULL",
                     Asset.class);
             query.setParameter("employeeId", employeeId);
             return query.list();

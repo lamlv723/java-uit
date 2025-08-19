@@ -1,4 +1,3 @@
-
 package services.device;
 
 import dao.device.AssetRequestDAOImpl;
@@ -229,19 +228,26 @@ public class AssetRequestService {
                     return "Lỗi logic: Không tìm thấy bản ghi mượn đang hoạt động cho tài sản ID: " + assetId;
                 }
 
+                Date returnDate = Date.from(Instant.now());
+
                 // Cập nhật record mượn gốc
-                originalBorrowItem.setReturnDate(Date.from(Instant.now()));
+                originalBorrowItem.setReturnDate(returnDate);
                 session.update(originalBorrowItem);
+
+                // *** SỬA LỖI: Cập nhật item của yêu cầu trả thay vì xóa nó ***
+                // Sao chép ngày mượn và gán ngày trả để cửa sổ chi tiết hiển thị đầy đủ
+                tempReturnItem.setBorrowDate(originalBorrowItem.getBorrowDate());
+                tempReturnItem.setReturnDate(returnDate);
+                session.update(tempReturnItem);
+
 
                 // Cập nhật trạng thái tài sản
                 Asset asset = originalBorrowItem.getAsset();
                 asset.setStatus("Available");
                 session.update(asset);
-
-                // Xóa item tạm của yêu cầu trả đi để không hiển thị 2 dòng
-                session.delete(tempReturnItem);
             }
-
+            
+            // Cập nhật trạng thái của yêu cầu trả thành "Approved"
             request.setStatus("Approved");
             session.update(request);
             
