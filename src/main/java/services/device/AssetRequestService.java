@@ -132,107 +132,6 @@ public class AssetRequestService {
         }
     }
 
-    // public String approveRequest(int requestId, int approverId) {
-    //     Transaction transaction = null;
-    //     try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-    //         transaction = session.beginTransaction();
-
-    //         AssetRequest request = session.get(AssetRequest.class, requestId);
-    //         if (request == null) return "Không tìm thấy yêu cầu.";
-    //         if (!"Pending".equals(request.getStatus())) return "Chỉ có thể duyệt yêu cầu ở trạng thái 'Pending'.";
-
-    //         Employee approver = session.get(Employee.class, approverId);
-    //         if (approver == null) return "Không tìm thấy người duyệt.";
-
-    //         List<AssetRequestItem> items = assetRequestItemDAO.getAssetRequestItemsByRequestId(requestId);
-
-    //         if ("borrow".equals(request.getRequestType())) {
-    //             // Xử lý duyệt yêu cầu MƯỢN
-    //             for (AssetRequestItem item : items) {
-    //                 Asset asset = item.getAsset();
-    //                 if (!"Available".equalsIgnoreCase(asset.getStatus())) {
-    //                     transaction.rollback();
-    //                     return "Tài sản '" + asset.getAssetName() + "' không có sẵn để mượn.";
-    //                 }
-    //                 asset.setStatus("Borrowed");
-    //                 item.setBorrowDate(Date.from(Instant.now()));
-    //              // Cập nhật trạng thái tài sản
-    //                 session.update(asset);
-    //                 session.update(item);
-    //             }
-    //         } else if ("return".equals(request.getRequestType())) {
-    //             // Xử lý duyệt yêu cầu TRẢ
-    //             for (AssetRequestItem item : items) {
-    //                 Asset asset = item.getAsset();
-    //                  if (!"Borrowed".equalsIgnoreCase(asset.getStatus())) {
-    //                     transaction.rollback();
-    //                     return "Tài sản '" + asset.getAssetName() + "' không ở trạng thái 'Borrowed' để trả.";
-    //                 }
-    //                 asset.setStatus("Available"); // Cập nhật trạng thái tài sản
-    //                 item.setReturnDate(Date.from(Instant.now()));
-    //                 session.update(asset);
-    //                 session.update(items);
-    //             }
-    //         }
-
-    //         request.setStatus("Approved");
-    //         request.setApprover(approver);
-    //         request.setApprovalDate(Date.from(Instant.now()));
-    //         session.update(request);
-
-    //         transaction.commit();
-    //         return null; // Thành công
-    //     } catch (Exception e) {
-    //         if (transaction != null) transaction.rollback();
-    //         return "Lỗi khi duyệt yêu cầu: " + e.getMessage();
-    //     }
-    // }
-
-    // public String rejectRequest(int requestId, int approverId) {
-    //     Transaction transaction = null;
-    //     try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-    //         transaction = session.beginTransaction();
-
-    //         AssetRequest request = session.get(AssetRequest.class, requestId);
-    //         if (request == null) return "Không tìm thấy yêu cầu.";
-    //         if (!"Pending".equals(request.getStatus())) return "Chỉ có thể từ chối yêu cầu ở trạng thái 'Pending'.";
-
-    //         Employee approver = session.get(Employee.class, approverId);
-    //         if (approver == null) return "Không tìm thấy người duyệt.";
-
-    //         request.setStatus("Rejected");
-    //         request.setApprover(approver);
-    //         request.setApprovalDate(Date.from(Instant.now()));
-    //         session.update(request);
-
-    //         transaction.commit();
-    //         return null; // Thành công
-    //     } catch (Exception e) {
-    //         if (transaction != null) transaction.rollback();
-    //         return "Lỗi khi từ chối yêu cầu: " + e.getMessage();
-    //     }
-    // }
-
-    // public String completeBorrowRequest(int requestId) {
-    //      Transaction transaction = null;
-    //     try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-    //         transaction = session.beginTransaction();
-    //         AssetRequest request = session.get(AssetRequest.class, requestId);
-    //         // Asset asset = request.getAssetRequestItems().get(0).getAsset();
-    //         if (request == null) return "Không tìm thấy yêu cầu.";
-    //         if (!"borrow".equals(request.getRequestType())) return "Chỉ yêu cầu 'borrow' mới có trạng thái 'Completed'.";
-    //         if (!"Approved".equals(request.getStatus())) return "Chỉ có thể hoàn tất yêu cầu đã được 'Approved'.";
-            
-    //         request.setStatus("Completed");
-    //         session.update(request);
-            
-    //         transaction.commit();
-    //         return null;
-    //     } catch (Exception e) {
-    //         if (transaction != null) transaction.rollback();
-    //         return "Lỗi khi hoàn tất yêu cầu: " + e.getMessage();
-    //     }
-    // }
 
     public String approveRequest(int requestId, int approverId) {
         Transaction transaction = null;
@@ -267,7 +166,6 @@ public class AssetRequestService {
                 }
             }
 
-            // Chỉ cập nhật trạng thái của yêu cầu
             request.setStatus("Approved");
             request.setApprover(approver);
             request.setApprovalDate(Date.from(Instant.now()));

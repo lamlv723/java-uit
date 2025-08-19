@@ -11,7 +11,7 @@ public class AssetRequestItemTable extends JTable {
     public AssetRequestItemTable() {
         super();
         model = new DefaultTableModel(new Object[][] {}, new String[] { "ID", "Request ID", "Asset ID", "Borrow Date",
-                "Return Date", "Condition Borrow", "Condition Return" }) {
+                "Return Date" }) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -21,8 +21,7 @@ public class AssetRequestItemTable extends JTable {
     }
 
     public void setAssetRequestItemData(Object[][] data) {
-        model.setDataVector(data, new String[] { "ID", "Request ID", "Asset ID", "Borrow Date", "Return Date",
-                "Condition Borrow", "Condition Return" });
+        model.setDataVector(data, new String[] { "ID", "Request ID", "Asset ID", "Borrow Date", "Return Date"});
     }
 
     // Thêm phương thức tiện lợi để nhận List<AssetRequestItem>
@@ -35,8 +34,6 @@ public class AssetRequestItemTable extends JTable {
             data[i][2] = item.getAsset() != null ? item.getAsset().getAssetId() : "";
             data[i][3] = item.getBorrowDate();
             data[i][4] = item.getReturnDate();
-            data[i][5] = item.getConditionOnBorrow();
-            data[i][6] = item.getConditionOnReturn();
         }
         setAssetRequestItemData(data);
     }

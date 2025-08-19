@@ -120,8 +120,6 @@ CREATE TABLE
         FOREIGN KEY (asset_id) REFERENCES Asset (asset_id),
         UNIQUE (request_id, asset_id)
     );
-
-GO
 --
 DELIMITER //
 CREATE TRIGGER trg_UpdateAssetStatusOnBorrow AFTER INSERT ON AssetRequestItem FOR EACH ROW
