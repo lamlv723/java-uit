@@ -8,7 +8,7 @@ import models.device.AssetRequestItem;
 public class AssetRequestItemTable extends JTable {
     private DefaultTableModel model;
 
-    public AssetRequestItemTable() {
+     public AssetRequestItemTable() {
         super();
         model = new DefaultTableModel(new Object[][] {}, new String[] { "ID", "Request ID", "Asset ID", "Borrow Date",
                 "Return Date" }) {
@@ -26,7 +26,8 @@ public class AssetRequestItemTable extends JTable {
 
     // Thêm phương thức tiện lợi để nhận List<AssetRequestItem>
     public void setAssetRequestItemData(List<AssetRequestItem> items) {
-        Object[][] data = new Object[items.size()][7];
+        // Sửa lỗi ở dòng dưới: thay 7 bằng 5
+        Object[][] data = new Object[items.size()][5];
         for (int i = 0; i < items.size(); i++) {
             AssetRequestItem item = items.get(i);
             data[i][0] = item.getRequestItemId();

@@ -1,4 +1,3 @@
-
 package dao.device;
 
 import models.device.AssetRequestItem;
@@ -99,7 +98,7 @@ public class AssetRequestItemDAOImpl implements AssetRequestItemDAO {
     public AssetRequestItem findActiveBorrowItemByAssetId(int assetId) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Query<AssetRequestItem> query = session.createQuery(
-                    "FROM AssetRequestItem i WHERE i.asset.assetId = :assetId AND i.returnDate IS NULL AND i.assetRequest.requestType = 'borrow' AND i.assetRequest.status = 'Completed'",
+                    "FROM AssetRequestItem i WHERE i.asset.assetId = :assetId AND i.returnDate IS NULL AND i.assetRequest.requestType = 'borrow' AND i.assetRequest.status = 'Approved'",
                     AssetRequestItem.class);
             query.setParameter("assetId", assetId);
             query.setMaxResults(1); // Đảm bảo chỉ lấy 1 kết quả để tránh lỗi
