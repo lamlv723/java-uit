@@ -25,8 +25,8 @@ public class AssetRequestController {
         assetRequestService.updateAssetRequest(request, currentUserRole);
     }
 
-    public void deleteAssetRequest(int requestId, String currentUserRole) {
-        assetRequestService.deleteAssetRequest(requestId, currentUserRole);
+    public String deleteAssetRequest(int requestId, String currentUserRole) {
+        return assetRequestService.deleteAssetRequest(requestId, currentUserRole);
     }
 
     public AssetRequest getAssetRequestById(int requestId) {
@@ -35,5 +35,9 @@ public class AssetRequestController {
 
     public List<AssetRequest> getAllAssetRequests() {
         return assetRequestService.getAllAssetRequests();
+    }
+
+    public String updateRequestWithItems(int requestId, List<Integer> assetIds, String currentUserRole) {
+        return assetRequestService.updateRequestWithItems(requestId, assetIds, currentUserRole);
     }
 }

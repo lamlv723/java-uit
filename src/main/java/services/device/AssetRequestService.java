@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import config.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
 public class AssetRequestService {
     private AssetRequestDAO assetRequestDAO;
@@ -37,10 +38,39 @@ public class AssetRequestService {
         assetRequestDAO.updateAssetRequest(request);
     }
 
-    public void deleteAssetRequest(int requestId, String currentUserRole) {
+    public String deleteAssetRequest(int requestId, String currentUserRole) {
         // TODO: Add role-based logic if needed
-        assetRequestDAO.deleteAssetRequest(requestId);
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+
+            // First, delete all AssetRequestItems associated with this request
+            Query<AssetRequestItem> query = session.createQuery(
+                    "FROM AssetRequestItem WHERE assetRequest.requestId = :requestId", AssetRequestItem.class);
+            query.setParameter("requestId", requestId);
+            List<AssetRequestItem> items = query.getResultList();
+
+            for (AssetRequestItem item : items) {
+                session.delete(item);
+            }
+
+            // Then, delete the AssetRequest itself
+            AssetRequest request = session.get(AssetRequest.class, requestId);
+            if (request != null) {
+                session.delete(request);
+            }
+
+            transaction.commit();
+            return null; // Success
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+            return "Lỗi khi xóa yêu cầu: " + e.getMessage();
+        }
     }
+
 
     public AssetRequest getAssetRequestById(int requestId) {
         return assetRequestDAO.getAssetRequestById(requestId);
@@ -256,6 +286,65 @@ public class AssetRequestService {
             if (transaction != null) transaction.rollback();
             e.printStackTrace();
             return "Lỗi khi hoàn tất yêu cầu trả: " + e.getMessage();
+        }
+    }
+
+    public String updateRequestWithItems(int requestId, List<Integer> assetIds, String currentUserRole) {
+        if (assetIds == null || assetIds.isEmpty()) {
+            return "Phải chọn ít nhất một tài sản.";
+        }
+
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+
+            AssetRequest request = session.get(AssetRequest.class, requestId);
+            if (request == null) {
+                return "Không tìm thấy yêu cầu để cập nhật.";
+            }
+            String requestType = request.getRequestType();
+
+            // 1. Xóa các item cũ
+            Query<?> deleteQuery = session.createQuery("DELETE FROM AssetRequestItem WHERE assetRequest.requestId = :requestId");
+            deleteQuery.setParameter("requestId", requestId);
+            deleteQuery.executeUpdate();
+
+            // 2. Tạo và lưu các AssetRequestItem mới
+            for (Integer assetId : assetIds) {
+                Asset asset = session.get(Asset.class, assetId);
+                if (asset == null) {
+                    transaction.rollback();
+                    return "Không tìm thấy tài sản với ID: " + assetId;
+                }
+
+                if ("borrow".equalsIgnoreCase(requestType)) {
+                    if (!"Available".equalsIgnoreCase(asset.getStatus())) {
+                        transaction.rollback();
+                        return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId + ") không có sẵn để mượn.";
+                    }
+                } else if ("return".equalsIgnoreCase(requestType)) {
+                     if (!"Borrowed".equalsIgnoreCase(asset.getStatus())) {
+                        transaction.rollback();
+                        return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId + ") không ở trạng thái 'Borrowed' để có thể trả.";
+                    }
+                }
+
+                AssetRequestItem item = new AssetRequestItem();
+                item.setAssetRequest(request);
+                item.setAsset(asset);
+                session.save(item);
+            }
+
+            // 3. Hoàn tất giao dịch
+            transaction.commit();
+            return null; // Thành công
+
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+            return "Đã xảy ra lỗi khi cập nhật yêu cầu: " + e.getMessage();
         }
     }
 
