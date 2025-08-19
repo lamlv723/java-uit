@@ -15,4 +15,6 @@ public interface AssetRequestItemDAO {
     List<AssetRequestItem> getAllAssetRequestItems();
 
     List<AssetRequestItem> getAssetRequestItemsByRequestId(int requestId);
+
+    AssetRequestItem findActiveBorrowItemByAssetId(int assetId);
 }

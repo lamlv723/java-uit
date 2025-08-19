@@ -83,7 +83,7 @@ public class AssetRequestItemDAOImpl implements AssetRequestItemDAO {
     }
 
     @Override
-     public List<AssetRequestItem> getAssetRequestItemsByRequestId(int requestId) {
+    public List<AssetRequestItem> getAssetRequestItemsByRequestId(int requestId) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Query<AssetRequestItem> query = session.createQuery(
                     "FROM AssetRequestItem WHERE assetRequest.requestId = :requestId", AssetRequestItem.class);
@@ -92,6 +92,21 @@ public class AssetRequestItemDAOImpl implements AssetRequestItemDAO {
         } catch (Exception e) {
             logger.error("Error getting asset request items by request id {}: {}", requestId, e.getMessage(), e);
             return new java.util.ArrayList<>();
+        }
+    }
+
+    @Override
+    public AssetRequestItem findActiveBorrowItemByAssetId(int assetId) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<AssetRequestItem> query = session.createQuery(
+                    "FROM AssetRequestItem i WHERE i.asset.assetId = :assetId AND i.returnDate IS NULL AND i.assetRequest.requestType = 'borrow' AND i.assetRequest.status = 'Completed'",
+                    AssetRequestItem.class);
+            query.setParameter("assetId", assetId);
+            query.setMaxResults(1); // Đảm bảo chỉ lấy 1 kết quả để tránh lỗi
+            return query.uniqueResultOptional().orElse(null);
+        } catch (Exception e) {
+            logger.error("Error finding active borrow item for asset id {}: {}", assetId, e.getMessage(), e);
+            return null;
         }
     }
 }

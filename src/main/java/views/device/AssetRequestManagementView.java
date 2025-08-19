@@ -36,7 +36,6 @@ public class AssetRequestManagementView extends JFrame {
         JButton btnDelete = new JButton("Xóa");
         JButton btnApprove = new JButton("Approve");
         JButton btnReject = new JButton("Reject");
-        JButton btnComplete = new JButton("Complete");
         JButton btnViewDetails = new JButton("Xem chi tiết");
         JPanel panelButtons = new JPanel();
         panelButtons.add(btnAdd);
@@ -44,7 +43,6 @@ public class AssetRequestManagementView extends JFrame {
         panelButtons.add(btnDelete);
         panelButtons.add(btnApprove);
         panelButtons.add(btnReject);
-        panelButtons.add(btnComplete);
         panelButtons.add(btnViewDetails);
 
         Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
@@ -235,11 +233,15 @@ public class AssetRequestManagementView extends JFrame {
                 return;
             }
             Integer requestId = (Integer) table.getValueAt(row, 0);
-            int approverId = UserSession.getInstance().getLoggedInEmployee().getEmployeeId();
 
+            String error;
             AssetRequest selectedRequest = assetRequestController.getAssetRequestById(requestId);
-            String error = assetRequestController.getAssetRequestService().approveRequest(requestId, approverId);
-
+            if ("borrow".equals(selectedRequest.getRequestType())) {
+                error = assetRequestController.getAssetRequestService().approveBorrowRequest(requestId);
+            } else {
+                error = assetRequestController.getAssetRequestService().approveReturnRequest(requestId);
+            }
+            
             if (error == null) {
                 JOptionPane.showMessageDialog(this, "Đã duyệt yêu cầu thành công!");
                 loadDataToTable();
@@ -271,38 +273,6 @@ public class AssetRequestManagementView extends JFrame {
                 if (AssetRequestItemManagementView.generalInstance != null) {
                     AssetRequestItemManagementView.generalInstance.refreshData();
                 }
-            } else {
-                JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-
-        btnComplete.addActionListener(e -> {
-            int row = table.getSelectedRow();
-            if (row == -1) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn một yêu cầu để hoàn tất!", "Thông báo",
-                        JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-            Integer id = (Integer) table.getValueAt(row, 0);
-
-            // Logic kiểm tra quyền cho nút Complete
-            AssetRequest selectedReq = assetRequestController.getAssetRequestById(id);
-            int currentUserId = UserSession.getInstance().getLoggedInEmployee().getEmployeeId();
-            if (!"Admin".equals(currentUserRole) && selectedReq.getEmployee().getEmployeeId() != currentUserId) {
-                JOptionPane.showMessageDialog(this, "Bạn chỉ có thể hoàn tất yêu cầu do chính bạn tạo.", "Lỗi",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            String error;
-            if ("borrow".equals(selectedReq.getRequestType())) {
-                error = assetRequestController.getAssetRequestService().completeBorrowRequest(id);
-            } else {
-                error = assetRequestController.getAssetRequestService().completeReturnRequest(id);
-            }
-            if (error == null) {
-                JOptionPane.showMessageDialog(this, "Đã hoàn tất yêu cầu thành công!");
-                loadDataToTable();
             } else {
                 JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
