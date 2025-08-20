@@ -43,15 +43,15 @@ public class AssetRequestService {
         try {
             // Lấy danh sách các item liên quan đến yêu cầu
             List<AssetRequestItem> itemsToDelete = assetRequestItemDAO.getAssetRequestItemsByRequestId(requestId);
-            
+
             // Xóa từng item chi tiết trong yêu cầu
             for (AssetRequestItem item : itemsToDelete) {
                 assetRequestItemDAO.deleteAssetRequestItem(item.getRequestItemId());
             }
-            
+
             // Xóa yêu cầu chính
             assetRequestDAO.deleteAssetRequest(requestId);
-            
+
             return null; // Trả về null nếu thành công
         } catch (Exception e) {
             e.printStackTrace();
@@ -92,7 +92,7 @@ public class AssetRequestService {
                 .collect(Collectors.toList());
     }
 
-    public String createRequestWithItems(int employeeId, String requestType, List<Integer> assetIds, String currentUserRole) {
+    public String createRequestWithItems(int employeeId, String requestType, List<Integer> assetIds) {
         if (assetIds == null || assetIds.isEmpty()) {
             return "Phải chọn ít nhất một tài sản.";
         }
@@ -136,7 +136,6 @@ public class AssetRequestService {
                     }
                 }
 
-
                 AssetRequestItem item = new AssetRequestItem();
                 item.setAssetRequest(request);
                 item.setAsset(asset);
@@ -157,7 +156,6 @@ public class AssetRequestService {
     }
 
     public String rejectRequest(int requestId, int approverId) {
-        // ... (phương thức này không đổi)
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
@@ -171,7 +169,7 @@ public class AssetRequestService {
 
             request.setStatus("Rejected");
             request.setApprover(approver);
-            request.setApprovalDate(Date.from(Instant.now()));
+            request.setRejectedDate(Date.from(Instant.now()));
             session.update(request);
 
             transaction.commit();
@@ -186,7 +184,7 @@ public class AssetRequestService {
      * Hoàn tất yêu cầu MƯỢN: Cập nhật trạng thái tài sản thành 'Borrowed' và set borrow_date.
      */
     public String approveBorrowRequest(int requestId) {
-         Transaction transaction = null;
+        Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             AssetRequest request = session.get(AssetRequest.class, requestId);
@@ -194,7 +192,7 @@ public class AssetRequestService {
             if (request == null) return "Không tìm thấy yêu cầu.";
             if (!"borrow".equals(request.getRequestType())) return "Đây không phải là yêu cầu mượn.";
             if (!"Pending".equals(request.getStatus())) return "Chỉ có thể hoàn tất yêu cầu đang 'Pending'.";
-            
+
             List<AssetRequestItem> items = assetRequestItemDAO.getAssetRequestItemsByRequestId(requestId);
             for (AssetRequestItem item : items) {
                 Asset asset = item.getAsset();
@@ -206,7 +204,7 @@ public class AssetRequestService {
 
             request.setStatus("Approved");
             session.update(request);
-            
+
             transaction.commit();
             return null; // Thành công
         } catch (Exception e) {
@@ -220,7 +218,7 @@ public class AssetRequestService {
      * Hoàn tất yêu cầu TRẢ: Cập nhật trạng thái tài sản thành 'Available' và set return_date.
      */
     public String approveReturnRequest(int requestId) {
-         Transaction transaction = null;
+        Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
             AssetRequest request = session.get(AssetRequest.class, requestId);
@@ -256,17 +254,16 @@ public class AssetRequestService {
                 tempReturnItem.setReturnDate(returnDate);
                 session.update(tempReturnItem);
 
-
                 // Cập nhật trạng thái tài sản
                 Asset asset = originalBorrowItem.getAsset();
                 asset.setStatus("Available");
                 session.update(asset);
             }
-            
+
             // Cập nhật trạng thái của yêu cầu trả thành "Approved"
             request.setStatus("Approved");
             session.update(request);
-            
+
             transaction.commit();
             return null; // Thành công
         } catch (Exception e) {
@@ -310,7 +307,7 @@ public class AssetRequestService {
                         return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId + ") không có sẵn để mượn.";
                     }
                 } else if ("return".equalsIgnoreCase(requestType)) {
-                     if (!"Borrowed".equalsIgnoreCase(asset.getStatus())) {
+                    if (!"Borrowed".equalsIgnoreCase(asset.getStatus())) {
                         transaction.rollback();
                         return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId + ") không ở trạng thái 'Borrowed' để có thể trả.";
                     }

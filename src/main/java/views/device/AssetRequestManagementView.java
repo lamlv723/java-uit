@@ -161,7 +161,7 @@ public class AssetRequestManagementView extends JFrame {
 
                 // Gọi service để tạo request
                 String error = assetRequestController.getAssetRequestService().createRequestWithItems(employeeId,
-                        requestType, assetIds, currentUserRole);
+                        requestType, assetIds);
 
                 if (error == null) {
                     JOptionPane.showMessageDialog(this, "Tạo yêu cầu thành công!");
@@ -174,47 +174,6 @@ public class AssetRequestManagementView extends JFrame {
                 }
             }
         });
-
-        // Action for Edit
-        btnEdit.addActionListener(e -> {
-            int row = table.getSelectedRow();
-            if (row == -1) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn một yêu cầu để sửa!", "Thông báo",
-                        JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-            Integer id = (Integer) table.getValueAt(row, 0);
-            AssetRequest req = assetRequestController.getAssetRequestById(id);
-            if (req == null) {
-                JOptionPane.showMessageDialog(this, "Không tìm thấy yêu cầu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            if (!"Pending".equalsIgnoreCase(req.getStatus())) {
-                JOptionPane.showMessageDialog(this, "Chỉ có thể sửa các yêu cầu đang ở trạng thái 'Pending'.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-                return;
-            }
-
-            JTextField tfRequestType = new JTextField(req.getRequestType());
-            tfRequestType.setEditable(false);
-
-            String[] statuses = { "Pending", "Approved", "Rejected", "Completed" };
-            JComboBox<String> statusComboBox = new JComboBox<>(statuses);
-            statusComboBox.setSelectedItem(req.getStatus());
-
-            Object[] message = {
-                    "Loại yêu cầu:", tfRequestType,
-                    "Trạng thái:", statusComboBox
-            };
-            int option = JOptionPane.showConfirmDialog(this, message, "Sửa Yêu cầu", JOptionPane.OK_CANCEL_OPTION);
-            if (option == JOptionPane.OK_OPTION) {
-                String newStatus = (String) statusComboBox.getSelectedItem();
-                req.setStatus(newStatus);
-                assetRequestController.updateAssetRequest(req, "ADMIN"); // TODO: lấy role thực tế nếu có
-                loadDataToTable();
-            }
-        });
-
 
         // Action for Delete
         btnDelete.addActionListener(e -> {
@@ -236,7 +195,6 @@ public class AssetRequestManagementView extends JFrame {
                 }
             }
         });
-
 
         btnApprove.addActionListener(e -> {
             int row = table.getSelectedRow();

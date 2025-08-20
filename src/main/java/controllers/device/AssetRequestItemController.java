@@ -36,4 +36,8 @@ public class AssetRequestItemController {
     public List<AssetRequestItem> getAllAssetRequestItems() {
         return assetRequestItemService.getAllAssetRequestItems();
     }
+
+    public List<AssetRequestItem> getAllBorrowedAssetRequestItems(){
+        return assetRequestItemService.getAllBorrowedAssetRequestItems();
+    }
 }

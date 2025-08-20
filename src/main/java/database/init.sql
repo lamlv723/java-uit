@@ -100,6 +100,7 @@ CREATE TABLE
         status VARCHAR(50) NOT NULL, -- Trạng thái của yêu cầu (ví dụ: 'Pending', 'Approved', 'Rejected', 'Completed')
         approver_id INT, -- ID nhân viên phê duyệt (FK tới Employee, có thể NULL)
         approval_date DATETIME, -- Ngày phê duyệt
+        rejected_date DATETIME, -- Ngày từ chối yêu cầu
         expected_return_date DATE, -- Ngày dự kiến trả (chỉ áp dụng cho yêu cầu mượn)
         FOREIGN KEY (employee_id) REFERENCES Employee (employee_id),
         FOREIGN KEY (approver_id) REFERENCES Employee (employee_id)

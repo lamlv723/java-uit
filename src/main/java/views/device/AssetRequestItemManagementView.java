@@ -59,7 +59,7 @@ public class AssetRequestItemManagementView extends JFrame {
     }
 
     private void loadDataToTable() {
-        List<AssetRequestItem> allItems = assetRequestItemController.getAllAssetRequestItems();
+        List<AssetRequestItem> allItems = assetRequestItemController.getAllBorrowedAssetRequestItems();
         
         if (specificRequestId != null) {
             // Nếu đây là cửa sổ chi tiết, lọc danh sách chỉ hiển thị các item của request này
