@@ -283,7 +283,6 @@ public class AssetRequestManagementView extends JFrame {
                 return;
             }
 
-            // --- Bắt đầu logic giống hệt nút Thêm ---
             JTextField employeeField = new JTextField(req.getEmployee().getFirstName() + " " + req.getEmployee().getLastName());
             employeeField.setEditable(false);
 

@@ -24,9 +24,7 @@ public class AssetRequestItemTable extends JTable {
         model.setDataVector(data, new String[] { "ID", "Request ID", "Asset ID", "Borrow Date", "Return Date"});
     }
 
-    // Thêm phương thức tiện lợi để nhận List<AssetRequestItem>
     public void setAssetRequestItemData(List<AssetRequestItem> items) {
-        // Sửa lỗi ở dòng dưới: thay 7 bằng 5
         Object[][] data = new Object[items.size()][5];
         for (int i = 0; i < items.size(); i++) {
             AssetRequestItem item = items.get(i);

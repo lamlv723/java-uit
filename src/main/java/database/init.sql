@@ -97,7 +97,7 @@ CREATE TABLE
         employee_id INT NOT NULL, -- ID nhân viên tạo yêu cầu (FK tới Employee)
         request_type VARCHAR(50) NOT NULL, -- Loại yêu cầu ('borrow' hoặc 'return')
         request_date DATETIME NOT NULL, -- Ngày tạo yêu cầu
-        status VARCHAR(50) NOT NULL, -- Trạng thái của yêu cầu (ví dụ: 'Pending', 'Approved', 'Rejected', 'Completed')
+        status VARCHAR(50) NOT NULL, -- Trạng thái của yêu cầu (ví dụ: 'Pending', 'Approved', 'Rejected')
         approver_id INT, -- ID nhân viên phê duyệt (FK tới Employee, có thể NULL)
         approval_date DATETIME, -- Ngày phê duyệt
         rejected_date DATETIME, -- Ngày từ chối yêu cầu
@@ -130,18 +130,6 @@ BEGIN
     SELECT request_type, status INTO req_type, req_status FROM AssetRequest WHERE request_id = NEW.request_id;
     IF req_type = 'borrow' AND req_status = 'Approved' AND NEW.borrow_date IS NOT NULL THEN
         UPDATE Asset SET status = 'Borrowed' WHERE asset_id = NEW.asset_id AND status = 'Available';
-    END IF;
-END //
-DELIMITER ;
-
-DELIMITER //
-CREATE TRIGGER trg_UpdateAssetStatusOnReturn AFTER UPDATE ON AssetRequestItem FOR EACH ROW
-BEGIN
-    DECLARE req_type VARCHAR(50);
-    DECLARE req_status VARCHAR(50);
-    SELECT request_type, status INTO req_type, req_status FROM AssetRequest WHERE request_id = NEW.request_id;
-    IF req_type = 'return' AND req_status = 'Completed' AND NEW.return_date IS NOT NULL THEN
-        UPDATE Asset SET status = 'Available' WHERE asset_id = NEW.asset_id AND status = 'Borrowed';
     END IF;
 END //
 DELIMITER ;

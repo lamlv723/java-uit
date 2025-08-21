@@ -26,11 +26,10 @@ public class AssetRequestItemManagementView extends JFrame {
      * Được gọi từ menu chính.
      */
     public AssetRequestItemManagementView() {
-        this(null); // Gọi constructor chính với requestId là null
-        generalInstance = this; // Đặt tham chiếu static để các cửa sổ khác có thể truy cập
+        this(null);
+        generalInstance = this;
         setTitle("Quản lý Chi tiết Yêu cầu Tài sản (Tất cả)");
 
-        // Đảm bảo khi cửa sổ tổng bị đóng, tham chiếu static được dọn dẹp
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosed(java.awt.event.WindowEvent windowEvent) {
