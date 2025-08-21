@@ -47,4 +47,12 @@ public class AssetService {
         }
         return null;
     }
+
+    public List<Asset> getAllAvailableAssets() {
+        return assetDAO.getAllAvailableAssets();
+    }
+
+    public List<Asset> getBorrowedAssetsByEmployeeId(int employeeId) {
+        return assetDAO.getBorrowedAssetsByEmployeeId(employeeId);
+    }
 }

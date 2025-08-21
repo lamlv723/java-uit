@@ -137,7 +137,7 @@ public class EmployeeManagementView extends JFrame {
                     } else {
                         emp.setDepartmentId(null);
                     }
-                    employeeController.updateEmployee(emp, "ADMIN"); // TODO: lấy role thực tế nếu có
+                    employeeController.updateEmployee(emp, "ADMIN");
                     loadDataToTable();
                 } else {
                     JOptionPane.showMessageDialog(this, "Các trường bắt buộc không được để trống!", "Lỗi",

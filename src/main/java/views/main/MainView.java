@@ -56,7 +56,7 @@ public class MainView extends JFrame {
         menuUser.add(mnuLogout);
 
         // Thêm menu người dùng vào menu bar và căn lề phải
-        menuBar.add(Box.createHorizontalGlue()); // Đẩy menu sang phải
+        menuBar.add(Box.createHorizontalGlue());
         menuBar.add(menuUser);
         setJMenuBar(menuBar);
 

@@ -117,8 +117,7 @@ public class DepartmentManagementView extends JFrame {
             int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa phòng ban này?", "Xác nhận xóa",
                     JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                departmentController.deleteDepartment(id, "ADMIN"); // TODO: lấy role thực tế nếu có
-                loadDataToTable();
+                departmentController.deleteDepartment(id, "ADMIN");
             }
         });
 

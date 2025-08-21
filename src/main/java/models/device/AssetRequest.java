@@ -36,6 +36,10 @@ public class AssetRequest {
     @Temporal(TemporalType.TIMESTAMP)
     private Date approvalDate;
 
+    @Column(name = "rejected_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date rejectedDate;
+
     @Column(name = "expected_return_date")
     @Temporal(TemporalType.DATE)
     private Date expectedReturnDate;
@@ -95,6 +99,14 @@ public class AssetRequest {
 
     public void setApprovalDate(Date approvalDate) {
         this.approvalDate = approvalDate;
+    }
+
+    public Date getRejectedDate() {
+        return rejectedDate;
+    }
+
+    public void setRejectedDate(Date rejectedDate) {
+        this.rejectedDate = rejectedDate;
     }
 
     public Date getExpectedReturnDate() {

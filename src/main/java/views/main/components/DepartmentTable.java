@@ -23,7 +23,6 @@ public class DepartmentTable extends JTable {
         model.setDataVector(data, new String[] { "ID", "Tên phòng ban", "Trưởng phòng" });
     }
 
-    // Thêm phương thức tiện lợi để nhận List<Department>
     public void setDepartmentData(List<Department> departments) {
         Object[][] data = new Object[departments.size()][3];
         for (int i = 0; i < departments.size(); i++) {

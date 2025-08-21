@@ -36,6 +36,10 @@ public class AssetRequestItemService {
         return assetRequestItemDAO.getAllAssetRequestItems();
     }
 
+    public List<AssetRequestItem> getAllBorrowedAssetRequestItems(){
+        return assetRequestItemDAO.getAllBorrowedAssetRequestItems();
+    }
+
     /**
      * Xử lý toàn bộ logic nghiệp vụ khi thêm AssetRequestItem từ dữ liệu đầu vào
      * dạng String.
