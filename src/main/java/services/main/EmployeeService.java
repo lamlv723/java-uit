@@ -2,6 +2,8 @@
 package services.main;
 
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import dao.main.EmployeeDAOImpl;
 import dao.main.interfaces.EmployeeDAO;
 import models.main.Employee;
@@ -9,22 +11,36 @@ import models.main.Employee;
 public class EmployeeService {
     private EmployeeDAO employeeDAO;
 
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
+
     public EmployeeService() {
         this.employeeDAO = new EmployeeDAOImpl();
     }
 
     public void addEmployee(Employee employee, String currentUserRole) {
-        // TODO: Add role-based validation if needed
+        if (!"Admin".equalsIgnoreCase(currentUserRole)) {
+            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to add an employee.";
+            logger.warn(errorMessage);
+            throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
+        }
         employeeDAO.addEmployee(employee);
     }
 
     public void updateEmployee(Employee employee, String currentUserRole) {
-        // TODO: Add role-based validation if needed
+        if (!"Admin".equalsIgnoreCase(currentUserRole)) {
+            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to update an employee.";
+            logger.warn(errorMessage);
+            throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
+        }
         employeeDAO.updateEmployee(employee);
     }
 
     public void deleteEmployee(int employeeId, String currentUserRole) {
-        // TODO: Add role-based validation if needed
+        if (!"Admin".equalsIgnoreCase(currentUserRole)) {
+            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to delete employee with id " + employeeId + ".";
+            logger.warn(errorMessage);
+            throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
+        }
         employeeDAO.deleteEmployee(employeeId);
     }
 
