@@ -2,29 +2,44 @@
 package services.main;
 
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import dao.main.DepartmentDAOImpl;
 import dao.main.interfaces.DepartmentDAO;
 import models.main.Department;
 
 public class DepartmentService {
     private DepartmentDAO departmentDAO;
+    private static final Logger logger = LoggerFactory.getLogger(DepartmentService.class);
 
     public DepartmentService() {
         this.departmentDAO = new DepartmentDAOImpl();
     }
 
     public void addDepartment(Department department, String currentUserRole) {
-        // TODO: Add role-based validation if needed
+        if (!"Admin".equalsIgnoreCase(currentUserRole)) {
+            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to add a department.";
+            logger.warn(errorMessage);
+            throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
+        }
         departmentDAO.addDepartment(department);
     }
 
     public void updateDepartment(Department department, String currentUserRole) {
-        // TODO: Add role-based validation if needed
+        if (!"Admin".equalsIgnoreCase(currentUserRole)) {
+            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to update a department.";
+            logger.warn(errorMessage);
+            throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
+        }
         departmentDAO.updateDepartment(department);
     }
 
     public void deleteDepartment(int departmentId, String currentUserRole) {
-        // TODO: Add role-based validation if needed
+        if (!"Admin".equalsIgnoreCase(currentUserRole)) {
+            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to delete department with id " + departmentId + ".";
+            logger.warn(errorMessage);
+            throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
+        }
         departmentDAO.deleteDepartment(departmentId);
     }
 
