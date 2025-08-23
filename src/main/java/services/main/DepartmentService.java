@@ -75,11 +75,10 @@ public class DepartmentService {
             head.setEmployeeId(headId);
             dept.setHeadEmployee(head);
         }
-        try {
-            addDepartment(dept, currentUserRole);
-        } catch (Exception ex) {
-            return "Lỗi khi thêm phòng ban: " + ex.getMessage();
-        }
+
+        // If error, let View layer catch and display to user
+        addDepartment(dept, currentUserRole);
+
         return null;
     }
 }

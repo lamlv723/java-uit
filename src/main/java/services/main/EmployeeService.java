@@ -79,11 +79,10 @@ public class EmployeeService {
         emp.setUsername(username);
         emp.setPassword(password);
         emp.setDepartmentId(deptId);
-        try {
-            addEmployee(emp, currentUserRole);
-        } catch (Exception ex) {
-            return "Lỗi khi thêm nhân viên: " + ex.getMessage();
-        }
+
+        // If error, let View layer catch and display to user
+        addEmployee(emp, currentUserRole);
+
         return null;
     }
 }
