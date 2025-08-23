@@ -31,6 +31,10 @@ public class DepartmentManagementView extends JFrame {
         btnAdd = new JButton("Thêm");
         btnEdit = new JButton("Sửa");
         btnDelete = new JButton("Xóa");
+
+        // Apply role-based restrictions
+        applyRoles();
+
         JPanel panelButtons = new JPanel();
         panelButtons.add(btnAdd);
         panelButtons.add(btnEdit);
