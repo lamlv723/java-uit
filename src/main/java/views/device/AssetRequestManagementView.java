@@ -63,7 +63,7 @@ public class AssetRequestManagementView extends JFrame {
             if ("Admin".equals(currentUserRole)) {
                 JComboBox<String> employeeComboBox = new JComboBox<>();
                 EmployeeService employeeService = new EmployeeService();
-                List<Employee> employees = employeeService.getAllEmployees();
+                List<Employee> employees = employeeService.getAllEmployees(currentUser);
                 if (employees != null) {
                     for (Employee emp : employees) {
                         employeeComboBox
