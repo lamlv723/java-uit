@@ -191,7 +191,8 @@ public class EmployeeManagementView extends JFrame {
     }
 
     private void loadDataToTable() {
-        List<Employee> list = employeeController.getAllEmployees();
+        Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
+        List<Employee> list = employeeController.getAllEmployees(currentUser);
         table.setEmployeeData(list);
     }
 
