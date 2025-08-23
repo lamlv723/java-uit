@@ -1,6 +1,7 @@
 package controllers.main;
 
 import models.main.Department;
+import models.main.Employee;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import services.main.DepartmentService;
@@ -51,9 +52,12 @@ class DepartmentControllerTest {
 
     @Test
     void testGetAllDepartments() {
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
+
         List<Department> departments = Arrays.asList(new Department(), new Department());
-        when(departmentServiceMock.getAllDepartments()).thenReturn(departments);
-        List<Department> result = departmentController.getAllDepartments();
+        when(departmentServiceMock.getAllDepartments(currentUser)).thenReturn(departments);
+        List<Department> result = departmentController.getAllDepartments(currentUser);
         assertEquals(2, result.size());
     }
 }

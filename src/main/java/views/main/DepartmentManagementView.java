@@ -150,7 +150,9 @@ public class DepartmentManagementView extends JFrame {
     }
 
     private void loadDataToTable() {
-        List<Department> list = departmentController.getAllDepartments();
+        Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
+        List<Department> list = departmentController.getAllDepartments(currentUser);
+
         Object[][] data = new Object[list.size()][3];
         for (int i = 0; i < list.size(); i++) {
             Department d = list.get(i);

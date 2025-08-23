@@ -1,5 +1,6 @@
 package controllers.main;
 
+import models.main.Employee;
 import services.main.DepartmentService;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public class DepartmentController {
         return departmentService.getDepartmentById(departmentId);
     }
 
-    public List<Department> getAllDepartments() {
-        return departmentService.getAllDepartments();
+    public List<Department> getAllDepartments(Employee currentUser) {
+        return departmentService.getAllDepartments(currentUser);
     }
 }

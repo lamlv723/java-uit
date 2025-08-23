@@ -2,6 +2,8 @@
 package services.main;
 
 import java.util.List;
+
+import models.main.Employee;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import dao.main.DepartmentDAOImpl;
@@ -47,8 +49,8 @@ public class DepartmentService {
         return departmentDAO.getDepartmentById(departmentId);
     }
 
-    public List<Department> getAllDepartments() {
-        return departmentDAO.getAllDepartments();
+    public List<Department> getAllDepartments(Employee currentUser) {
+        return departmentDAO.getAllDepartments(currentUser);
     }
 
     /**

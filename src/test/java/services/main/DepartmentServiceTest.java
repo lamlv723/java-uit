@@ -2,6 +2,7 @@ package services.main;
 
 import dao.main.interfaces.DepartmentDAO;
 import models.main.Department;
+import models.main.Employee;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -61,9 +62,12 @@ class DepartmentServiceTest {
 
     @Test
     void testGetAllDepartments() {
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
+
         List<Department> departments = Arrays.asList(new Department(), new Department());
-        when(departmentDAOMock.getAllDepartments()).thenReturn(departments);
-        List<Department> result = departmentService.getAllDepartments();
+        when(departmentDAOMock.getAllDepartments(currentUser)).thenReturn(departments);
+        List<Department> result = departmentService.getAllDepartments(currentUser);
         assertEquals(2, result.size());
     }
 }
