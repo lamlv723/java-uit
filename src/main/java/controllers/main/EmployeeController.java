@@ -33,7 +33,7 @@ public class EmployeeController {
         return employeeService.getEmployeeById(employeeId);
     }
 
-    public List<Employee> getAllEmployees() {
-        return employeeService.getAllEmployees();
+    public List<Employee> getAllEmployees(Employee currentUser) {
+        return employeeService.getAllEmployees(currentUser);
     }
 }
