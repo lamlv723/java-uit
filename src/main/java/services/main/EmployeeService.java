@@ -48,8 +48,8 @@ public class EmployeeService {
         return employeeDAO.getEmployeeById(employeeId);
     }
 
-    public List<Employee> getAllEmployees() {
-        return employeeDAO.getAllEmployees();
+    public List<Employee> getAllEmployees(Employee currentUser) {
+        return employeeDAO.getAllEmployees(currentUser);
     }
 
     /**
