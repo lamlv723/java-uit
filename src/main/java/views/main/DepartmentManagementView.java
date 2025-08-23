@@ -48,13 +48,19 @@ public class DepartmentManagementView extends JFrame {
             if (option == JOptionPane.OK_OPTION) {
                 String name = tfName.getText().trim();
                 String headIdStr = tfHeadId.getText().trim();
+                String currentUserRole = UserSession.getInstance().getCurrentUserRole();
                 // Gọi service xử lý nghiệp vụ, trả về lỗi nếu có
-                String error = departmentController.getDepartmentService().addDepartmentFromInput(name, headIdStr,
-                        "ADMIN");
-                if (error == null) {
-                    loadDataToTable();
-                } else {
-                    JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                try {
+                    String error = departmentController.getDepartmentService().addDepartmentFromInput(name, headIdStr,
+                            currentUserRole);
+                    if (error == null) {
+                        loadDataToTable();
+                    } else {
+                        JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
                 }
             }
         });
@@ -100,8 +106,15 @@ public class DepartmentManagementView extends JFrame {
                     } else {
                         dept.setHeadEmployee(null);
                     }
-                    departmentController.updateDepartment(dept, "ADMIN"); // TODO: lấy role thực tế nếu có
-                    loadDataToTable();
+
+                    String currentUserRole = UserSession.getInstance().getCurrentUserRole();
+                    try {
+                        departmentController.updateDepartment(dept, currentUserRole);
+                        loadDataToTable();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                        ex.printStackTrace();
+                    }
                 } else {
                     JOptionPane.showMessageDialog(this, "Tên phòng ban không được để trống!", "Lỗi",
                             JOptionPane.ERROR_MESSAGE);
@@ -121,7 +134,14 @@ public class DepartmentManagementView extends JFrame {
             int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa phòng ban này?", "Xác nhận xóa",
                     JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                departmentController.deleteDepartment(id, "ADMIN");
+                String currentUserRole = UserSession.getInstance().getCurrentUserRole();
+                try {
+                    departmentController.deleteDepartment(id, currentUserRole);
+                    loadDataToTable();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
+                }
             }
         });
 
