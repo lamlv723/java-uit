@@ -79,8 +79,9 @@ public class EmployeeManagementView extends JFrame {
                     } else {
                         JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
                     }
-                } catch (SecurityException ex) {
-                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi Phân Quyền", JOptionPane.ERROR_MESSAGE);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
                 }
             }
         });
@@ -154,8 +155,9 @@ public class EmployeeManagementView extends JFrame {
                     try {
                         employeeController.updateEmployee(emp, currentUserRole);
                         loadDataToTable();
-                    } catch (SecurityException ex) {
-                        JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi Phân Quyền", JOptionPane.ERROR_MESSAGE);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                        ex.printStackTrace();
                     }
                 } else {
                     JOptionPane.showMessageDialog(this, "Các trường bắt buộc không được để trống!", "Lỗi",
@@ -180,8 +182,9 @@ public class EmployeeManagementView extends JFrame {
                 try {
                     employeeController.deleteEmployee(id, currentUserRole);
                     loadDataToTable();
-                } catch (SecurityException ex) {
-                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi Phân Quyền", JOptionPane.ERROR_MESSAGE);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
                 }
             }
         });
