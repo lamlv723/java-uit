@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import controllers.main.DepartmentController;
+import controllers.user.UserSession;
 import services.main.DepartmentService;
 import models.main.Department;
 import models.main.Employee;
@@ -12,6 +13,9 @@ import views.main.components.DepartmentTable;
 public class DepartmentManagementView extends JFrame {
     private DepartmentTable table;
     private DepartmentController departmentController;
+    private JButton btnAdd;
+    private JButton btnEdit;
+    private JButton btnDelete;
 
     public DepartmentManagementView() {
         setTitle("Quản lý Phòng ban");
@@ -24,9 +28,9 @@ public class DepartmentManagementView extends JFrame {
         loadDataToTable();
         JScrollPane scrollPane = new JScrollPane(table);
 
-        JButton btnAdd = new JButton("Thêm");
-        JButton btnEdit = new JButton("Sửa");
-        JButton btnDelete = new JButton("Xóa");
+        btnAdd = new JButton("Thêm");
+        btnEdit = new JButton("Sửa");
+        btnDelete = new JButton("Xóa");
         JPanel panelButtons = new JPanel();
         panelButtons.add(btnAdd);
         panelButtons.add(btnEdit);
@@ -136,5 +140,15 @@ public class DepartmentManagementView extends JFrame {
             data[i][2] = (head != null) ? head.getEmployeeId() : "";
         }
         table.setDepartmentData(data);
+    }
+
+    private void applyRoles() {
+        String role = UserSession.getInstance().getCurrentUserRole();
+        // Only Admin can add, edit, or delete departments.
+        boolean isAdmin = "Admin".equalsIgnoreCase(role);
+
+        btnAdd.setVisible(isAdmin);
+        btnEdit.setVisible(isAdmin);
+        btnDelete.setVisible(isAdmin);
     }
 }
