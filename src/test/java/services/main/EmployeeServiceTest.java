@@ -61,9 +61,13 @@ class EmployeeServiceTest {
 
     @Test
     void testGetAllEmployees() {
+        // Mock current user
+        Employee currentUser = new Employee();
+        currentUser.setRole("ADMIN");
+
         List<Employee> employees = Arrays.asList(new Employee(), new Employee());
-        when(employeeDAOMock.getAllEmployees()).thenReturn(employees);
-        List<Employee> result = employeeService.getAllEmployees();
+        when(employeeDAOMock.getAllEmployees(currentUser)).thenReturn(employees);
+        List<Employee> result = employeeService.getAllEmployees(currentUser);
         assertEquals(2, result.size());
     }
 

@@ -51,9 +51,17 @@ class EmployeeControllerTest {
 
     @Test
     void testGetAllEmployees() {
+        // Mock current user
+        Employee currentUser = new Employee();
+        currentUser.setRole("ADMIN");
+
         List<Employee> employees = Arrays.asList(new Employee(), new Employee());
-        when(employeeServiceMock.getAllEmployees()).thenReturn(employees);
-        List<Employee> result = employeeController.getAllEmployees();
+        when(employeeServiceMock.getAllEmployees(currentUser)).thenReturn(employees);
+
+        List<Employee> result = employeeController.getAllEmployees(currentUser);
         assertEquals(2, result.size());
+
+        // Verify if service call (optional)
+//        verify(employeeServiceMock).getAllEmployees(currentUser);
     }
 }
