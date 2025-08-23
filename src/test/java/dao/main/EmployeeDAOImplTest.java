@@ -64,10 +64,10 @@ class EmployeeDAOImplTest {
     }
 
     @Test
-    void testGetAllEmployeesAdmin() {
+    void testGetAllEmployees_AsAdmin() {
         // Mock data
         Employee currentUser = new Employee();
-        currentUser.setRole("ADMIN");
+        currentUser.setRole("Admin");
 
         List<Employee> employees = Arrays.asList(new Employee(), new Employee());
         org.hibernate.query.Query<Employee> queryMock = mock(org.hibernate.query.Query.class);
@@ -78,13 +78,13 @@ class EmployeeDAOImplTest {
     }
 
     @Test
-    void testGetAllEmployeesManager() {
+    void testGetAllEmployees_AsManager() {
         // Mock data
         Department managerDept = new Department();
         managerDept.setDepartmentId(10);
 
         Employee currentUser = new Employee();
-        currentUser.setRole("MANAGER");
+        currentUser.setRole("Manager");
         currentUser.setDepartment(managerDept);
 
         List<Employee> employees = Arrays.asList(new Employee(), new Employee());
@@ -99,7 +99,7 @@ class EmployeeDAOImplTest {
     }
 
     @Test
-    void testGetAllEmployeesStaff() {
+    void testGetAllEmployees_AsStaff() {
         // Mock data
         Employee currentUser = new Employee();
         currentUser.setRole("Staff");
