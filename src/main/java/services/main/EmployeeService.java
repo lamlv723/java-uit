@@ -88,4 +88,27 @@ public class EmployeeService {
 
         return null;
     }
+
+    public String changePassword(Employee currentUser, String oldPassword, String newPassword) {
+        if (oldPassword == null || oldPassword.isEmpty() || newPassword == null || newPassword.isEmpty()) {
+            return "Mật khẩu không được để trống.";
+        }
+
+        // Check if the old password is correct
+        if (!currentUser.getPassword().equals(oldPassword)) {
+            return "Mật khẩu cũ không chính xác.";
+        }
+
+        currentUser.setPassword(newPassword);
+
+        // Persist the change to the database
+        try {
+            employeeDAO.updateEmployee(currentUser);
+        } catch (Exception e) {
+            logger.error("Error changing password for user {}: {}", currentUser.getUsername(), e.getMessage(), e);
+            return "Đã xảy ra lỗi khi cập nhật mật khẩu.";
+        }
+
+        return null; // Return null on success
+    }
 }
