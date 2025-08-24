@@ -273,7 +273,7 @@ INSERT INTO `Asset` (`asset_id`, `asset_name`, `description`, `serial_number`, `
 (78, 'Bàn nâng hạ tự động Epione (2)', 'Bàn cho Trưởng phòng', 'EPBH002', '2023-08-08', 8000000, '2028-08-08', 'Available', 9, 8),
 (81, 'Laptop Dell Vostro 3400', 'Laptop dự phòng', 'DV340001', '2021-05-15', 17000000, '2024-05-15', 'Retired', 1, 19),
 (82, 'Màn hình Viewsonic 22"', 'Màn hình cũ', 'VS22001', '2020-02-10', 3000000, '2023-02-10', 'Retired', 3, 5),
-
+-- Bổ sung tài sản theo category mới
 (83, 'Điều hòa Daikin 12000BTU (1)', 'Điều hòa cho phòng họp lớn', 'DK12K001', '2022-05-20', 15000000, '2025-05-20', 'Available', 18, 4),
 (84, 'Điều hòa Daikin 9000BTU (1)', 'Điều hòa cho phòng Giám đốc', 'DK9K001', '2022-05-20', 11000000, '2025-05-20', 'Available', 18, 4),
 (85, 'Máy lọc nước Kangaroo KG10A3', 'Máy lọc nước khu vực chung', 'KG10A301', '2023-01-10', 7000000, '2025-01-10', 'Available', 19, 4),
@@ -287,8 +287,8 @@ INSERT INTO `Asset` (`asset_id`, `asset_name`, `description`, `serial_number`, `
 -- PHẦN 3: TẠO DỮ LIỆU MẪU CHO YÊU CẦU MƯỢN/TRẢ (30 YÊU CẦU)
 -- =================================================================
 
+-- 10 Approved Borrows
 INSERT INTO `AssetRequest` (`request_id`, `employee_id`, `request_type`, `request_date`, `status`, `approver_id`, `approval_date`, `rejected_date`, `expected_return_date`) VALUES
--- 10 Approved Borrows (Tài sản sẽ có trạng thái Borrowed)
 (1, 17, 'borrow', '2025-05-10 09:00:00', 'Approved', 15, '2025-05-10 11:00:00', NULL, '2025-08-10'),
 (2, 22, 'borrow', '2025-05-11 10:00:00', 'Approved', 20, '2025-05-11 12:00:00', NULL, '2025-07-11'),
 (3, 28, 'borrow', '2025-05-12 14:00:00', 'Approved', 26, '2025-05-12 15:30:00', NULL, '2025-06-12'),
@@ -298,82 +298,70 @@ INSERT INTO `AssetRequest` (`request_id`, `employee_id`, `request_type`, `reques
 (7, 12, 'borrow', '2025-06-02 14:00:00', 'Approved', 10, '2025-06-02 16:00:00', NULL, '2025-08-02'),
 (8, 18, 'borrow', '2025-06-03 10:00:00', 'Approved', 15, '2025-06-03 11:00:00', NULL, '2025-06-10'),
 (9, 23, 'borrow', '2025-06-04 15:00:00', 'Approved', 20, '2025-06-04 15:30:00', NULL, '2025-07-04'),
-(10, 31, 'borrow', '2025-06-05 13:00:00', 'Approved', 30, '2025-06-05 14:00:00', NULL, '2025-06-15'),
+(10, 31, 'borrow', '2025-06-05 13:00:00', 'Approved', 30, '2025-06-05 14:00:00', NULL, '2025-06-15');
+INSERT INTO `AssetRequestItem` (`request_id`, `asset_id`, `borrow_date`, `condition_on_borrow`) VALUES
+(1, 11, '2025-05-10 14:00:00', 'Mới 100%'),
+(2, 4, '2025-05-11 13:00:00', 'Còn tốt'),
+(3, 12, '2025-05-12 16:00:00', 'Còn tốt'),
+(4, 65, '2025-05-13 09:30:00', 'Mới'),
+(5, 71, '2025-05-14 15:00:00', 'Mới'),
+(6, 5, '2025-06-01 11:00:00', 'Đã qua sử dụng'),
+(7, 45, '2025-06-02 16:30:00', 'Còn tốt'),
+(8, 75, '2025-06-03 11:30:00', 'Mới'),
+(9, 13, '2025-06-04 16:00:00', '95%'),
+(10, 56, '2025-06-05 14:30:00', 'Còn tốt');
+UPDATE `Asset` SET `status` = 'Borrowed' WHERE `asset_id` IN (11, 4, 12, 65, 71, 5, 45, 75, 13, 56);
 
 -- 5 Pending Borrows
+INSERT INTO `AssetRequest` (`request_id`, `employee_id`, `request_type`, `request_date`, `status`, `approver_id`, `approval_date`, `rejected_date`, `expected_return_date`) VALUES
 (11, 40, 'borrow', '2025-07-15 09:30:00', 'Pending', NULL, NULL, NULL, '2025-08-15'),
 (12, 50, 'borrow', '2025-07-16 10:00:00', 'Pending', NULL, NULL, NULL, '2025-10-16'),
 (13, 55, 'borrow', '2025-07-17 11:00:00', 'Pending', NULL, NULL, NULL, '2025-07-24'),
 (14, 8, 'borrow', '2025-07-18 14:00:00', 'Pending', NULL, NULL, NULL, '2025-09-18'),
-(15, 16, 'borrow', '2025-07-19 16:00:00', 'Pending', NULL, NULL, NULL, '2025-07-29'),
+(15, 16, 'borrow', '2025-07-19 16:00:00', 'Pending', NULL, NULL, NULL, '2025-07-29');
+INSERT INTO `AssetRequestItem` (`request_id`, `asset_id`) VALUES
+(11, 46),
+(12, 7),
+(13, 72),
+(14, 16),
+(15, 18);
 
 -- 5 Rejected Borrows
+INSERT INTO `AssetRequest` (`request_id`, `employee_id`, `request_type`, `request_date`, `status`, `approver_id`, `approval_date`, `rejected_date`, `expected_return_date`) VALUES
 (16, 24, 'borrow', '2025-07-01 10:00:00', 'Rejected', 20, NULL, '2025-07-01 11:00:00', '2025-08-01'),
 (17, 36, 'borrow', '2025-07-02 11:00:00', 'Rejected', 33, NULL, '2025-07-02 11:30:00', '2025-07-09'),
 (18, 45, 'borrow', '2025-07-03 13:00:00', 'Rejected', 42, NULL, '2025-07-03 14:00:00', '2025-07-13'),
 (19, 5, 'borrow', '2025-07-04 15:00:00', 'Rejected', 4, NULL, '2025-07-04 16:00:00', '2025-07-11'),
-(20, 13, 'borrow', '2025-07-05 16:00:00', 'Rejected', 10, NULL, '2025-07-05 17:00:00', '2025-07-15'),
+(20, 13, 'borrow', '2025-07-05 16:00:00', 'Rejected', 10, NULL, '2025-07-05 17:00:00', '2025-07-15');
+-- No items for rejected requests
 
--- 5 Approved Returns (Tài sản đã mượn trước đó và giờ trả)
+-- 5 Approved Returns
+UPDATE `Asset` SET `status` = 'Borrowed' WHERE `asset_id` IN (1, 6, 2, 3, 32);
+INSERT INTO `AssetRequest` (`request_id`, `employee_id`, `request_type`, `request_date`, `status`, `approver_id`, `approval_date`, `rejected_date`, `expected_return_date`) VALUES
 (21, 1, 'return', '2025-07-20 09:00:00', 'Approved', 15, '2025-07-20 10:00:00', NULL, NULL),
 (22, 6, 'return', '2025-07-21 10:00:00', 'Approved', 6, '2025-07-21 11:00:00', NULL, NULL),
 (23, 2, 'return', '2025-07-22 11:00:00', 'Approved', 20, '2025-07-22 12:00:00', NULL, NULL),
 (24, 3, 'return', '2025-07-23 13:00:00', 'Approved', 30, '2025-07-23 14:00:00', NULL, NULL),
-(25, 27, 'return', '2025-07-24 14:00:00', 'Approved', 26, '2025-07-24 15:00:00', NULL, NULL),
+(25, 27, 'return', '2025-07-24 14:00:00', 'Approved', 26, '2025-07-24 15:00:00', NULL, NULL);
+INSERT INTO `AssetRequestItem` (`request_id`, `asset_id`, `borrow_date`, `return_date`, `condition_on_borrow`, `condition_on_return`) VALUES
+(21, 1, '2025-04-20 09:00:00', '2025-07-20 10:30:00', 'Mới', 'Hơi trầy xước'),
+(22, 6, '2025-01-21 10:00:00', '2025-07-21 11:30:00', 'Tốt', 'Bình thường'),
+(23, 2, '2024-10-22 11:00:00', '2025-07-22 12:30:00', 'Tốt', 'Bình thường'),
+(24, 3, '2025-02-23 13:00:00', '2025-07-23 14:30:00', 'Tốt', 'Bình thường'),
+(25, 32, '2025-03-24 14:00:00', '2025-07-24 15:30:00', 'Mới', 'Bình thường');
+UPDATE `Asset` SET `status` = 'Available' WHERE `asset_id` IN (1, 6, 2, 3, 32);
 
 -- 5 Pending Returns
+UPDATE `Asset` SET `status` = 'Borrowed' WHERE `asset_id` IN (21, 22, 23, 24, 25);
+INSERT INTO `AssetRequest` (`request_id`, `employee_id`, `request_type`, `request_date`, `status`, `approver_id`, `approval_date`, `rejected_date`, `expected_return_date`) VALUES
 (26, 9, 'return', '2025-08-10 09:00:00', 'Pending', NULL, NULL, NULL, NULL),
 (27, 14, 'return', '2025-08-11 10:00:00', 'Pending', NULL, NULL, NULL, NULL),
 (28, 19, 'return', '2025-08-12 11:00:00', 'Pending', NULL, NULL, NULL, NULL),
 (29, 25, 'return', '2025-08-13 13:00:00', 'Pending', NULL, NULL, NULL, NULL),
 (30, 29, 'return', '2025-08-14 14:00:00', 'Pending', NULL, NULL, NULL, NULL);
-
-
--- Dữ liệu cho AssetRequestItem
-INSERT INTO `AssetRequestItem` (`request_id`, `asset_id`, `borrow_date`, `return_date`, `condition_on_borrow`, `condition_on_return`) VALUES
--- Approved Borrows
-(1, 11, '2025-05-10 14:00:00', NULL, 'Mới 100%', NULL),
-(2, 4, '2025-05-11 13:00:00', NULL, 'Còn tốt', NULL),
-(3, 12, '2025-05-12 16:00:00', NULL, 'Còn tốt', NULL),
-(4, 65, '2025-05-13 09:30:00', NULL, 'Mới', NULL),
-(5, 71, '2025-05-14 15:00:00', NULL, 'Mới', NULL),
-(6, 5, '2025-06-01 11:00:00', NULL, 'Đã qua sử dụng', NULL),
-(7, 45, '2025-06-02 16:30:00', NULL, 'Còn tốt', NULL),
-(8, 75, '2025-06-03 11:30:00', NULL, 'Mới', NULL),
-(9, 13, '2025-06-04 16:00:00', NULL, '95%', NULL),
-(10, 56, '2025-06-05 14:30:00', NULL, 'Còn tốt', NULL),
-
--- Pending Borrows
-(11, 46, NULL, NULL, NULL, NULL),
-(12, 7, NULL, NULL, NULL, NULL),
-(13, 72, NULL, NULL, NULL, NULL),
-(14, 16, NULL, NULL, NULL, NULL),
-(15, 18, NULL, NULL, NULL, NULL),
-
--- Rejected Borrows (không có item được tạo)
-
--- Approved Returns (giả định các tài sản này đã được mượn từ trước)
-(21, 1, '2025-04-20 09:00:00', '2025-07-20 10:30:00', 'Mới', 'Hơi trầy xước'),
-(22, 6, '2025-01-21 10:00:00', '2025-07-21 11:30:00', 'Tốt', 'Bình thường'),
-(23, 2, '2024-10-22 11:00:00', '2025-07-22 12:30:00', 'Tốt', 'Bình thường'),
-(24, 3, '2025-02-23 13:00:00', '2025-07-23 14:30:00', 'Tốt', 'Bình thường'),
-(25, 32, '2025-03-24 14:00:00', '2025-07-24 15:30:00', 'Mới', 'Bình thường'),
-
--- Pending Returns (giả định các tài sản này đang được mượn)
-(26, 21, '2025-07-10 09:00:00', NULL, 'Tốt', NULL),
-(27, 22, '2025-06-11 10:00:00', NULL, 'Tốt', NULL),
-(28, 23, '2025-05-12 11:00:00', NULL, 'Tốt', NULL),
-(29, 24, '2025-04-13 13:00:00', NULL, 'Tốt', NULL),
-(30, 25, '2025-03-14 14:00:00', NULL, 'Tốt', NULL);
-
--- Cập nhật trạng thái tài sản dựa trên các yêu cầu
--- Các tài sản được mượn và chưa trả (request 1-10)
--- Các tài sản đang chờ trả (request 26-30)
--- Các tài sản đã được trả (request 21-25) -> status sẽ là Available, không cần update ở đây vì mặc định đã là Available
--- Các tài sản đã được mượn trước đó để có thể tạo yêu cầu trả (cho request 21-30)
-UPDATE `Asset` SET `status` = 'Borrowed' WHERE `asset_id` IN (
-    -- Đang được mượn (request 1-10)
-    11, 4, 12, 65, 71, 5, 45, 75, 13, 56,
-    -- Đã mượn và đang chờ trả (request 26-30)
-    21, 22, 23, 24, 25
-);
+INSERT INTO `AssetRequestItem` (`request_id`, `asset_id`, `borrow_date`, `condition_on_borrow`) VALUES
+(26, 21, '2025-07-10 09:00:00', 'Tốt'),
+(27, 22, '2025-06-11 10:00:00', 'Tốt'),
+(28, 23, '2025-05-12 11:00:00', 'Tốt'),
+(29, 24, '2025-04-13 13:00:00', 'Tốt'),
+(30, 25, '2025-03-14 14:00:00', 'Tốt');
