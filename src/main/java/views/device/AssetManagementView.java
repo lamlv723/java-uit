@@ -55,7 +55,6 @@ public class AssetManagementView extends JFrame {
                 Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
                 // Gọi service xử lý nghiệp vụ, trả về lỗi nếu có
                 try {
-                    // TODO: Update addAssetFromInput to accept user role
                     String error = assetController.getAssetService().addAssetFromInput(name, desc, currentUser);
                     if (error == null) {
                         loadDataToTable();
@@ -99,7 +98,6 @@ public class AssetManagementView extends JFrame {
                     asset.setDescription(desc);
                     Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
                     try {
-                        // TODO: Update updateAsset to accept user role
                         assetController.updateAsset(asset, currentUser);
                         loadDataToTable();
                     } catch (Exception ex) {
@@ -133,7 +131,6 @@ public class AssetManagementView extends JFrame {
             if (confirm == JOptionPane.YES_OPTION) {
                 Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
                 try {
-                    // TODO: Update deleteAsset to accept user role
                     assetController.deleteAsset(asset, currentUser);
                     loadDataToTable();
                 } catch (Exception ex) {
