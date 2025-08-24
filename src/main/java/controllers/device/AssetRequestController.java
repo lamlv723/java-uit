@@ -34,8 +34,8 @@ public class AssetRequestController {
         return assetRequestService.getAssetRequestById(requestId);
     }
 
-    public List<AssetRequest> getAllAssetRequests() {
-        return assetRequestService.getAllAssetRequests();
+    public List<AssetRequest> getAllAssetRequests(Employee currentUser) {
+        return assetRequestService.getAllAssetRequests(currentUser);
     }
 
     public String updateRequestWithItems(int requestId, List<Integer> assetIds, Employee currentUser) {

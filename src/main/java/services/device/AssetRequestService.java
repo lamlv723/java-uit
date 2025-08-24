@@ -95,8 +95,8 @@ public class AssetRequestService {
         return assetRequestDAO.getAssetRequestById(requestId);
     }
 
-    public List<AssetRequest> getAllAssetRequests() {
-        return assetRequestDAO.getAllAssetRequests();
+    public List<AssetRequest> getAllAssetRequests(Employee currentUser) {
+        return assetRequestDAO.getAllAssetRequests(currentUser);
     }
 
     public String addAssetRequestFromInput(String title, String desc, String currentUserRole) {
@@ -114,8 +114,8 @@ public class AssetRequestService {
         return null;
     }
 
-    public List<AssetRequest> getAllAvailableAssets() {
-        List<AssetRequest> allAssets = assetRequestDAO.getAllAssetRequests();
+    public List<AssetRequest> getAllAvailableAssets(Employee currentUser) {
+        List<AssetRequest> allAssets = assetRequestDAO.getAllAssetRequests(currentUser);
         if (allAssets == null) {
             return new java.util.ArrayList<>();
         }

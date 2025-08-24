@@ -1,6 +1,7 @@
 package dao.device;
 
 import models.device.AssetRequest;
+import models.main.Employee;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,11 +65,14 @@ class AssetRequestDAOImplTest {
 
     @Test
     void testGetAllAssetRequests() {
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
+
         List<AssetRequest> requests = Arrays.asList(new AssetRequest(), new AssetRequest());
         org.hibernate.query.Query queryMock = mock(org.hibernate.query.Query.class);
         when(sessionMock.createQuery("FROM AssetRequest", AssetRequest.class)).thenReturn(queryMock);
         when(queryMock.getResultList()).thenReturn(requests);
-        List<AssetRequest> result = assetRequestDAO.getAllAssetRequests();
+        List<AssetRequest> result = assetRequestDAO.getAllAssetRequests(currentUser);
         assertEquals(2, result.size());
     }
 }

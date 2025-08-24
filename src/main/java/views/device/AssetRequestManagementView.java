@@ -404,7 +404,8 @@ public class AssetRequestManagementView extends JFrame {
     }
 
     private void loadDataToTable() {
-        List<AssetRequest> list = assetRequestController.getAllAssetRequests();
+        Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
+        List<AssetRequest> list = assetRequestController.getAllAssetRequests(currentUser);
         table.setAssetRequestData(list);
     }
 

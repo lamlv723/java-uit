@@ -60,9 +60,20 @@ class AssetRequestControllerTest {
 
     @Test
     void testGetAllAssetRequests() {
+        // 1. Arrange: Tạo người dùng hiện tại giả
+        Employee currentUser = new Employee();
         List<AssetRequest> requests = Arrays.asList(new AssetRequest(), new AssetRequest());
-        when(assetRequestServiceMock.getAllAssetRequests()).thenReturn(requests);
-        List<AssetRequest> result = assetRequestController.getAllAssetRequests();
+
+        // 2. Dạy cho service mock phải làm gì khi được gọi với currentUser
+        when(assetRequestServiceMock.getAllAssetRequests(currentUser)).thenReturn(requests);
+
+        // 3. Act: Gọi phương thức của controller với currentUser
+        List<AssetRequest> result = assetRequestController.getAllAssetRequests(currentUser);
+
+        // 4. Assert: Kiểm tra kết quả
         assertEquals(2, result.size());
+
+        // 5. Verify: Xác minh controller đã gọi đúng phương thức của service
+        verify(assetRequestServiceMock, times(1)).getAllAssetRequests(currentUser);
     }
 }

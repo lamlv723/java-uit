@@ -91,9 +91,18 @@ class AssetRequestServiceTest {
 
     @Test
     void testGetAllAssetRequests() {
+        // 1. Arrange: Tạo người dùng hiện tại giả
+        Employee currentUser = new Employee();
         List<AssetRequest> requests = Arrays.asList(new AssetRequest(), new AssetRequest());
-        when(assetRequestDAOMock.getAllAssetRequests()).thenReturn(requests);
-        List<AssetRequest> result = assetRequestService.getAllAssetRequests();
+
+        // 2. Dạy cho DAO mock phải làm gì khi được gọi với currentUser
+        when(assetRequestDAOMock.getAllAssetRequests(currentUser)).thenReturn(requests);
+
+        // 3. Act: Gọi phương thức của service với currentUser
+        List<AssetRequest> result = assetRequestService.getAllAssetRequests(currentUser);
+
+        // 4. Assert & Verify
         assertEquals(2, result.size());
+        verify(assetRequestDAOMock, times(1)).getAllAssetRequests(currentUser);
     }
 }
