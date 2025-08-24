@@ -17,7 +17,8 @@ public class EmployeeService {
         this.employeeDAO = new EmployeeDAOImpl();
     }
 
-    public void addEmployee(Employee employee, String currentUserRole) {
+    public void addEmployee(Employee employee, Employee currentUser) {
+        String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
             String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to add an employee.";
             logger.warn(errorMessage);
@@ -26,7 +27,8 @@ public class EmployeeService {
         employeeDAO.addEmployee(employee);
     }
 
-    public void updateEmployee(Employee employee, String currentUserRole) {
+    public void updateEmployee(Employee employee, Employee currentUser) {
+        String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
             String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to update an employee.";
             logger.warn(errorMessage);
@@ -35,7 +37,8 @@ public class EmployeeService {
         employeeDAO.updateEmployee(employee);
     }
 
-    public void deleteEmployee(int employeeId, String currentUserRole) {
+    public void deleteEmployee(int employeeId, Employee currentUser) {
+        String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
             String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to delete employee with id " + employeeId + ".";
             logger.warn(errorMessage);
@@ -58,7 +61,7 @@ public class EmployeeService {
      * Trả về null nếu thành công, trả về thông báo lỗi nếu có lỗi.
      */
     public String addEmployeeFromInput(String firstName, String lastName, String email, String phone, String deptIdStr,
-            String role, String username, String password, String currentUserRole) {
+            String role, String username, String password, Employee currentUser) {
         if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || username.isEmpty() || password.isEmpty()) {
             return "Các trường bắt buộc không được để trống!";
         }
@@ -81,7 +84,7 @@ public class EmployeeService {
         emp.setDepartmentId(deptId);
 
         // If error, let View layer catch and display to user
-        addEmployee(emp, currentUserRole);
+        addEmployee(emp, currentUser);
 
         return null;
     }

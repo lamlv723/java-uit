@@ -40,7 +40,7 @@ public class EmployeeManagementView extends JFrame {
 
         // Action for Add
         btnAdd.addActionListener(e -> {
-            String currentUserRole = UserSession.getInstance().getCurrentUserRole();
+            Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
             JTextField tfFirstName = new JTextField();
             JTextField tfLastName = new JTextField();
             JTextField tfEmail = new JTextField();
@@ -73,7 +73,7 @@ public class EmployeeManagementView extends JFrame {
                 // Gọi service xử lý nghiệp vụ, trả về lỗi nếu có
                 try {
                     String error = employeeController.getEmployeeService().addEmployeeFromInput(firstName, lastName, email,
-                            phone, deptIdStr, role, username, password, currentUserRole);
+                            phone, deptIdStr, role, username, password, currentUser);
                     if (error == null) {
                         loadDataToTable();
                     } else {
@@ -88,7 +88,7 @@ public class EmployeeManagementView extends JFrame {
 
         // Action for Edit
         btnEdit.addActionListener(e -> {
-            String currentUserRole = UserSession.getInstance().getCurrentUserRole();
+            Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
             int row = table.getSelectedRow();
             if (row == -1) {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn một nhân viên để sửa!", "Thông báo",
@@ -153,7 +153,7 @@ public class EmployeeManagementView extends JFrame {
                     }
 
                     try {
-                        employeeController.updateEmployee(emp, currentUserRole);
+                        employeeController.updateEmployee(emp, currentUser);
                         loadDataToTable();
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
@@ -168,7 +168,7 @@ public class EmployeeManagementView extends JFrame {
 
         // Action for Delete
         btnDelete.addActionListener(e -> {
-            String currentUserRole = UserSession.getInstance().getCurrentUserRole();
+            Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
             int row = table.getSelectedRow();
             if (row == -1) {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn một nhân viên để xóa!", "Thông báo",
@@ -180,7 +180,7 @@ public class EmployeeManagementView extends JFrame {
                     JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
                 try {
-                    employeeController.deleteEmployee(id, currentUserRole);
+                    employeeController.deleteEmployee(id, currentUser);
                     loadDataToTable();
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);

@@ -24,21 +24,24 @@ class EmployeeControllerTest {
     @Test
     void testAddEmployee() {
         Employee employee = new Employee();
-        employeeController.addEmployee(employee, "ADMIN");
-        verify(employeeServiceMock, times(1)).addEmployee(employee, "ADMIN");
+        Employee currentUser = new Employee();
+        employeeController.addEmployee(employee, currentUser);
+        verify(employeeServiceMock, times(1)).addEmployee(employee, currentUser);
     }
 
     @Test
     void testUpdateEmployee() {
         Employee employee = new Employee();
-        employeeController.updateEmployee(employee, "ADMIN");
-        verify(employeeServiceMock, times(1)).updateEmployee(employee, "ADMIN");
+        Employee currentUser = new Employee();
+        employeeController.updateEmployee(employee, currentUser);
+        verify(employeeServiceMock, times(1)).updateEmployee(employee, currentUser);
     }
 
     @Test
     void testDeleteEmployee() {
-        employeeController.deleteEmployee(1, "ADMIN");
-        verify(employeeServiceMock, times(1)).deleteEmployee(1, "ADMIN");
+        Employee currentUser = new Employee();
+        employeeController.deleteEmployee(1, currentUser);
+        verify(employeeServiceMock, times(1)).deleteEmployee(1, currentUser);
     }
 
     @Test
