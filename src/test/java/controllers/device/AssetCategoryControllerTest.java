@@ -1,6 +1,7 @@
 package controllers.device;
 
 import models.device.AssetCategory;
+import models.main.Employee;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import services.device.AssetCategoryService;
@@ -24,21 +25,24 @@ class AssetCategoryControllerTest {
     @Test
     void testAddAssetCategory() {
         AssetCategory category = new AssetCategory();
-        assetCategoryController.addAssetCategory(category, "ADMIN");
-        verify(assetCategoryServiceMock, times(1)).addAssetCategory(category, "ADMIN");
+        Employee currentUser = new Employee();
+        assetCategoryController.addAssetCategory(category, currentUser);
+        verify(assetCategoryServiceMock, times(1)).addAssetCategory(category, currentUser);
     }
 
     @Test
     void testUpdateAssetCategory() {
         AssetCategory category = new AssetCategory();
-        assetCategoryController.updateAssetCategory(category, "ADMIN");
-        verify(assetCategoryServiceMock, times(1)).updateAssetCategory(category, "ADMIN");
+        Employee currentUser = new Employee();
+        assetCategoryController.updateAssetCategory(category, currentUser);
+        verify(assetCategoryServiceMock, times(1)).updateAssetCategory(category, currentUser);
     }
 
     @Test
     void testDeleteAssetCategory() {
-        assetCategoryController.deleteAssetCategory(1, "ADMIN");
-        verify(assetCategoryServiceMock, times(1)).deleteAssetCategory(1, "ADMIN");
+        Employee currentUser = new Employee();
+        assetCategoryController.deleteAssetCategory(1, currentUser);
+        verify(assetCategoryServiceMock, times(1)).deleteAssetCategory(1, currentUser);
     }
 
     @Test

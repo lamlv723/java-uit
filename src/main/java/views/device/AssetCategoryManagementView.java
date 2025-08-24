@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.*;
 
 import controllers.user.UserSession;
+import models.main.Employee;
 import views.device.components.AssetCategoryTable;
 import controllers.device.AssetCategoryController;
 import services.device.AssetCategoryService;
@@ -41,7 +42,7 @@ public class AssetCategoryManagementView extends JFrame {
 
         // Action for Add
         btnAdd.addActionListener(e -> {
-            String currentUserRole = UserSession.getInstance().getCurrentUserRole();
+            Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
             JTextField tfName = new JTextField();
             JTextField tfDesc = new JTextField();
             Object[] message = {
@@ -55,7 +56,7 @@ public class AssetCategoryManagementView extends JFrame {
                 // Gọi service xử lý nghiệp vụ, trả về lỗi nếu có
                 try {
                     String error = assetCategoryController.getAssetCategoryService().addAssetCategoryFromInput(name, desc,
-                            currentUserRole);
+                            currentUser);
                     if (error == null) {
                         loadDataToTable();
                     } else {
@@ -70,7 +71,7 @@ public class AssetCategoryManagementView extends JFrame {
 
         // Action for Edit
         btnEdit.addActionListener(e -> {
-            String currentUserRole = UserSession.getInstance().getCurrentUserRole();
+            Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
             int row = table.getSelectedRow();
             if (row == -1) {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn một danh mục để sửa!", "Thông báo",
@@ -97,7 +98,7 @@ public class AssetCategoryManagementView extends JFrame {
                     cat.setCategoryName(name);
                     cat.setDescription(desc);
                     try {
-                        assetCategoryController.updateAssetCategory(cat, currentUserRole);
+                        assetCategoryController.updateAssetCategory(cat, currentUser);
                         loadDataToTable();
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
@@ -112,7 +113,7 @@ public class AssetCategoryManagementView extends JFrame {
 
         // Action for Delete
         btnDelete.addActionListener(e -> {
-            String currentUserRole = UserSession.getInstance().getCurrentUserRole();
+            Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
             int row = table.getSelectedRow();
             if (row == -1) {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn một danh mục để xóa!", "Thông báo",
@@ -124,7 +125,7 @@ public class AssetCategoryManagementView extends JFrame {
                     JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
                 try {
-                    assetCategoryController.deleteAssetCategory(id, currentUserRole);
+                    assetCategoryController.deleteAssetCategory(id, currentUser);
                     loadDataToTable();
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
