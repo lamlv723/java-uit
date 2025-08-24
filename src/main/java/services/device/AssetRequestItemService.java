@@ -4,6 +4,8 @@ package services.device;
 import dao.device.AssetRequestItemDAOImpl;
 import dao.device.interfaces.AssetRequestItemDAO;
 import models.device.AssetRequestItem;
+import models.main.Employee;
+
 import java.util.List;
 
 public class AssetRequestItemService {
@@ -36,8 +38,8 @@ public class AssetRequestItemService {
         return assetRequestItemDAO.getAllAssetRequestItems();
     }
 
-    public List<AssetRequestItem> getAllBorrowedAssetRequestItems(){
-        return assetRequestItemDAO.getAllBorrowedAssetRequestItems();
+    public List<AssetRequestItem> getAllBorrowedAssetRequestItems(Employee currentUser){
+        return assetRequestItemDAO.getAllBorrowedAssetRequestItems(currentUser);
     }
 
     /**

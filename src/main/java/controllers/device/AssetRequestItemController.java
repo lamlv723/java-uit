@@ -1,5 +1,6 @@
 package controllers.device;
 
+import models.main.Employee;
 import services.device.AssetRequestItemService;
 
 import java.util.List;
@@ -37,7 +38,7 @@ public class AssetRequestItemController {
         return assetRequestItemService.getAllAssetRequestItems();
     }
 
-    public List<AssetRequestItem> getAllBorrowedAssetRequestItems(){
-        return assetRequestItemService.getAllBorrowedAssetRequestItems();
+    public List<AssetRequestItem> getAllBorrowedAssetRequestItems(Employee currentUser){
+        return assetRequestItemService.getAllBorrowedAssetRequestItems(currentUser);
     }
 }

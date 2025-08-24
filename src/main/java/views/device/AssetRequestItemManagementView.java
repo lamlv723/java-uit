@@ -2,6 +2,8 @@ package views.device;
 
 import controllers.device.AssetRequestItemController;
 import services.device.AssetRequestItemService;
+import controllers.user.UserSession;
+import models.main.Employee;
 import models.device.AssetRequestItem;
 import views.device.components.AssetRequestItemTable;
 import java.util.List;
@@ -58,7 +60,8 @@ public class AssetRequestItemManagementView extends JFrame {
     }
 
     private void loadDataToTable() {
-        List<AssetRequestItem> allItems = assetRequestItemController.getAllBorrowedAssetRequestItems();
+        Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
+        List<AssetRequestItem> allItems = assetRequestItemController.getAllBorrowedAssetRequestItems(currentUser);
         
         if (specificRequestId != null) {
             // Nếu đây là cửa sổ chi tiết, lọc danh sách chỉ hiển thị các item của request này

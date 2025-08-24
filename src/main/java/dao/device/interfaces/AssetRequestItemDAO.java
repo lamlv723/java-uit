@@ -1,6 +1,7 @@
 package dao.device.interfaces;
 
 import models.device.AssetRequestItem;
+import models.main.Employee;
 
 import java.util.List;
 
@@ -19,5 +20,5 @@ public interface AssetRequestItemDAO {
 
     AssetRequestItem findActiveBorrowItemByAssetId(int assetId);
 
-    List<AssetRequestItem> getAllBorrowedAssetRequestItems();
+    List<AssetRequestItem> getAllBorrowedAssetRequestItems(Employee currentUser);
 }
