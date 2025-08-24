@@ -18,16 +18,16 @@ public class AssetRequestItemController {
         return assetRequestItemService;
     }
 
-    public void addAssetRequestItem(AssetRequestItem item, String currentUserRole) {
-        assetRequestItemService.addAssetRequestItem(item, currentUserRole);
+    public void addAssetRequestItem(AssetRequestItem item, Employee currentUser) {
+        assetRequestItemService.addAssetRequestItem(item, currentUser);
     }
 
-    public void updateAssetRequestItem(AssetRequestItem item, String currentUserRole) {
-        assetRequestItemService.updateAssetRequestItem(item, currentUserRole);
+    public void updateAssetRequestItem(AssetRequestItem item, Employee currentUser) {
+        assetRequestItemService.updateAssetRequestItem(item, currentUser);
     }
 
-    public void deleteAssetRequestItem(int requestItemId, String currentUserRole) {
-        assetRequestItemService.deleteAssetRequestItem(requestItemId, currentUserRole);
+    public void deleteAssetRequestItem(int requestItemId, Employee currentUser) {
+        assetRequestItemService.deleteAssetRequestItem(requestItemId, currentUser);
     }
 
     public AssetRequestItem getAssetRequestItemById(int requestItemId) {

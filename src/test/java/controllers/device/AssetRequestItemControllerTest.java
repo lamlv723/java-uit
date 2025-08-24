@@ -1,6 +1,7 @@
 package controllers.device;
 
 import models.device.AssetRequestItem;
+import models.main.Employee;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import services.device.AssetRequestItemService;
@@ -24,21 +25,24 @@ class AssetRequestItemControllerTest {
     @Test
     void testAddAssetRequestItem() {
         AssetRequestItem item = new AssetRequestItem();
-        assetRequestItemController.addAssetRequestItem(item, "ADMIN");
-        verify(assetRequestItemServiceMock, times(1)).addAssetRequestItem(item, "ADMIN");
+        Employee currentUser = new Employee();
+        assetRequestItemController.addAssetRequestItem(item, currentUser);
+        verify(assetRequestItemServiceMock, times(1)).addAssetRequestItem(item, currentUser);
     }
 
     @Test
     void testUpdateAssetRequestItem() {
         AssetRequestItem item = new AssetRequestItem();
-        assetRequestItemController.updateAssetRequestItem(item, "ADMIN");
-        verify(assetRequestItemServiceMock, times(1)).updateAssetRequestItem(item, "ADMIN");
+        Employee currentUser = new Employee();
+        assetRequestItemController.updateAssetRequestItem(item, currentUser);
+        verify(assetRequestItemServiceMock, times(1)).updateAssetRequestItem(item, currentUser);
     }
 
     @Test
     void testDeleteAssetRequestItem() {
-        assetRequestItemController.deleteAssetRequestItem(1, "ADMIN");
-        verify(assetRequestItemServiceMock, times(1)).deleteAssetRequestItem(1, "ADMIN");
+        Employee currentUser = new Employee();
+        assetRequestItemController.deleteAssetRequestItem(1, currentUser);
+        verify(assetRequestItemServiceMock, times(1)).deleteAssetRequestItem(1, currentUser);
     }
 
     @Test
