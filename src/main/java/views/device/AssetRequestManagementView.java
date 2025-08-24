@@ -54,10 +54,8 @@ public class AssetRequestManagementView extends JFrame {
 
         // Hiển thị các nút duyệt cho Admin và Manager
         if ("Staff".equalsIgnoreCase(currentUserRole)) {
-            btnDelete.setVisible(false);
             btnApprove.setVisible(false);
             btnReject.setVisible(false);
-            btnEdit.setVisible(false);
         }
 
         btnAdd.addActionListener(e -> {
