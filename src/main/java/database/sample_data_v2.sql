@@ -47,7 +47,7 @@ INSERT INTO `Employee` (`employee_id`, `first_name`, `last_name`, `email`, `phon
 -- Tài khoản đặc biệt
 (1, 'Hệ thống', 'Quản trị', 'admin@company.com', '0901112220', 4, 'Admin', 'admin', '12345', 'Active'),
 (2, 'Cấp cao', 'Quản lý', 'manager@company.com', '0901112221', 5, 'Manager', 'manager', '12345', 'Active'),
-(3, 'Văn phòng', 'Nhân viên', 'staff@company.com', '0901112222', 7, 'Staff', 'staff', '12345', 'Active'),
+(3, 'Văn phòng', 'Nhân viên', 'staff@company.com', '0901112222', 5, 'Staff', 'staff', '12345', 'Active'),
 
 -- Ban Giám đốc (Department ID: 1)
 (4, 'An', 'Nguyễn Văn', 'an.nv@company.com', '0910000001', 1, 'Manager', 'annv', '12345', 'Active'), -- Giám đốc
