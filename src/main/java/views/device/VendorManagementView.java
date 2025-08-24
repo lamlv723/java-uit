@@ -5,6 +5,7 @@ import java.awt.*;
 import java.util.List;
 import controllers.device.VendorController;
 import controllers.user.UserSession;
+import models.main.Employee;
 import services.device.VendorService;
 import models.device.Vendor;
 import views.device.components.VendorTable;
@@ -39,7 +40,7 @@ public class    VendorManagementView extends JFrame {
 
         // Action for Add
         btnAdd.addActionListener(e -> {
-            String currentUserRole = UserSession.getInstance().getCurrentUserRole();
+            Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
             JTextField tfName = new JTextField();
             JTextField tfContact = new JTextField();
             JTextField tfPhone = new JTextField();
@@ -63,7 +64,7 @@ public class    VendorManagementView extends JFrame {
                 // Gọi service xử lý nghiệp vụ, trả về lỗi nếu có
                 try {
                     String error = vendorController.getVendorService().addVendorFromInput(name, contact, phone, email,
-                            address, currentUserRole);
+                            address, currentUser);
                     if (error == null) {
                         loadDataToTable();
                     } else {
@@ -78,7 +79,7 @@ public class    VendorManagementView extends JFrame {
 
         // Action for Edit
         btnEdit.addActionListener(e -> {
-            String currentUserRole = UserSession.getInstance().getCurrentUserRole();
+            Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
             int row = table.getSelectedRow();
             if (row == -1) {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn một nhà cung cấp để sửa!", "Thông báo",
@@ -117,7 +118,7 @@ public class    VendorManagementView extends JFrame {
                     vendor.setEmail(email);
                     vendor.setAddress(address);
                     try {
-                        vendorController.updateVendor(vendor, currentUserRole);
+                        vendorController.updateVendor(vendor, currentUser);
                         loadDataToTable();
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
@@ -132,7 +133,7 @@ public class    VendorManagementView extends JFrame {
 
         // Action for Delete
         btnDelete.addActionListener(e -> {
-            String currentUserRole = UserSession.getInstance().getCurrentUserRole();
+            Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
             int row = table.getSelectedRow();
             if (row == -1) {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn một nhà cung cấp để xóa!", "Thông báo",
@@ -144,7 +145,7 @@ public class    VendorManagementView extends JFrame {
                     JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
                 try {
-                    vendorController.deleteVendor(id, currentUserRole);
+                    vendorController.deleteVendor(id, currentUser);
                     loadDataToTable();
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);

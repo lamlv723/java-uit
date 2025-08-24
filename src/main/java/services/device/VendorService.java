@@ -2,6 +2,8 @@
 package services.device;
 
 import java.util.List;
+
+import models.main.Employee;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import dao.device.VendorDAOImpl;
@@ -16,7 +18,8 @@ public class VendorService {
         this.vendorDAO = new VendorDAOImpl();
     }
 
-    public void addVendor(Vendor vendor, String currentUserRole) {
+    public void addVendor(Vendor vendor, Employee currentUser) {
+        String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
             String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to add a vendor.";
             logger.warn(errorMessage);
@@ -25,7 +28,8 @@ public class VendorService {
         vendorDAO.addVendor(vendor);
     }
 
-    public void updateVendor(Vendor vendor, String currentUserRole) {
+    public void updateVendor(Vendor vendor, Employee currentUser) {
+        String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
             String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to update a vendor.";
             logger.warn(errorMessage);
@@ -34,7 +38,8 @@ public class VendorService {
         vendorDAO.updateVendor(vendor);
     }
 
-    public void deleteVendor(int vendorId, String currentUserRole) {
+    public void deleteVendor(int vendorId, Employee currentUser) {
+        String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
             String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to delete vendor with id " + vendorId + ".";
             logger.warn(errorMessage);
@@ -56,7 +61,7 @@ public class VendorService {
      * Trả về null nếu thành công, trả về thông báo lỗi nếu có lỗi.
      */
     public String addVendorFromInput(String name, String contact, String phone, String email, String address,
-            String currentUserRole) {
+            Employee currentUser) {
         if (name == null || name.isEmpty()) {
             return "Tên nhà cung cấp không được để trống!";
         }
@@ -68,7 +73,7 @@ public class VendorService {
         vendor.setAddress(address);
 
         // Let error propagate and be caught in view layer
-        addVendor(vendor, currentUserRole);
+        addVendor(vendor, currentUser);
 
         return null;
     }
