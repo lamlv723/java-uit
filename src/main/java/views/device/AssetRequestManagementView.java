@@ -18,6 +18,7 @@ import models.device.AssetRequestItem;
 import services.device.AssetService;
 import services.main.EmployeeService;
 import views.device.components.AssetRequestTable;
+import utils.UIUtils;
 
 public class AssetRequestManagementView extends JFrame {
     private AssetRequestTable table;
@@ -197,7 +198,8 @@ public class AssetRequestManagementView extends JFrame {
                         JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                    String detailedMessage = "Đã xảy ra lỗi không mong muốn.\nChi tiết: " + ex.getMessage();
+                    UIUtils.showErrorDialog(this, detailedMessage, "Lỗi Hệ Thống");
                     ex.printStackTrace();
                 }
             }
@@ -232,7 +234,8 @@ public class AssetRequestManagementView extends JFrame {
                     JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                String detailedMessage = "Đã xảy ra lỗi không mong muốn.\nChi tiết: " + ex.getMessage();
+                UIUtils.showErrorDialog(this, detailedMessage, "Lỗi Hệ Thống");
                 ex.printStackTrace();
             }
         });
@@ -245,7 +248,6 @@ public class AssetRequestManagementView extends JFrame {
                 return;
             }
             Integer requestId = (Integer) table.getValueAt(row, 0);
-            int approverId = UserSession.getInstance().getLoggedInEmployee().getEmployeeId();
 
             try {
                 String error = assetRequestController.getAssetRequestService().rejectRequest(requestId, currentUser);
@@ -261,7 +263,8 @@ public class AssetRequestManagementView extends JFrame {
                     JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                String detailedMessage = "Đã xảy ra lỗi không mong muốn.\nChi tiết: " + ex.getMessage();
+                UIUtils.showErrorDialog(this, detailedMessage, "Lỗi Hệ Thống");
                 ex.printStackTrace();
             }
         });
@@ -389,7 +392,8 @@ public class AssetRequestManagementView extends JFrame {
                         JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                    String detailedMessage = "Đã xảy ra lỗi không mong muốn.\nChi tiết: " + ex.getMessage();
+                    UIUtils.showErrorDialog(this, detailedMessage, "Lỗi Hệ Thống");
                     ex.printStackTrace();
                 }
             }

@@ -56,18 +56,25 @@ class AssetRequestServiceTest {
 
     @Test
     void testDeleteAssetRequest() {
+        // Arrange
         Employee currentUser = new Employee();
         currentUser.setRole("ADMIN");
 
-        // Arrange: Prepare the mock objects and their expected behavior
+        AssetRequest requestToReturn = new AssetRequest();
+        requestToReturn.setStatus("Pending");
+        requestToReturn.setEmployee(currentUser);
+
         AssetRequestItem item = new AssetRequestItem();
         item.setRequestItemId(101);
+
+        when(assetRequestDAOMock.getAssetRequestById(1)).thenReturn(requestToReturn);
+
         when(assetRequestItemDAOMock.getAssetRequestItemsByRequestId(1)).thenReturn(Collections.singletonList(item));
 
-        // Act: Call the method under test
+        // Act
         String result = assetRequestService.deleteAssetRequest(1, currentUser);
 
-        // Assert: Verify the outcome and interactions
+        // Assert
         assertNull(result, "Expected no error message on successful deletion");
         verify(assetRequestItemDAOMock, times(1)).getAssetRequestItemsByRequestId(1);
         verify(assetRequestItemDAOMock, times(1)).deleteAssetRequestItem(101);

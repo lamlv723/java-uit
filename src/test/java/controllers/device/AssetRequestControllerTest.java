@@ -1,13 +1,16 @@
 package controllers.device;
 
+import dao.device.interfaces.*;
 import models.device.AssetRequest;
 import models.main.Employee;
+import models.device.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import services.device.AssetRequestService;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -15,6 +18,7 @@ import static org.mockito.Mockito.*;
 class AssetRequestControllerTest {
     private AssetRequestController assetRequestController;
     private AssetRequestService assetRequestServiceMock;
+
 
     @BeforeEach
     void setUp() {
@@ -38,11 +42,15 @@ class AssetRequestControllerTest {
 
     @Test
     void testDeleteAssetRequest() {
+        // Arrange: Chuẩn bị các tham số cần thiết
         Employee currentUser = new Employee();
-        currentUser.setRole("ADMIN");
+        int requestId = 1;
 
-        assetRequestController.deleteAssetRequest(1, currentUser);
-        verify(assetRequestServiceMock, times(1)).deleteAssetRequest(1, currentUser);
+        // Act: Gọi phương thức của đối tượng đang được test "assetRequestController"
+        assetRequestController.deleteAssetRequest(requestId, currentUser);
+
+        // Assert/Verify: Xác minh rằng controller đã gọi đến service đúng một lần
+        verify(assetRequestServiceMock, times(1)).deleteAssetRequest(requestId, currentUser);
     }
 
     @Test
