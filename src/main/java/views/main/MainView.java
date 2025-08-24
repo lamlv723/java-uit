@@ -81,8 +81,7 @@ public class MainView extends JFrame {
 
         // Action cho nút "Tài sản của tôi"
         mnuMyAssets.addActionListener(e -> {
-            // Tạm thời hiển thị thông báo, sẽ thay bằng việc mở cửa sổ mới ở bước sau
-            JOptionPane.showMessageDialog(this, "Chức năng xem tài sản của tôi sẽ được triển khai!");
+            new views.device.MyAssetsView().setVisible(true);
         });
 
         JPanel panel = new JPanel();
