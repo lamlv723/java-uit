@@ -2,7 +2,10 @@
 package views.device;
 
 import controllers.device.AssetController;
+import controllers.user.UserSession;
 import models.device.Asset;
+import models.main.Employee;
+import utils.UIUtils;
 import views.device.components.AssetTable;
 import java.util.List;
 import javax.swing.*;
@@ -11,6 +14,9 @@ import java.awt.*;
 public class AssetManagementView extends JFrame {
     private final AssetController assetController;
     private final AssetTable table;
+    private JButton btnAdd;
+    private JButton btnEdit;
+    private JButton btnDelete;
 
     public AssetManagementView() {
         setTitle("Quản lý Tài sản");
@@ -23,13 +29,15 @@ public class AssetManagementView extends JFrame {
         loadDataToTable();
         JScrollPane scrollPane = new JScrollPane(table);
 
-        JButton btnAdd = new JButton("Thêm");
-        JButton btnEdit = new JButton("Sửa");
-        JButton btnDelete = new JButton("Xóa");
+        btnAdd = new JButton("Thêm");
+        btnEdit = new JButton("Sửa");
+        btnDelete = new JButton("Xóa");
         JPanel panelButtons = new JPanel();
         panelButtons.add(btnAdd);
         panelButtons.add(btnEdit);
         panelButtons.add(btnDelete);
+
+        applyRoles();
 
         // Action for Add
         btnAdd.addActionListener(e -> {
@@ -43,12 +51,21 @@ public class AssetManagementView extends JFrame {
             if (option == JOptionPane.OK_OPTION) {
                 String name = tfName.getText().trim();
                 String desc = tfDesc.getText().trim();
+
+                Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
                 // Gọi service xử lý nghiệp vụ, trả về lỗi nếu có
-                String error = assetController.getAssetService().addAssetFromInput(name, desc);
-                if (error == null) {
-                    loadDataToTable();
-                } else {
-                    JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                try {
+                    // TODO: Update addAssetFromInput to accept user role
+                    String error = assetController.getAssetService().addAssetFromInput(name, desc, currentUser);
+                    if (error == null) {
+                        loadDataToTable();
+                    } else {
+                        JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    String detailedMessage = "Đã xảy ra lỗi không mong muốn.\nChi tiết: " + ex.getMessage();
+                    UIUtils.showErrorDialog(this, detailedMessage, "Lỗi Hệ Thống");
+                    ex.printStackTrace();
                 }
             }
         });
@@ -80,8 +97,16 @@ public class AssetManagementView extends JFrame {
                 if (!name.isEmpty()) {
                     asset.setName(name);
                     asset.setDescription(desc);
-                    assetController.updateAsset(asset);
-                    loadDataToTable();
+                    Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
+                    try {
+                        // TODO: Update updateAsset to accept user role
+                        assetController.updateAsset(asset, currentUser);
+                        loadDataToTable();
+                    } catch (Exception ex) {
+                        String detailedMessage = "Đã xảy ra lỗi không mong muốn.\nChi tiết: " + ex.getMessage();
+                        UIUtils.showErrorDialog(this, detailedMessage, "Lỗi Hệ Thống");
+                        ex.printStackTrace();
+                    }
                 } else {
                     JOptionPane.showMessageDialog(this, "Tên tài sản không được để trống!", "Lỗi",
                             JOptionPane.ERROR_MESSAGE);
@@ -106,8 +131,16 @@ public class AssetManagementView extends JFrame {
             int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa tài sản này?", "Xác nhận xóa",
                     JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                assetController.deleteAsset(asset);
-                loadDataToTable();
+                Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
+                try {
+                    // TODO: Update deleteAsset to accept user role
+                    assetController.deleteAsset(asset, currentUser);
+                    loadDataToTable();
+                } catch (Exception ex) {
+                    String detailedMessage = "Đã xảy ra lỗi không mong muốn.\nChi tiết: " + ex.getMessage();
+                    UIUtils.showErrorDialog(this, detailedMessage, "Lỗi Hệ Thống");
+                    ex.printStackTrace();
+                }
             }
         });
 
@@ -118,5 +151,15 @@ public class AssetManagementView extends JFrame {
     private void loadDataToTable() {
         List<Asset> list = assetController.getAllAssets();
         table.setAssetData(list);
+    }
+
+    private void applyRoles() {
+        String role = UserSession.getInstance().getCurrentUserRole();
+        // Only Admin can manage assets
+        boolean isAdmin = "Admin".equalsIgnoreCase(role);
+
+        btnAdd.setVisible(isAdmin);
+        btnEdit.setVisible(isAdmin);
+        btnDelete.setVisible(isAdmin);
     }
 }
