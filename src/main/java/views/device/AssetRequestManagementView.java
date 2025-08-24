@@ -50,11 +50,13 @@ public class AssetRequestManagementView extends JFrame {
 
         Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
         String currentUserRole = currentUser.getRole();
-        if (!"Admin".equals(currentUserRole)) {
-            // User chỉ được Thêm, Xem chi tiết, và Hoàn tất yêu cầu của chính mình
+
+        // Hiển thị các nút duyệt cho Admin và Manager
+        if ("Staff".equalsIgnoreCase(currentUserRole)) {
             btnDelete.setVisible(false);
             btnApprove.setVisible(false);
             btnReject.setVisible(false);
+            btnEdit.setVisible(false);
         }
 
         btnAdd.addActionListener(e -> {
@@ -187,11 +189,16 @@ public class AssetRequestManagementView extends JFrame {
             int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa yêu cầu này?", "Xác nhận xóa",
                     JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                String error = assetRequestController.getAssetRequestService().deleteAssetRequest(id, "ADMIN"); // TODO: lấy role thực tế nếu có
-                if (error == null) {
-                    loadDataToTable();
-                } else {
-                    JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                try {
+                    String error = assetRequestController.getAssetRequestService().deleteAssetRequest(id, currentUserRole);
+                    if (error == null) {
+                        loadDataToTable();
+                    } else {
+                        JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
                 }
             }
         });
@@ -207,21 +214,26 @@ public class AssetRequestManagementView extends JFrame {
 
             String error;
             AssetRequest selectedRequest = assetRequestController.getAssetRequestById(requestId);
-            if ("borrow".equals(selectedRequest.getRequestType())) {
-                error = assetRequestController.getAssetRequestService().approveBorrowRequest(requestId);
-            } else {
-                error = assetRequestController.getAssetRequestService().approveReturnRequest(requestId);
-            }
-            
-            if (error == null) {
-                JOptionPane.showMessageDialog(this, "Đã duyệt yêu cầu thành công!");
-                loadDataToTable();
-                // Đồng bộ hóa các cửa sổ khác nếu cần
-                if (AssetRequestItemManagementView.generalInstance != null) {
-                    AssetRequestItemManagementView.generalInstance.refreshData();
+            try {
+                if ("borrow".equals(selectedRequest.getRequestType())) {
+                    error = assetRequestController.getAssetRequestService().approveBorrowRequest(requestId);
+                } else {
+                    error = assetRequestController.getAssetRequestService().approveReturnRequest(requestId);
                 }
-            } else {
-                JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+
+                if (error == null) {
+                    JOptionPane.showMessageDialog(this, "Đã duyệt yêu cầu thành công!");
+                    loadDataToTable();
+                    // Đồng bộ hóa các cửa sổ khác nếu cần
+                    if (AssetRequestItemManagementView.generalInstance != null) {
+                        AssetRequestItemManagementView.generalInstance.refreshData();
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
             }
         });
 
@@ -235,17 +247,22 @@ public class AssetRequestManagementView extends JFrame {
             Integer requestId = (Integer) table.getValueAt(row, 0);
             int approverId = UserSession.getInstance().getLoggedInEmployee().getEmployeeId();
 
-            String error = assetRequestController.getAssetRequestService().rejectRequest(requestId, approverId);
+            try {
+                String error = assetRequestController.getAssetRequestService().rejectRequest(requestId, approverId);
 
-            if (error == null) {
-                JOptionPane.showMessageDialog(this, "Đã từ chối yêu cầu thành công!");
-                loadDataToTable();
-                // Đồng bộ hóa các cửa sổ khác nếu cần
-                if (AssetRequestItemManagementView.generalInstance != null) {
-                    AssetRequestItemManagementView.generalInstance.refreshData();
+                if (error == null) {
+                    JOptionPane.showMessageDialog(this, "Đã từ chối yêu cầu thành công!");
+                    loadDataToTable();
+                    // Đồng bộ hóa các cửa sổ khác nếu cần
+                    if (AssetRequestItemManagementView.generalInstance != null) {
+                        AssetRequestItemManagementView.generalInstance.refreshData();
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
-            } else {
-                JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
             }
         });
 
@@ -357,18 +374,23 @@ public class AssetRequestManagementView extends JFrame {
                 for (String assetStr : selectedAssets) {
                     assetIds.add(Integer.parseInt(assetStr.split(":")[0]));
                 }
-                
-                // Gọi phương thức UPDATE mới
-                String error = assetRequestController.updateRequestWithItems(id, assetIds, currentUserRole);
 
-                if (error == null) {
-                    JOptionPane.showMessageDialog(this, "Cập nhật yêu cầu thành công!");
-                    loadDataToTable();
-                    if (AssetRequestItemManagementView.generalInstance != null) {
-                        AssetRequestItemManagementView.generalInstance.refreshData();
+                try {
+                    // Gọi phương thức UPDATE
+                    String error = assetRequestController.updateRequestWithItems(id, assetIds, currentUserRole);
+
+                    if (error == null) {
+                        JOptionPane.showMessageDialog(this, "Cập nhật yêu cầu thành công!");
+                        loadDataToTable();
+                        if (AssetRequestItemManagementView.generalInstance != null) {
+                            AssetRequestItemManagementView.generalInstance.refreshData();
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
                     }
-                } else {
-                    JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
                 }
             }
         });
