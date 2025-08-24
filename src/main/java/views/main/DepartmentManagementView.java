@@ -52,11 +52,11 @@ public class DepartmentManagementView extends JFrame {
             if (option == JOptionPane.OK_OPTION) {
                 String name = tfName.getText().trim();
                 String headIdStr = tfHeadId.getText().trim();
-                String currentUserRole = UserSession.getInstance().getCurrentUserRole();
+                Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
                 // Gọi service xử lý nghiệp vụ, trả về lỗi nếu có
                 try {
                     String error = departmentController.getDepartmentService().addDepartmentFromInput(name, headIdStr,
-                            currentUserRole);
+                            currentUser);
                     if (error == null) {
                         loadDataToTable();
                     } else {
@@ -111,9 +111,9 @@ public class DepartmentManagementView extends JFrame {
                         dept.setHeadEmployee(null);
                     }
 
-                    String currentUserRole = UserSession.getInstance().getCurrentUserRole();
+                    Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
                     try {
-                        departmentController.updateDepartment(dept, currentUserRole);
+                        departmentController.updateDepartment(dept, currentUser);
                         loadDataToTable();
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
@@ -138,9 +138,9 @@ public class DepartmentManagementView extends JFrame {
             int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa phòng ban này?", "Xác nhận xóa",
                     JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                String currentUserRole = UserSession.getInstance().getCurrentUserRole();
+                Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
                 try {
-                    departmentController.deleteDepartment(id, currentUserRole);
+                    departmentController.deleteDepartment(id, currentUser);
                     loadDataToTable();
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);

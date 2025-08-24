@@ -18,7 +18,8 @@ public class DepartmentService {
         this.departmentDAO = new DepartmentDAOImpl();
     }
 
-    public void addDepartment(Department department, String currentUserRole) {
+    public void addDepartment(Department department, Employee currentUser) {
+        String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
             String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to add a department.";
             logger.warn(errorMessage);
@@ -27,7 +28,8 @@ public class DepartmentService {
         departmentDAO.addDepartment(department);
     }
 
-    public void updateDepartment(Department department, String currentUserRole) {
+    public void updateDepartment(Department department, Employee currentUser) {
+        String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
             String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to update a department.";
             logger.warn(errorMessage);
@@ -36,7 +38,8 @@ public class DepartmentService {
         departmentDAO.updateDepartment(department);
     }
 
-    public void deleteDepartment(int departmentId, String currentUserRole) {
+    public void deleteDepartment(int departmentId, Employee currentUser) {
+        String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
             String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to delete department with id " + departmentId + ".";
             logger.warn(errorMessage);
@@ -58,7 +61,8 @@ public class DepartmentService {
      * String.
      * Trả về null nếu thành công, trả về thông báo lỗi nếu có lỗi.
      */
-    public String addDepartmentFromInput(String name, String headIdStr, String currentUserRole) {
+    public String addDepartmentFromInput(String name, String headIdStr, Employee currentUser) {
+
         if (name == null || name.isEmpty()) {
             return "Tên phòng ban không được để trống!";
         }
@@ -79,7 +83,7 @@ public class DepartmentService {
         }
 
         // If error, let View layer catch and display to user
-        addDepartment(dept, currentUserRole);
+        addDepartment(dept, currentUser);
 
         return null;
     }

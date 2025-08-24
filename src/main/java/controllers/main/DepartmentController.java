@@ -18,16 +18,16 @@ public class DepartmentController {
         return departmentService;
     }
 
-    public void addDepartment(Department department, String currentUserRole) {
-        departmentService.addDepartment(department, currentUserRole);
+    public void addDepartment(Department department, Employee currentUser) {
+        departmentService.addDepartment(department, currentUser);
     }
 
-    public void updateDepartment(Department department, String currentUserRole) {
-        departmentService.updateDepartment(department, currentUserRole);
+    public void updateDepartment(Department department, Employee currentUser) {
+        departmentService.updateDepartment(department, currentUser);
     }
 
-    public void deleteDepartment(int departmentId, String currentUserRole) {
-        departmentService.deleteDepartment(departmentId, currentUserRole);
+    public void deleteDepartment(int departmentId, Employee currentUser) {
+        departmentService.deleteDepartment(departmentId, currentUser);
     }
 
     public Department getDepartmentById(int departmentId) {
