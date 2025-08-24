@@ -61,7 +61,7 @@ public class AssetRequestManagementView extends JFrame {
         btnAdd.addActionListener(e -> {
             // Panel chính cho dialog
             JComponent employeeComponent;
-            if ("Admin".equals(currentUserRole)) {
+            if ("Admin".equalsIgnoreCase(currentUserRole)) {
                 JComboBox<String> employeeComboBox = new JComboBox<>();
                 EmployeeService employeeService = new EmployeeService();
                 List<Employee> employees = employeeService.getAllEmployees(currentUser);
@@ -139,7 +139,7 @@ public class AssetRequestManagementView extends JFrame {
             // Xử lý kết quả
             if (option == JOptionPane.OK_OPTION) {
                 int employeeId;
-                if ("Admin".equals(currentUserRole)) {
+                if ("Admin".equalsIgnoreCase(currentUserRole)) {
                     String selectedEmployee = (String) ((JComboBox<?>) employeeComponent).getSelectedItem();
                     employeeId = Integer.parseInt(selectedEmployee.split(":")[0]);
                 } else {
