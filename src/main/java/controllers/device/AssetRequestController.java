@@ -18,12 +18,12 @@ public class AssetRequestController {
         return assetRequestService;
     }
 
-    public void addAssetRequest(AssetRequest request, String currentUserRole) {
-        assetRequestService.addAssetRequest(request, currentUserRole);
+    public void addAssetRequest(AssetRequest request, Employee currentUser) {
+        assetRequestService.addAssetRequest(request, currentUser);
     }
 
-    public void updateAssetRequest(AssetRequest request, String currentUserRole) {
-        assetRequestService.updateAssetRequest(request, currentUserRole);
+    public void updateAssetRequest(AssetRequest request, Employee currentUser) {
+        assetRequestService.updateAssetRequest(request, currentUser);
     }
 
     public String deleteAssetRequest(int requestId, Employee currentUser) {

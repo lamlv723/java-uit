@@ -25,16 +25,22 @@ class AssetRequestControllerTest {
 
     @Test
     void testAddAssetRequest() {
+        Employee currentUser = new Employee();
+        currentUser.setRole("ADMIN");
+
         AssetRequest request = new AssetRequest();
-        assetRequestController.addAssetRequest(request, "ADMIN");
-        verify(assetRequestServiceMock, times(1)).addAssetRequest(request, "ADMIN");
+        assetRequestController.addAssetRequest(request, currentUser);
+        verify(assetRequestServiceMock, times(1)).addAssetRequest(request, currentUser);
     }
 
     @Test
     void testUpdateAssetRequest() {
+        Employee currentUser = new Employee();
+        currentUser.setRole("ADMIN");
+
         AssetRequest request = new AssetRequest();
-        assetRequestController.updateAssetRequest(request, "ADMIN");
-        verify(assetRequestServiceMock, times(1)).updateAssetRequest(request, "ADMIN");
+        assetRequestController.updateAssetRequest(request, currentUser);
+        verify(assetRequestServiceMock, times(1)).updateAssetRequest(request, currentUser);
     }
 
     @Test

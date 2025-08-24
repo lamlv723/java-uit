@@ -31,13 +31,45 @@ public class AssetRequestService {
         this.assetRequestItemDAO = new AssetRequestItemDAOImpl();
     }
 
-    public void addAssetRequest(AssetRequest request, String currentUserRole) {
-        // TODO: Add role-based logic if needed
+    public void addAssetRequest(AssetRequest request, Employee currentUser) {
+        String currentUserRole = currentUser.getRole();
+        if (currentUserRole == null || currentUserRole.isEmpty()) {
+            logger.warn("Authorization Error: Unauthenticated user attempted to add an asset request.");
+            throw new SecurityException("Bạn phải đăng nhập để thực hiện hành động này.");
+        }
         assetRequestDAO.addAssetRequest(request);
     }
 
-    public void updateAssetRequest(AssetRequest request, String currentUserRole) {
-        // TODO: Add role-based logic if needed
+    public void updateAssetRequest(AssetRequest request, Employee currentUser) {
+        if (request == null) {
+            throw new IllegalArgumentException("Yêu cầu không được để trống.");
+        }
+
+        // Lấy bản ghi mới nhất từ DB để kiểm tra
+        AssetRequest existingRequest = assetRequestDAO.getAssetRequestById(request.getRequestId());
+        if (existingRequest == null) {
+            throw new RuntimeException("Không tìm thấy yêu cầu để cập nhật.");
+        }
+
+        if (!"Pending".equalsIgnoreCase(existingRequest.getStatus())) {
+            throw new SecurityException("Chỉ có thể sửa các yêu cầu đang ở trạng thái 'Pending'.");
+        }
+
+        boolean canUpdate = false;
+        if ("Admin".equalsIgnoreCase(currentUser.getRole())) {
+            canUpdate = true;
+        } else {
+            boolean isOwner = currentUser.getEmployeeId().equals(existingRequest.getEmployee().getEmployeeId());
+            if (isOwner) {
+                canUpdate = true;
+            }
+        }
+
+        if (!canUpdate) {
+            logger.warn("Authorization Error: User {} attempted to update a request they don't own.", currentUser.getUsername());
+            throw new SecurityException("Bạn không có quyền sửa yêu cầu này.");
+        }
+
         assetRequestDAO.updateAssetRequest(request);
     }
 
@@ -99,7 +131,7 @@ public class AssetRequestService {
         return assetRequestDAO.getAllAssetRequests(currentUser);
     }
 
-    public String addAssetRequestFromInput(String title, String desc, String currentUserRole) {
+    public String addAssetRequestFromInput(String title, String desc, Employee currentUser) {
         if (title == null || title.isEmpty()) {
             return "Tiêu đề không được để trống!";
         }
@@ -107,7 +139,7 @@ public class AssetRequestService {
         req.setRequestType(title); // Dùng requestType làm tiêu đề
         req.setStatus(desc); // Dùng status làm mô tả
         try {
-            addAssetRequest(req, currentUserRole);
+            addAssetRequest(req, currentUser);
         } catch (Exception ex) {
             return "Lỗi khi thêm yêu cầu: " + ex.getMessage();
         }

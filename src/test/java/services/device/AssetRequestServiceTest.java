@@ -42,16 +42,36 @@ class AssetRequestServiceTest {
 
     @Test
     void testAddAssetRequest() {
+        Employee currentUser = new Employee();
+        currentUser.setRole("ADMIN");
+
         AssetRequest request = new AssetRequest();
-        assetRequestService.addAssetRequest(request, "ADMIN");
+        assetRequestService.addAssetRequest(request, currentUser);
         verify(assetRequestDAOMock, times(1)).addAssetRequest(request);
     }
 
     @Test
     void testUpdateAssetRequest() {
-        AssetRequest request = new AssetRequest();
-        assetRequestService.updateAssetRequest(request, "ADMIN");
-        verify(assetRequestDAOMock, times(1)).updateAssetRequest(request);
+        // Arrange
+        Employee currentUser = new Employee();
+        currentUser.setRole("ADMIN");
+
+        AssetRequest requestToUpdate = new AssetRequest();
+        requestToUpdate.setRequestId(1);
+
+        // Tạo một bản ghi "hiện có" trong DB để giả lập
+        AssetRequest existingRequest = new AssetRequest();
+        existingRequest.setStatus("Pending");
+        existingRequest.setEmployee(currentUser);
+
+        // Dạy cho DAO trả về bản ghi "hiện có" khi được tìm kiếm
+        when(assetRequestDAOMock.getAssetRequestById(1)).thenReturn(existingRequest);
+
+        // Act
+        assetRequestService.updateAssetRequest(requestToUpdate, currentUser);
+
+        // Assert/Verify
+        verify(assetRequestDAOMock, times(1)).updateAssetRequest(requestToUpdate);
     }
 
     @Test
