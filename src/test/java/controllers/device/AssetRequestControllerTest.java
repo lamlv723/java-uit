@@ -1,16 +1,13 @@
 package controllers.device;
 
-import dao.device.interfaces.*;
 import models.device.AssetRequest;
 import models.main.Employee;
-import models.device.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import services.device.AssetRequestService;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
