@@ -5,26 +5,41 @@ import dao.device.AssetCategoryDAOImpl;
 import dao.device.interfaces.AssetCategoryDAO;
 import models.device.AssetCategory;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AssetCategoryService {
     private AssetCategoryDAO assetCategoryDAO;
+    private static final Logger logger = LoggerFactory.getLogger(AssetCategoryService.class);
 
     public AssetCategoryService() {
         this.assetCategoryDAO = new AssetCategoryDAOImpl();
     }
 
     public void addAssetCategory(AssetCategory category, String currentUserRole) {
-        // TODO: Add role-based logic if needed
+        if (!"Admin".equalsIgnoreCase(currentUserRole)) {
+            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to add an asset category.";
+            logger.warn(errorMessage);
+            throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
+        }
         assetCategoryDAO.addAssetCategory(category);
     }
 
     public void updateAssetCategory(AssetCategory category, String currentUserRole) {
-        // TODO: Add role-based logic if needed
+        if (!"Admin".equalsIgnoreCase(currentUserRole)) {
+            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to update an asset category.";
+            logger.warn(errorMessage);
+            throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
+        }
         assetCategoryDAO.updateAssetCategory(category);
     }
 
     public void deleteAssetCategory(int categoryId, String currentUserRole) {
-        // TODO: Add role-based logic if needed
+        if (!"Admin".equalsIgnoreCase(currentUserRole)) {
+            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to delete asset category with id " + categoryId + ".";
+            logger.warn(errorMessage);
+            throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
+        }
         assetCategoryDAO.deleteAssetCategory(categoryId);
     }
 
@@ -48,11 +63,10 @@ public class AssetCategoryService {
         AssetCategory cat = new AssetCategory();
         cat.setCategoryName(name);
         cat.setDescription(desc);
-        try {
-            addAssetCategory(cat, currentUserRole);
-        } catch (Exception ex) {
-            return "Lỗi khi thêm danh mục: " + ex.getMessage();
-        }
+
+        // Error will propagate and be caught in view layer
+        addAssetCategory(cat, currentUserRole);
+
         return null;
     }
 }
