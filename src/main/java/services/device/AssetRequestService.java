@@ -8,6 +8,8 @@ import models.device.Asset;
 import models.device.AssetRequest;
 import models.device.AssetRequestItem;
 import models.main.Employee;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.Date;
@@ -22,6 +24,7 @@ import org.hibernate.query.Query;
 public class AssetRequestService {
     private AssetRequestDAO assetRequestDAO;
     private AssetRequestItemDAO assetRequestItemDAO;
+    private static final Logger logger = LoggerFactory.getLogger(AssetRequestService.class);
 
     public AssetRequestService() {
         this.assetRequestDAO = new AssetRequestDAOImpl();
@@ -38,8 +41,37 @@ public class AssetRequestService {
         assetRequestDAO.updateAssetRequest(request);
     }
 
-    public String deleteAssetRequest(int requestId, String currentUserRole) {
-        // TODO: Add role-based logic if needed
+    public String deleteAssetRequest(int requestId, Employee currentUser) {
+        String currentUserRole = currentUser.getRole();
+        AssetRequest requestToDelete = assetRequestDAO.getAssetRequestById(requestId);
+
+        if (requestToDelete == null) {
+            return "Không tìm thấy yêu cầu để xóa.";
+        }
+
+        // Chỉ được xóa khi ở trạng thái "Pending"
+        if (!"Pending".equalsIgnoreCase(requestToDelete.getStatus())) {
+            logger.warn("User {} attempted to delete a non-pending request (ID: {}) with status: {}",
+                    currentUser.getUsername(), requestId, requestToDelete.getStatus());
+            throw new SecurityException("Chỉ có thể xóa các yêu cầu đang ở trạng thái 'Pending'.");
+        }
+
+        boolean canDelete = false;
+        if ("Admin".equalsIgnoreCase(currentUserRole)) {
+            canDelete = true;
+        } else {
+            boolean isOwner = currentUser.getEmployeeId().equals(requestToDelete.getEmployee().getEmployeeId());
+            if (isOwner) {
+                canDelete = true;
+            }
+        }
+
+        if (!canDelete) {
+            String errorMessage = "Authorization Error: User " + currentUser.getUsername() + " attempted to delete a request they don't own.";
+            logger.warn(errorMessage);
+            throw new SecurityException("Bạn không có quyền xóa yêu cầu này.");
+        }
+
         try {
             // Lấy danh sách các item liên quan đến yêu cầu
             List<AssetRequestItem> itemsToDelete = assetRequestItemDAO.getAssetRequestItemsByRequestId(requestId);
@@ -155,7 +187,7 @@ public class AssetRequestService {
         }
     }
 
-    public String rejectRequest(int requestId, int approverId) {
+    public String rejectRequest(int requestId, Employee currentUser) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
@@ -164,11 +196,29 @@ public class AssetRequestService {
             if (request == null) return "Không tìm thấy yêu cầu.";
             if (!"Pending".equals(request.getStatus())) return "Chỉ có thể từ chối yêu cầu ở trạng thái 'Pending'.";
 
-            Employee approver = session.get(Employee.class, approverId);
-            if (approver == null) return "Không tìm thấy người duyệt.";
+            // === AUTHORIZATION LOGIC ===
+            boolean canApprove = false;
+            String currentUserRole = currentUser.getRole();
+            Employee requestEmployee = request.getEmployee();
+
+            if ("Admin".equalsIgnoreCase(currentUserRole)) {
+                canApprove = true;
+            } else if ("Manager".equalsIgnoreCase(currentUserRole)) {
+                // Manager có thể duyệt yêu cầu của nhân viên trong phòng ban của mình
+                boolean isSameDepartment = currentUser.getDepartmentId().equals(requestEmployee.getDepartmentId());
+                if (isSameDepartment) {
+                    canApprove = true;
+                }
+            }
+
+            if (!canApprove) {
+                logger.warn("Authorization Error: User {} attempted to approve a request they are not allowed to.", currentUser.getUsername());
+                throw new SecurityException("Bạn không có quyền duyệt yêu cầu này.");
+            }
+            // === END - AUTHORIZATION LOGIC ===
 
             request.setStatus("Rejected");
-            request.setApprover(approver);
+            request.setApprover(currentUser);
             request.setRejectedDate(Date.from(Instant.now()));
             session.update(request);
 
@@ -181,9 +231,9 @@ public class AssetRequestService {
     }
 
     /**
-     * Hoàn tất yêu cầu MƯỢN: Cập nhật trạng thái tài sản thành 'Borrowed' và set borrow_date.
+     * Cập nhật trạng thái tài sản thành 'Borrowed' và set borrow_date.
      */
-    public String approveBorrowRequest(int requestId) {
+    public String approveBorrowRequest(int requestId, Employee currentUser) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
@@ -193,6 +243,26 @@ public class AssetRequestService {
             if (!"borrow".equals(request.getRequestType())) return "Đây không phải là yêu cầu mượn.";
             if (!"Pending".equals(request.getStatus())) return "Chỉ có thể hoàn tất yêu cầu đang 'Pending'.";
 
+            // === AUTHORIZATION LOGIC ===
+            boolean canApprove = false;
+            String currentUserRole = currentUser.getRole();
+            Employee requestEmployee = request.getEmployee();
+
+            if ("Admin".equalsIgnoreCase(currentUserRole)) {
+                canApprove = true;
+            } else if ("Manager".equalsIgnoreCase(currentUserRole)) {
+                // Manager có thể duyệt yêu cầu của nhân viên trong phòng ban của mình
+                boolean isSameDepartment = currentUser.getDepartmentId().equals(requestEmployee.getDepartmentId());
+                if (isSameDepartment) {
+                    canApprove = true;
+                }
+            }
+
+            if (!canApprove) {
+                logger.warn("Authorization Error: User {} attempted to approve a request they are not allowed to.", currentUser.getUsername());
+                throw new SecurityException("Bạn không có quyền duyệt yêu cầu này.");
+            }
+
             List<AssetRequestItem> items = assetRequestItemDAO.getAssetRequestItemsByRequestId(requestId);
             for (AssetRequestItem item : items) {
                 Asset asset = item.getAsset();
@@ -201,8 +271,11 @@ public class AssetRequestService {
                 session.update(asset);
                 session.update(item);
             }
+            // === END - AUTHORIZATION LOGIC ===
 
             request.setStatus("Approved");
+            request.setApprover(currentUser);
+            request.setApprovalDate(Date.from(Instant.now()));
             session.update(request);
 
             transaction.commit();
@@ -217,7 +290,7 @@ public class AssetRequestService {
     /**
      * Hoàn tất yêu cầu TRẢ: Cập nhật trạng thái tài sản thành 'Available' và set return_date.
      */
-    public String approveReturnRequest(int requestId) {
+    public String approveReturnRequest(int requestId, Employee currentUser) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
@@ -226,6 +299,27 @@ public class AssetRequestService {
             if (request == null) return "Không tìm thấy yêu cầu.";
             if (!"return".equals(request.getRequestType())) return "Đây không phải là yêu cầu trả.";
             if (!"Pending".equals(request.getStatus())) return "Chỉ có thể hoàn tất yêu cầu đang 'Pending'.";
+
+            // === AUTHORIZATION LOGIC ===
+            boolean canApprove = false;
+            String currentUserRole = currentUser.getRole();
+            Employee requestEmployee = request.getEmployee();
+
+            if ("Admin".equalsIgnoreCase(currentUserRole)) {
+                canApprove = true;
+            } else if ("Manager".equalsIgnoreCase(currentUserRole)) {
+                // Manager có thể duyệt yêu cầu của nhân viên trong phòng ban của mình
+                boolean isSameDepartment = currentUser.getDepartmentId().equals(requestEmployee.getDepartmentId());
+                if (isSameDepartment) {
+                    canApprove = true;
+                }
+            }
+
+            if (!canApprove) {
+                logger.warn("Authorization Error: User {} attempted to approve a request they are not allowed to.", currentUser.getUsername());
+                throw new SecurityException("Bạn không có quyền duyệt yêu cầu này.");
+            }
+            // === END - AUTHORIZATION LOGIC ===
 
             List<AssetRequestItem> tempItemsToReturn = assetRequestItemDAO.getAssetRequestItemsByRequestId(requestId);
             if (tempItemsToReturn.isEmpty()) {
@@ -262,6 +356,8 @@ public class AssetRequestService {
 
             // Cập nhật trạng thái của yêu cầu trả thành "Approved"
             request.setStatus("Approved");
+            request.setApprover(currentUser);
+            request.setApprovalDate(Date.from(Instant.now()));
             session.update(request);
 
             transaction.commit();
@@ -273,7 +369,7 @@ public class AssetRequestService {
         }
     }
 
-    public String updateRequestWithItems(int requestId, List<Integer> assetIds, String currentUserRole) {
+    public String updateRequestWithItems(int requestId, List<Integer> assetIds, Employee currentUser) {
         if (assetIds == null || assetIds.isEmpty()) {
             return "Phải chọn ít nhất một tài sản.";
         }
@@ -283,6 +379,34 @@ public class AssetRequestService {
             transaction = session.beginTransaction();
 
             AssetRequest request = session.get(AssetRequest.class, requestId);
+            if (request == null) {
+                return "Không tìm thấy yêu cầu để cập nhật.";
+            }
+
+            // Prevent changing approved request
+            if (!"Pending".equalsIgnoreCase(request.getStatus())) {
+                logger.warn("User {} attempted to update a non-pending request (ID: {}) with status: {}",
+                        currentUser.getUsername(), requestId, request.getStatus());
+                throw new SecurityException("Chỉ có thể sửa các yêu cầu đang ở trạng thái 'Pending'.");
+            }
+
+            // === LOGIC CHECK OWNERSHIP ===
+            boolean canUpdate = false;
+            if ("Admin".equalsIgnoreCase(currentUser.getRole())) {
+                canUpdate = true;
+            } else {
+                boolean isOwner = currentUser.getEmployeeId().equals(request.getEmployee().getEmployeeId());
+                if (isOwner) {
+                    canUpdate = true;
+                }
+            }
+
+            if (!canUpdate) {
+                logger.warn("Authorization Error: User {} attempted to update a request they don't own.", currentUser.getUsername());
+                throw new SecurityException("Bạn không có quyền sửa yêu cầu này.");
+            }
+            // === LOGIC CHECK OWNERSHIP - END ===
+
             if (request == null) {
                 return "Không tìm thấy yêu cầu để cập nhật.";
             }

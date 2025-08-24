@@ -1,6 +1,7 @@
 package controllers.device;
 
 import models.device.AssetRequest;
+import models.main.Employee;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import services.device.AssetRequestService;
@@ -37,8 +38,11 @@ class AssetRequestControllerTest {
 
     @Test
     void testDeleteAssetRequest() {
-        assetRequestController.deleteAssetRequest(1, "ADMIN");
-        verify(assetRequestServiceMock, times(1)).deleteAssetRequest(1, "ADMIN");
+        Employee currentUser = new Employee();
+        currentUser.setRole("ADMIN");
+
+        assetRequestController.deleteAssetRequest(1, currentUser);
+        verify(assetRequestServiceMock, times(1)).deleteAssetRequest(1, currentUser);
     }
 
     @Test

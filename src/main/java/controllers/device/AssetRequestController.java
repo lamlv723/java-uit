@@ -1,5 +1,6 @@
 package controllers.device;
 
+import models.main.Employee;
 import services.device.AssetRequestService;
 
 import java.util.List;
@@ -25,8 +26,8 @@ public class AssetRequestController {
         assetRequestService.updateAssetRequest(request, currentUserRole);
     }
 
-    public String deleteAssetRequest(int requestId, String currentUserRole) {
-        return assetRequestService.deleteAssetRequest(requestId, currentUserRole);
+    public String deleteAssetRequest(int requestId, Employee currentUser) {
+        return assetRequestService.deleteAssetRequest(requestId, currentUser);
     }
 
     public AssetRequest getAssetRequestById(int requestId) {
@@ -37,7 +38,7 @@ public class AssetRequestController {
         return assetRequestService.getAllAssetRequests();
     }
 
-    public String updateRequestWithItems(int requestId, List<Integer> assetIds, String currentUserRole) {
-        return assetRequestService.updateRequestWithItems(requestId, assetIds, currentUserRole);
+    public String updateRequestWithItems(int requestId, List<Integer> assetIds, Employee currentUser) {
+        return assetRequestService.updateRequestWithItems(requestId, assetIds, currentUser);
     }
 }

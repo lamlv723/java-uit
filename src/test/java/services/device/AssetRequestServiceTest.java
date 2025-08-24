@@ -4,6 +4,7 @@ import dao.device.interfaces.AssetRequestDAO;
 import dao.device.interfaces.AssetRequestItemDAO;
 import models.device.AssetRequest;
 import models.device.AssetRequestItem;
+import models.main.Employee;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -55,13 +56,16 @@ class AssetRequestServiceTest {
 
     @Test
     void testDeleteAssetRequest() {
+        Employee currentUser = new Employee();
+        currentUser.setRole("ADMIN");
+
         // Arrange: Prepare the mock objects and their expected behavior
         AssetRequestItem item = new AssetRequestItem();
         item.setRequestItemId(101);
         when(assetRequestItemDAOMock.getAssetRequestItemsByRequestId(1)).thenReturn(Collections.singletonList(item));
 
         // Act: Call the method under test
-        String result = assetRequestService.deleteAssetRequest(1, "ADMIN");
+        String result = assetRequestService.deleteAssetRequest(1, currentUser);
 
         // Assert: Verify the outcome and interactions
         assertNull(result, "Expected no error message on successful deletion");

@@ -190,7 +190,7 @@ public class AssetRequestManagementView extends JFrame {
                     JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
                 try {
-                    String error = assetRequestController.getAssetRequestService().deleteAssetRequest(id, currentUserRole);
+                    String error = assetRequestController.getAssetRequestService().deleteAssetRequest(id, currentUser);
                     if (error == null) {
                         loadDataToTable();
                     } else {
@@ -216,9 +216,9 @@ public class AssetRequestManagementView extends JFrame {
             AssetRequest selectedRequest = assetRequestController.getAssetRequestById(requestId);
             try {
                 if ("borrow".equals(selectedRequest.getRequestType())) {
-                    error = assetRequestController.getAssetRequestService().approveBorrowRequest(requestId);
+                    error = assetRequestController.getAssetRequestService().approveBorrowRequest(requestId, currentUser);
                 } else {
-                    error = assetRequestController.getAssetRequestService().approveReturnRequest(requestId);
+                    error = assetRequestController.getAssetRequestService().approveReturnRequest(requestId, currentUser);
                 }
 
                 if (error == null) {
@@ -248,7 +248,7 @@ public class AssetRequestManagementView extends JFrame {
             int approverId = UserSession.getInstance().getLoggedInEmployee().getEmployeeId();
 
             try {
-                String error = assetRequestController.getAssetRequestService().rejectRequest(requestId, approverId);
+                String error = assetRequestController.getAssetRequestService().rejectRequest(requestId, currentUser);
 
                 if (error == null) {
                     JOptionPane.showMessageDialog(this, "Đã từ chối yêu cầu thành công!");
@@ -377,7 +377,7 @@ public class AssetRequestManagementView extends JFrame {
 
                 try {
                     // Gọi phương thức UPDATE
-                    String error = assetRequestController.updateRequestWithItems(id, assetIds, currentUserRole);
+                    String error = assetRequestController.updateRequestWithItems(id, assetIds, currentUser);
 
                     if (error == null) {
                         JOptionPane.showMessageDialog(this, "Cập nhật yêu cầu thành công!");
