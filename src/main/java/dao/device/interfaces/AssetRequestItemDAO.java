@@ -20,5 +20,5 @@ public interface AssetRequestItemDAO {
 
     AssetRequestItem findActiveBorrowItemByAssetId(int assetId);
 
-    List<AssetRequestItem> getAllBorrowedAssetRequestItems(Employee currentUser);
+    List<AssetRequestItem> getFilteredRequestItems(Employee currentUser);
 }

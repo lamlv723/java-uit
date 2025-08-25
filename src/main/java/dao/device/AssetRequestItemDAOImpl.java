@@ -82,7 +82,7 @@ public class AssetRequestItemDAOImpl implements AssetRequestItemDAO {
     }
 
     @Override
-    public List<AssetRequestItem> getAllBorrowedAssetRequestItems(Employee currentUser) {
+    public List<AssetRequestItem> getFilteredRequestItems(Employee currentUser) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             if (currentUser == null) {
                 return new java.util.ArrayList<>();
