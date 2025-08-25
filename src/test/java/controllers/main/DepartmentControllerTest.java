@@ -1,6 +1,7 @@
 package controllers.main;
 
 import models.main.Department;
+import models.main.Employee;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import services.main.DepartmentService;
@@ -24,21 +25,26 @@ class DepartmentControllerTest {
     @Test
     void testAddDepartment() {
         Department department = new Department();
-        departmentController.addDepartment(department, "ADMIN");
-        verify(departmentServiceMock, times(1)).addDepartment(department, "ADMIN");
+        Employee currentUser = new Employee();
+
+        departmentController.addDepartment(department, currentUser);
+        verify(departmentServiceMock, times(1)).addDepartment(department, currentUser);
     }
 
     @Test
     void testUpdateDepartment() {
         Department department = new Department();
-        departmentController.updateDepartment(department, "ADMIN");
-        verify(departmentServiceMock, times(1)).updateDepartment(department, "ADMIN");
+        Employee currentUser = new Employee();
+
+        departmentController.updateDepartment(department, currentUser);
+        verify(departmentServiceMock, times(1)).updateDepartment(department, currentUser);
     }
 
     @Test
     void testDeleteDepartment() {
-        departmentController.deleteDepartment(1, "ADMIN");
-        verify(departmentServiceMock, times(1)).deleteDepartment(1, "ADMIN");
+        Employee currentUser = new Employee();
+        departmentController.deleteDepartment(1, currentUser);
+        verify(departmentServiceMock, times(1)).deleteDepartment(1, currentUser);
     }
 
     @Test
@@ -51,9 +57,12 @@ class DepartmentControllerTest {
 
     @Test
     void testGetAllDepartments() {
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
+
         List<Department> departments = Arrays.asList(new Department(), new Department());
-        when(departmentServiceMock.getAllDepartments()).thenReturn(departments);
-        List<Department> result = departmentController.getAllDepartments();
+        when(departmentServiceMock.getAllDepartments(currentUser)).thenReturn(departments);
+        List<Department> result = departmentController.getAllDepartments(currentUser);
         assertEquals(2, result.size());
     }
 }

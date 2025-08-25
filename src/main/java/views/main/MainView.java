@@ -1,6 +1,7 @@
 package views.main;
 
 import controllers.user.UserSession;
+import views.user.ChangePasswordView;
 import views.user.LoginView;
 
 import javax.swing.*;
@@ -48,11 +49,13 @@ public class MainView extends JFrame {
             menuUser.setText(fullName);
         }
 
-        JMenuItem mnuSettings = new JMenuItem("Cài đặt");
+        JMenuItem mnuMyAssets = new JMenuItem("Tài sản của tôi");
+        JMenuItem mnuChangePassword = new JMenuItem("Đổi mật khẩu");
         JMenuItem mnuLogout = new JMenuItem("Đăng xuất");
 
         // Thêm các menu con vào menu người dùng
-        menuUser.add(mnuSettings);
+        menuUser.add(mnuMyAssets);
+        menuUser.add(mnuChangePassword);
         menuUser.add(mnuLogout);
 
         // Thêm menu người dùng vào menu bar và căn lề phải
@@ -70,6 +73,16 @@ public class MainView extends JFrame {
         mnuVendor.addActionListener(e -> new views.device.VendorManagementView().setVisible(true));
         mnuDepartment.addActionListener(e -> new views.main.DepartmentManagementView().setVisible(true));
         mnuEmployee.addActionListener(e -> new views.main.EmployeeManagementView().setVisible(true));
+
+        // Action cho nút "Đổi mật khẩu"
+        mnuChangePassword.addActionListener(e -> {
+            new ChangePasswordView().setVisible(true);
+        });
+
+        // Action cho nút "Tài sản của tôi"
+        mnuMyAssets.addActionListener(e -> {
+            new views.device.MyAssetsView().setVisible(true);
+        });
 
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());

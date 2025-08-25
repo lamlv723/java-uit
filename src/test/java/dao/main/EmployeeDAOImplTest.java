@@ -1,6 +1,7 @@
 package dao.main;
 
 import models.main.Employee;
+import models.main.Department;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,12 +64,55 @@ class EmployeeDAOImplTest {
     }
 
     @Test
-    void testGetAllEmployees() {
+    void testGetAllEmployees_AsAdmin() {
+        // Mock data
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
+
         List<Employee> employees = Arrays.asList(new Employee(), new Employee());
         org.hibernate.query.Query<Employee> queryMock = mock(org.hibernate.query.Query.class);
         when(sessionMock.createQuery("FROM Employee", Employee.class)).thenReturn(queryMock);
         when(queryMock.getResultList()).thenReturn(employees);
-        List<Employee> result = employeeDAO.getAllEmployees();
+        List<Employee> result = employeeDAO.getAllEmployees(currentUser);
         assertEquals(2, result.size());
+    }
+
+    @Test
+    void testGetAllEmployees_AsManager() {
+        // Mock data
+        Department managerDept = new Department();
+        managerDept.setDepartmentId(10);
+
+        Employee currentUser = new Employee();
+        currentUser.setRole("Manager");
+        currentUser.setDepartment(managerDept);
+
+        List<Employee> employees = Arrays.asList(new Employee(), new Employee());
+        org.hibernate.query.Query<Employee> queryMock = mock(org.hibernate.query.Query.class);
+
+        when(sessionMock.createQuery("FROM Employee WHERE department.departmentId = :deptId", Employee.class)).thenReturn(queryMock);
+        when(queryMock.setParameter(eq("deptId"), anyInt())).thenReturn(queryMock);
+        when(queryMock.getResultList()).thenReturn(employees);
+
+        List<Employee> result = employeeDAO.getAllEmployees(currentUser);
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void testGetAllEmployees_AsStaff() {
+        // Mock data
+        Employee currentUser = new Employee();
+        currentUser.setRole("Staff");
+        currentUser.setEmployeeId(777);
+
+        List<Employee> employees = Arrays.asList(currentUser);
+        org.hibernate.query.Query<Employee> queryMock = mock(org.hibernate.query.Query.class);
+
+        when(sessionMock.createQuery("FROM Employee WHERE employeeId = :empId", Employee.class)).thenReturn(queryMock);
+        when(queryMock.setParameter(eq("empId"), anyInt())).thenReturn(queryMock);
+        when(queryMock.getResultList()).thenReturn(employees);
+
+        List<Employee> result = employeeDAO.getAllEmployees(currentUser);
+        assertEquals(1, result.size());
     }
 }

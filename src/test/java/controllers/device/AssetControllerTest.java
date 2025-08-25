@@ -1,6 +1,7 @@
 package controllers.device;
 
 import models.device.Asset;
+import models.main.Employee;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import services.device.AssetService;
@@ -23,23 +24,26 @@ class AssetControllerTest {
 
     @Test
     void testCreateAsset() {
+        Employee currentUser = new Employee();
         Asset asset = new Asset();
-        assetController.addAsset(asset);
-        verify(assetServiceMock, times(1)).addAsset(asset);
+        assetController.addAsset(asset, currentUser);
+        verify(assetServiceMock, times(1)).addAsset(asset, currentUser);
     }
 
     @Test
     void testUpdateAsset() {
+        Employee currentUser = new Employee();
         Asset asset = new Asset();
-        assetController.updateAsset(asset);
-        verify(assetServiceMock, times(1)).updateAsset(asset);
+        assetController.updateAsset(asset, currentUser);
+        verify(assetServiceMock, times(1)).updateAsset(asset, currentUser);
     }
 
     @Test
     void testDeleteAsset() {
+        Employee currentUser = new Employee();
         Asset asset = new Asset();
-        assetController.deleteAsset(asset);
-        verify(assetServiceMock, times(1)).deleteAsset(asset);
+        assetController.deleteAsset(asset, currentUser);
+        verify(assetServiceMock, times(1)).deleteAsset(asset, currentUser);
     }
 
     @Test

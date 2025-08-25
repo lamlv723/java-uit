@@ -1,5 +1,6 @@
 package controllers.device;
 
+import models.main.Employee;
 import services.device.AssetRequestItemService;
 
 import java.util.List;
@@ -17,16 +18,16 @@ public class AssetRequestItemController {
         return assetRequestItemService;
     }
 
-    public void addAssetRequestItem(AssetRequestItem item, String currentUserRole) {
-        assetRequestItemService.addAssetRequestItem(item, currentUserRole);
+    public void addAssetRequestItem(AssetRequestItem item, Employee currentUser) {
+        assetRequestItemService.addAssetRequestItem(item, currentUser);
     }
 
-    public void updateAssetRequestItem(AssetRequestItem item, String currentUserRole) {
-        assetRequestItemService.updateAssetRequestItem(item, currentUserRole);
+    public void updateAssetRequestItem(AssetRequestItem item, Employee currentUser) {
+        assetRequestItemService.updateAssetRequestItem(item, currentUser);
     }
 
-    public void deleteAssetRequestItem(int requestItemId, String currentUserRole) {
-        assetRequestItemService.deleteAssetRequestItem(requestItemId, currentUserRole);
+    public void deleteAssetRequestItem(int requestItemId, Employee currentUser) {
+        assetRequestItemService.deleteAssetRequestItem(requestItemId, currentUser);
     }
 
     public AssetRequestItem getAssetRequestItemById(int requestItemId) {
@@ -37,7 +38,7 @@ public class AssetRequestItemController {
         return assetRequestItemService.getAllAssetRequestItems();
     }
 
-    public List<AssetRequestItem> getAllBorrowedAssetRequestItems(){
-        return assetRequestItemService.getAllBorrowedAssetRequestItems();
+    public List<AssetRequestItem> getAllBorrowedAssetRequestItems(Employee currentUser){
+        return assetRequestItemService.getAllBorrowedAssetRequestItems(currentUser);
     }
 }

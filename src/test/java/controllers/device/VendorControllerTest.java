@@ -4,6 +4,7 @@ import models.device.Vendor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import services.device.VendorService;
+import models.main.Employee;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,21 +25,24 @@ class VendorControllerTest {
     @Test
     void testAddVendor() {
         Vendor vendor = new Vendor();
-        vendorController.addVendor(vendor, "ADMIN");
-        verify(vendorServiceMock, times(1)).addVendor(vendor, "ADMIN");
+        Employee currentUser = new Employee();
+        vendorController.addVendor(vendor, currentUser);
+        verify(vendorServiceMock, times(1)).addVendor(vendor, currentUser);
     }
 
     @Test
     void testUpdateVendor() {
         Vendor vendor = new Vendor();
-        vendorController.updateVendor(vendor, "ADMIN");
-        verify(vendorServiceMock, times(1)).updateVendor(vendor, "ADMIN");
+        Employee currentUser = new Employee();
+        vendorController.updateVendor(vendor, currentUser);
+        verify(vendorServiceMock, times(1)).updateVendor(vendor, currentUser);
     }
 
     @Test
     void testDeleteVendor() {
-        vendorController.deleteVendor(1, "ADMIN");
-        verify(vendorServiceMock, times(1)).deleteVendor(1, "ADMIN");
+        Employee currentUser = new Employee();
+        vendorController.deleteVendor(1, currentUser);
+        verify(vendorServiceMock, times(1)).deleteVendor(1, currentUser);
     }
 
     @Test

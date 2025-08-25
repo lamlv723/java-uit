@@ -95,6 +95,7 @@ public class AssetDAOImpl implements AssetDAO {
                     "SELECT i.asset FROM AssetRequestItem i " +
                             "WHERE i.assetRequest.employee.employeeId = :employeeId " +
                             "AND i.assetRequest.requestType = 'borrow' " +
+                            "AND i.assetRequest.status = 'Approved' " +
                             "AND i.returnDate IS NULL",
                     Asset.class);
             query.setParameter("employeeId", employeeId);

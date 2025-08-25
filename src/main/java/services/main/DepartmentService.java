@@ -2,29 +2,49 @@
 package services.main;
 
 import java.util.List;
+
+import models.main.Employee;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import dao.main.DepartmentDAOImpl;
 import dao.main.interfaces.DepartmentDAO;
 import models.main.Department;
 
 public class DepartmentService {
     private DepartmentDAO departmentDAO;
+    private static final Logger logger = LoggerFactory.getLogger(DepartmentService.class);
 
     public DepartmentService() {
         this.departmentDAO = new DepartmentDAOImpl();
     }
 
-    public void addDepartment(Department department, String currentUserRole) {
-        // TODO: Add role-based validation if needed
+    public void addDepartment(Department department, Employee currentUser) {
+        String currentUserRole = currentUser.getRole();
+        if (!"Admin".equalsIgnoreCase(currentUserRole)) {
+            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to add a department.";
+            logger.warn(errorMessage);
+            throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
+        }
         departmentDAO.addDepartment(department);
     }
 
-    public void updateDepartment(Department department, String currentUserRole) {
-        // TODO: Add role-based validation if needed
+    public void updateDepartment(Department department, Employee currentUser) {
+        String currentUserRole = currentUser.getRole();
+        if (!"Admin".equalsIgnoreCase(currentUserRole)) {
+            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to update a department.";
+            logger.warn(errorMessage);
+            throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
+        }
         departmentDAO.updateDepartment(department);
     }
 
-    public void deleteDepartment(int departmentId, String currentUserRole) {
-        // TODO: Add role-based validation if needed
+    public void deleteDepartment(int departmentId, Employee currentUser) {
+        String currentUserRole = currentUser.getRole();
+        if (!"Admin".equalsIgnoreCase(currentUserRole)) {
+            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to delete department with id " + departmentId + ".";
+            logger.warn(errorMessage);
+            throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
+        }
         departmentDAO.deleteDepartment(departmentId);
     }
 
@@ -32,8 +52,8 @@ public class DepartmentService {
         return departmentDAO.getDepartmentById(departmentId);
     }
 
-    public List<Department> getAllDepartments() {
-        return departmentDAO.getAllDepartments();
+    public List<Department> getAllDepartments(Employee currentUser) {
+        return departmentDAO.getAllDepartments(currentUser);
     }
 
     /**
@@ -41,7 +61,8 @@ public class DepartmentService {
      * String.
      * Trả về null nếu thành công, trả về thông báo lỗi nếu có lỗi.
      */
-    public String addDepartmentFromInput(String name, String headIdStr, String currentUserRole) {
+    public String addDepartmentFromInput(String name, String headIdStr, Employee currentUser) {
+
         if (name == null || name.isEmpty()) {
             return "Tên phòng ban không được để trống!";
         }
@@ -60,11 +81,10 @@ public class DepartmentService {
             head.setEmployeeId(headId);
             dept.setHeadEmployee(head);
         }
-        try {
-            addDepartment(dept, currentUserRole);
-        } catch (Exception ex) {
-            return "Lỗi khi thêm phòng ban: " + ex.getMessage();
-        }
+
+        // If error, let View layer catch and display to user
+        addDepartment(dept, currentUser);
+
         return null;
     }
 }

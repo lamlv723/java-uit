@@ -2,6 +2,8 @@
 package services.main;
 
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import dao.main.EmployeeDAOImpl;
 import dao.main.interfaces.EmployeeDAO;
 import models.main.Employee;
@@ -9,22 +11,39 @@ import models.main.Employee;
 public class EmployeeService {
     private EmployeeDAO employeeDAO;
 
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
+
     public EmployeeService() {
         this.employeeDAO = new EmployeeDAOImpl();
     }
 
-    public void addEmployee(Employee employee, String currentUserRole) {
-        // TODO: Add role-based validation if needed
+    public void addEmployee(Employee employee, Employee currentUser) {
+        String currentUserRole = currentUser.getRole();
+        if (!"Admin".equalsIgnoreCase(currentUserRole)) {
+            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to add an employee.";
+            logger.warn(errorMessage);
+            throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
+        }
         employeeDAO.addEmployee(employee);
     }
 
-    public void updateEmployee(Employee employee, String currentUserRole) {
-        // TODO: Add role-based validation if needed
+    public void updateEmployee(Employee employee, Employee currentUser) {
+        String currentUserRole = currentUser.getRole();
+        if (!"Admin".equalsIgnoreCase(currentUserRole)) {
+            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to update an employee.";
+            logger.warn(errorMessage);
+            throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
+        }
         employeeDAO.updateEmployee(employee);
     }
 
-    public void deleteEmployee(int employeeId, String currentUserRole) {
-        // TODO: Add role-based validation if needed
+    public void deleteEmployee(int employeeId, Employee currentUser) {
+        String currentUserRole = currentUser.getRole();
+        if (!"Admin".equalsIgnoreCase(currentUserRole)) {
+            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to delete employee with id " + employeeId + ".";
+            logger.warn(errorMessage);
+            throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
+        }
         employeeDAO.deleteEmployee(employeeId);
     }
 
@@ -32,8 +51,8 @@ public class EmployeeService {
         return employeeDAO.getEmployeeById(employeeId);
     }
 
-    public List<Employee> getAllEmployees() {
-        return employeeDAO.getAllEmployees();
+    public List<Employee> getAllEmployees(Employee currentUser) {
+        return employeeDAO.getAllEmployees(currentUser);
     }
 
     /**
@@ -42,7 +61,7 @@ public class EmployeeService {
      * Trả về null nếu thành công, trả về thông báo lỗi nếu có lỗi.
      */
     public String addEmployeeFromInput(String firstName, String lastName, String email, String phone, String deptIdStr,
-            String role, String username, String password, String currentUserRole) {
+            String role, String username, String password, Employee currentUser) {
         if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || username.isEmpty() || password.isEmpty()) {
             return "Các trường bắt buộc không được để trống!";
         }
@@ -63,11 +82,33 @@ public class EmployeeService {
         emp.setUsername(username);
         emp.setPassword(password);
         emp.setDepartmentId(deptId);
-        try {
-            addEmployee(emp, currentUserRole);
-        } catch (Exception ex) {
-            return "Lỗi khi thêm nhân viên: " + ex.getMessage();
-        }
+
+        // If error, let View layer catch and display to user
+        addEmployee(emp, currentUser);
+
         return null;
+    }
+
+    public String changePassword(Employee currentUser, String oldPassword, String newPassword) {
+        if (oldPassword == null || oldPassword.isEmpty() || newPassword == null || newPassword.isEmpty()) {
+            return "Mật khẩu không được để trống.";
+        }
+
+        // Check if the old password is correct
+        if (!currentUser.getPassword().equals(oldPassword)) {
+            return "Mật khẩu cũ không chính xác.";
+        }
+
+        currentUser.setPassword(newPassword);
+
+        // Persist the change to the database
+        try {
+            employeeDAO.updateEmployee(currentUser);
+        } catch (Exception e) {
+            logger.error("Error changing password for user {}: {}", currentUser.getUsername(), e.getMessage(), e);
+            return "Đã xảy ra lỗi khi cập nhật mật khẩu.";
+        }
+
+        return null; // Return null on success
     }
 }

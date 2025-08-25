@@ -17,23 +17,23 @@ public class EmployeeController {
         return employeeService;
     }
 
-    public void addEmployee(Employee employee, String currentUserRole) {
-        employeeService.addEmployee(employee, currentUserRole);
+    public void addEmployee(Employee employee, Employee currentUser) {
+        employeeService.addEmployee(employee, currentUser);
     }
 
-    public void updateEmployee(Employee employee, String currentUserRole) {
-        employeeService.updateEmployee(employee, currentUserRole);
+    public void updateEmployee(Employee employee, Employee currentUser) {
+        employeeService.updateEmployee(employee, currentUser);
     }
 
-    public void deleteEmployee(int employeeId, String currentUserRole) {
-        employeeService.deleteEmployee(employeeId, currentUserRole);
+    public void deleteEmployee(int employeeId, Employee currentUser) {
+        employeeService.deleteEmployee(employeeId, currentUser);
     }
 
     public Employee getEmployeeById(int employeeId) {
         return employeeService.getEmployeeById(employeeId);
     }
 
-    public List<Employee> getAllEmployees() {
-        return employeeService.getAllEmployees();
+    public List<Employee> getAllEmployees(Employee currentUser) {
+        return employeeService.getAllEmployees(currentUser);
     }
 }

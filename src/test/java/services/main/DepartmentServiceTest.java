@@ -2,6 +2,7 @@ package services.main;
 
 import dao.main.interfaces.DepartmentDAO;
 import models.main.Department;
+import models.main.Employee;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -34,20 +35,26 @@ class DepartmentServiceTest {
     @Test
     void testAddDepartment() {
         Department department = new Department();
-        departmentService.addDepartment(department, "ADMIN");
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
+        departmentService.addDepartment(department, currentUser);
         verify(departmentDAOMock, times(1)).addDepartment(department);
     }
 
     @Test
     void testUpdateDepartment() {
         Department department = new Department();
-        departmentService.updateDepartment(department, "ADMIN");
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
+        departmentService.updateDepartment(department, currentUser);
         verify(departmentDAOMock, times(1)).updateDepartment(department);
     }
 
     @Test
     void testDeleteDepartment() {
-        departmentService.deleteDepartment(1, "ADMIN");
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
+        departmentService.deleteDepartment(1, currentUser);
         verify(departmentDAOMock, times(1)).deleteDepartment(1);
     }
 
@@ -61,9 +68,12 @@ class DepartmentServiceTest {
 
     @Test
     void testGetAllDepartments() {
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
+
         List<Department> departments = Arrays.asList(new Department(), new Department());
-        when(departmentDAOMock.getAllDepartments()).thenReturn(departments);
-        List<Department> result = departmentService.getAllDepartments();
+        when(departmentDAOMock.getAllDepartments(currentUser)).thenReturn(departments);
+        List<Department> result = departmentService.getAllDepartments(currentUser);
         assertEquals(2, result.size());
     }
 }

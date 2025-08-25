@@ -1,5 +1,6 @@
 package controllers.device;
 
+import models.main.Employee;
 import services.device.AssetCategoryService;
 
 import java.util.List;
@@ -17,16 +18,16 @@ public class AssetCategoryController {
         return assetCategoryService;
     }
 
-    public void addAssetCategory(AssetCategory category, String currentUserRole) {
-        assetCategoryService.addAssetCategory(category, currentUserRole);
+    public void addAssetCategory(AssetCategory category, Employee currentUser) {
+        assetCategoryService.addAssetCategory(category, currentUser);
     }
 
-    public void updateAssetCategory(AssetCategory category, String currentUserRole) {
-        assetCategoryService.updateAssetCategory(category, currentUserRole);
+    public void updateAssetCategory(AssetCategory category, Employee currentUser) {
+        assetCategoryService.updateAssetCategory(category, currentUser);
     }
 
-    public void deleteAssetCategory(int categoryId, String currentUserRole) {
-        assetCategoryService.deleteAssetCategory(categoryId, currentUserRole);
+    public void deleteAssetCategory(int categoryId, Employee currentUser) {
+        assetCategoryService.deleteAssetCategory(categoryId, currentUser);
     }
 
     public AssetCategory getAssetCategoryById(int categoryId) {

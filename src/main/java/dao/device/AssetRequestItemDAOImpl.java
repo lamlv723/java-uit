@@ -3,6 +3,7 @@ package dao.device;
 import config.HibernateUtil;
 import dao.device.interfaces.AssetRequestItemDAO;
 import models.device.AssetRequestItem;
+import models.main.Employee;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -81,12 +82,34 @@ public class AssetRequestItemDAOImpl implements AssetRequestItemDAO {
     }
 
     @Override
-    public List<AssetRequestItem> getAllBorrowedAssetRequestItems() {
+    public List<AssetRequestItem> getAllBorrowedAssetRequestItems(Employee currentUser) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            Query<AssetRequestItem> query = session.createQuery("FROM AssetRequestItem i WHERE i.assetRequest.requestType = 'borrow' AND i.assetRequest.status NOT LIKE 'Rejected'", AssetRequestItem.class);
-            return query.getResultList();
+            if (currentUser == null) {
+                return new java.util.ArrayList<>();
+            }
+
+            String role = currentUser.getRole();
+            String baseQuery = "FROM AssetRequestItem i WHERE i.assetRequest.requestType = 'borrow' AND i.assetRequest.status NOT LIKE 'Rejected'";
+
+            if ("Admin".equalsIgnoreCase(role)) {
+                // Admin thấy tất cả
+                Query<AssetRequestItem> query = session.createQuery(baseQuery, AssetRequestItem.class);
+                return query.getResultList();
+            } else if ("Manager".equalsIgnoreCase(role)) {
+                // Manager thấy của nhân viên trong phòng ban
+                String hql = baseQuery + " AND i.assetRequest.employee.department.departmentId = :deptId";
+                Query<AssetRequestItem> query = session.createQuery(hql, AssetRequestItem.class);
+                query.setParameter("deptId", currentUser.getDepartmentId());
+                return query.getResultList();
+            } else {
+                // Staff chỉ thấy của chính mình
+                String hql = baseQuery + " AND i.assetRequest.employee.employeeId = :empId";
+                Query<AssetRequestItem> query = session.createQuery(hql, AssetRequestItem.class);
+                query.setParameter("empId", currentUser.getEmployeeId());
+                return query.getResultList();
+            }
         } catch (Exception e) {
-            logger.error("Error getting all asset request items: {}", e.getMessage(), e);
+            logger.error("Error getting filtered list of borrowed asset request items: {}", e.getMessage(), e);
             return null;
         }
     }

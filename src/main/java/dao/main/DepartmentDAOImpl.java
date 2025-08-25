@@ -3,6 +3,7 @@ package dao.main;
 import dao.main.interfaces.DepartmentDAO;
 import models.main.Department;
 import config.HibernateUtil;
+import models.main.Employee;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -70,12 +71,25 @@ public class DepartmentDAOImpl implements DepartmentDAO {
     }
 
     @Override
-    public List<Department> getAllDepartments() {
+    public List<Department> getAllDepartments(Employee currentUser) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            Query<Department> query = session.createQuery("FROM Department", Department.class);
-            return query.getResultList();
+            if (currentUser == null) {
+                return new java.util.ArrayList<>();
+            }
+
+            String role = currentUser.getRole();
+            if ("Admin".equalsIgnoreCase(role)) {
+                // Admin can see all
+                Query<Department> query = session.createQuery("FROM Department", Department.class);
+                return query.getResultList();
+            } else {
+                // Manager và Staff only see their own department
+                Query<Department> query = session.createQuery("FROM Department WHERE departmentId = :deptId", Department.class);
+                query.setParameter("deptId", currentUser.getDepartmentId());
+                return query.getResultList();
+            }
         } catch (Exception e) {
-            logger.error("Error getting all departments: {}", e.getMessage(), e);
+            logger.error("Error getting filtered list of departments: {}", e.getMessage(), e);
             return null;
         }
     }

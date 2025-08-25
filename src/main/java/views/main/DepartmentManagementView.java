@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import controllers.main.DepartmentController;
+import controllers.user.UserSession;
 import services.main.DepartmentService;
 import models.main.Department;
 import models.main.Employee;
@@ -12,6 +13,9 @@ import views.main.components.DepartmentTable;
 public class DepartmentManagementView extends JFrame {
     private DepartmentTable table;
     private DepartmentController departmentController;
+    private JButton btnAdd;
+    private JButton btnEdit;
+    private JButton btnDelete;
 
     public DepartmentManagementView() {
         setTitle("Quản lý Phòng ban");
@@ -24,9 +28,13 @@ public class DepartmentManagementView extends JFrame {
         loadDataToTable();
         JScrollPane scrollPane = new JScrollPane(table);
 
-        JButton btnAdd = new JButton("Thêm");
-        JButton btnEdit = new JButton("Sửa");
-        JButton btnDelete = new JButton("Xóa");
+        btnAdd = new JButton("Thêm");
+        btnEdit = new JButton("Sửa");
+        btnDelete = new JButton("Xóa");
+
+        // Apply role-based restrictions
+        applyRoles();
+
         JPanel panelButtons = new JPanel();
         panelButtons.add(btnAdd);
         panelButtons.add(btnEdit);
@@ -44,13 +52,19 @@ public class DepartmentManagementView extends JFrame {
             if (option == JOptionPane.OK_OPTION) {
                 String name = tfName.getText().trim();
                 String headIdStr = tfHeadId.getText().trim();
+                Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
                 // Gọi service xử lý nghiệp vụ, trả về lỗi nếu có
-                String error = departmentController.getDepartmentService().addDepartmentFromInput(name, headIdStr,
-                        "ADMIN");
-                if (error == null) {
-                    loadDataToTable();
-                } else {
-                    JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                try {
+                    String error = departmentController.getDepartmentService().addDepartmentFromInput(name, headIdStr,
+                            currentUser);
+                    if (error == null) {
+                        loadDataToTable();
+                    } else {
+                        JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
                 }
             }
         });
@@ -96,8 +110,15 @@ public class DepartmentManagementView extends JFrame {
                     } else {
                         dept.setHeadEmployee(null);
                     }
-                    departmentController.updateDepartment(dept, "ADMIN"); // TODO: lấy role thực tế nếu có
-                    loadDataToTable();
+
+                    Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
+                    try {
+                        departmentController.updateDepartment(dept, currentUser);
+                        loadDataToTable();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                        ex.printStackTrace();
+                    }
                 } else {
                     JOptionPane.showMessageDialog(this, "Tên phòng ban không được để trống!", "Lỗi",
                             JOptionPane.ERROR_MESSAGE);
@@ -117,7 +138,14 @@ public class DepartmentManagementView extends JFrame {
             int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa phòng ban này?", "Xác nhận xóa",
                     JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                departmentController.deleteDepartment(id, "ADMIN");
+                Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
+                try {
+                    departmentController.deleteDepartment(id, currentUser);
+                    loadDataToTable();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
+                }
             }
         });
 
@@ -126,7 +154,9 @@ public class DepartmentManagementView extends JFrame {
     }
 
     private void loadDataToTable() {
-        List<Department> list = departmentController.getAllDepartments();
+        Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
+        List<Department> list = departmentController.getAllDepartments(currentUser);
+
         Object[][] data = new Object[list.size()][3];
         for (int i = 0; i < list.size(); i++) {
             Department d = list.get(i);
@@ -136,5 +166,15 @@ public class DepartmentManagementView extends JFrame {
             data[i][2] = (head != null) ? head.getEmployeeId() : "";
         }
         table.setDepartmentData(data);
+    }
+
+    private void applyRoles() {
+        String role = UserSession.getInstance().getCurrentUserRole();
+        // Only Admin can add, edit, or delete departments.
+        boolean isAdmin = "Admin".equalsIgnoreCase(role);
+
+        btnAdd.setVisible(isAdmin);
+        btnEdit.setVisible(isAdmin);
+        btnDelete.setVisible(isAdmin);
     }
 }

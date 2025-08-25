@@ -2,6 +2,7 @@ package services.device;
 
 import dao.device.interfaces.AssetRequestItemDAO;
 import models.device.AssetRequestItem;
+import models.main.Employee;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -34,20 +35,23 @@ class AssetRequestItemServiceTest {
     @Test
     void testAddAssetRequestItem() {
         AssetRequestItem item = new AssetRequestItem();
-        assetRequestItemService.addAssetRequestItem(item, "ADMIN");
+        Employee currentUser = new Employee();
+        assetRequestItemService.addAssetRequestItem(item, currentUser);
         verify(assetRequestItemDAOMock, times(1)).addAssetRequestItem(item);
     }
 
     @Test
     void testUpdateAssetRequestItem() {
         AssetRequestItem item = new AssetRequestItem();
-        assetRequestItemService.updateAssetRequestItem(item, "ADMIN");
+        Employee currentUser = new Employee();
+        assetRequestItemService.updateAssetRequestItem(item, currentUser);
         verify(assetRequestItemDAOMock, times(1)).updateAssetRequestItem(item);
     }
 
     @Test
     void testDeleteAssetRequestItem() {
-        assetRequestItemService.deleteAssetRequestItem(1, "ADMIN");
+        Employee currentUser = new Employee();
+        assetRequestItemService.deleteAssetRequestItem(1, currentUser);
         verify(assetRequestItemDAOMock, times(1)).deleteAssetRequestItem(1);
     }
 

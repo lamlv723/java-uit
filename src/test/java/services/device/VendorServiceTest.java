@@ -2,6 +2,7 @@ package services.device;
 
 import dao.device.interfaces.VendorDAO;
 import models.device.Vendor;
+import models.main.Employee;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -34,20 +35,26 @@ class VendorServiceTest {
     @Test
     void testAddVendor() {
         Vendor vendor = new Vendor();
-        vendorService.addVendor(vendor, "ADMIN");
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
+        vendorService.addVendor(vendor, currentUser);
         verify(vendorDAOMock, times(1)).addVendor(vendor);
     }
 
     @Test
     void testUpdateVendor() {
         Vendor vendor = new Vendor();
-        vendorService.updateVendor(vendor, "ADMIN");
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
+        vendorService.updateVendor(vendor, currentUser);
         verify(vendorDAOMock, times(1)).updateVendor(vendor);
     }
 
     @Test
     void testDeleteVendor() {
-        vendorService.deleteVendor(1, "ADMIN");
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
+        vendorService.deleteVendor(1, currentUser);
         verify(vendorDAOMock, times(1)).deleteVendor(1);
     }
 

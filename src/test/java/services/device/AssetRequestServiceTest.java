@@ -4,6 +4,7 @@ import dao.device.interfaces.AssetRequestDAO;
 import dao.device.interfaces.AssetRequestItemDAO;
 import models.device.AssetRequest;
 import models.device.AssetRequestItem;
+import models.main.Employee;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -41,29 +42,59 @@ class AssetRequestServiceTest {
 
     @Test
     void testAddAssetRequest() {
+        Employee currentUser = new Employee();
+        currentUser.setRole("ADMIN");
+
         AssetRequest request = new AssetRequest();
-        assetRequestService.addAssetRequest(request, "ADMIN");
+        assetRequestService.addAssetRequest(request, currentUser);
         verify(assetRequestDAOMock, times(1)).addAssetRequest(request);
     }
 
     @Test
     void testUpdateAssetRequest() {
-        AssetRequest request = new AssetRequest();
-        assetRequestService.updateAssetRequest(request, "ADMIN");
-        verify(assetRequestDAOMock, times(1)).updateAssetRequest(request);
+        // Arrange
+        Employee currentUser = new Employee();
+        currentUser.setRole("ADMIN");
+
+        AssetRequest requestToUpdate = new AssetRequest();
+        requestToUpdate.setRequestId(1);
+
+        // Tạo một bản ghi "hiện có" trong DB để giả lập
+        AssetRequest existingRequest = new AssetRequest();
+        existingRequest.setStatus("Pending");
+        existingRequest.setEmployee(currentUser);
+
+        // Dạy cho DAO trả về bản ghi "hiện có" khi được tìm kiếm
+        when(assetRequestDAOMock.getAssetRequestById(1)).thenReturn(existingRequest);
+
+        // Act
+        assetRequestService.updateAssetRequest(requestToUpdate, currentUser);
+
+        // Assert/Verify
+        verify(assetRequestDAOMock, times(1)).updateAssetRequest(requestToUpdate);
     }
 
     @Test
     void testDeleteAssetRequest() {
-        // Arrange: Prepare the mock objects and their expected behavior
+        // Arrange
+        Employee currentUser = new Employee();
+        currentUser.setRole("ADMIN");
+
+        AssetRequest requestToReturn = new AssetRequest();
+        requestToReturn.setStatus("Pending");
+        requestToReturn.setEmployee(currentUser);
+
         AssetRequestItem item = new AssetRequestItem();
         item.setRequestItemId(101);
+
+        when(assetRequestDAOMock.getAssetRequestById(1)).thenReturn(requestToReturn);
+
         when(assetRequestItemDAOMock.getAssetRequestItemsByRequestId(1)).thenReturn(Collections.singletonList(item));
 
-        // Act: Call the method under test
-        String result = assetRequestService.deleteAssetRequest(1, "ADMIN");
+        // Act
+        String result = assetRequestService.deleteAssetRequest(1, currentUser);
 
-        // Assert: Verify the outcome and interactions
+        // Assert
         assertNull(result, "Expected no error message on successful deletion");
         verify(assetRequestItemDAOMock, times(1)).getAssetRequestItemsByRequestId(1);
         verify(assetRequestItemDAOMock, times(1)).deleteAssetRequestItem(101);
@@ -80,9 +111,18 @@ class AssetRequestServiceTest {
 
     @Test
     void testGetAllAssetRequests() {
+        // 1. Arrange: Tạo người dùng hiện tại giả
+        Employee currentUser = new Employee();
         List<AssetRequest> requests = Arrays.asList(new AssetRequest(), new AssetRequest());
-        when(assetRequestDAOMock.getAllAssetRequests()).thenReturn(requests);
-        List<AssetRequest> result = assetRequestService.getAllAssetRequests();
+
+        // 2. Dạy cho DAO mock phải làm gì khi được gọi với currentUser
+        when(assetRequestDAOMock.getAllAssetRequests(currentUser)).thenReturn(requests);
+
+        // 3. Act: Gọi phương thức của service với currentUser
+        List<AssetRequest> result = assetRequestService.getAllAssetRequests(currentUser);
+
+        // 4. Assert & Verify
         assertEquals(2, result.size());
+        verify(assetRequestDAOMock, times(1)).getAllAssetRequests(currentUser);
     }
 }

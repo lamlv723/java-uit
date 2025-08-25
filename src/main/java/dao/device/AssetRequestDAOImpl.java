@@ -4,6 +4,7 @@ import models.device.AssetRequest;
 import config.HibernateUtil;
 import dao.device.interfaces.AssetRequestDAO;
 
+import models.main.Employee;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -70,12 +71,32 @@ public class AssetRequestDAOImpl implements AssetRequestDAO {
     }
 
     @Override
-    public List<AssetRequest> getAllAssetRequests() {
+    public List<AssetRequest> getAllAssetRequests(Employee currentUser) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            Query<AssetRequest> query = session.createQuery("FROM AssetRequest", AssetRequest.class);
-            return query.getResultList();
+            if (currentUser == null) {
+                return new java.util.ArrayList<>();
+            }
+
+            String role = currentUser.getRole();
+            if ("Admin".equalsIgnoreCase(role)) {
+                // Admin thấy tất cả
+                Query<AssetRequest> query = session.createQuery("FROM AssetRequest", AssetRequest.class);
+                return query.getResultList();
+            } else if ("Manager".equalsIgnoreCase(role)) {
+                // Manager thấy yêu cầu của nhân viên trong phòng ban
+                Query<AssetRequest> query = session.createQuery(
+                        "FROM AssetRequest ar WHERE ar.employee.department.departmentId = :deptId", AssetRequest.class);
+                query.setParameter("deptId", currentUser.getDepartmentId());
+                return query.getResultList();
+            } else {
+                // Staff chỉ thấy yêu cầu của chính mình
+                Query<AssetRequest> query = session.createQuery(
+                        "FROM AssetRequest ar WHERE ar.employee.employeeId = :empId", AssetRequest.class);
+                query.setParameter("empId", currentUser.getEmployeeId());
+                return query.getResultList();
+            }
         } catch (Exception e) {
-            logger.error("Error getting all asset requests: {}", e.getMessage(), e);
+            logger.error("Error getting filtered list of asset requests: {}", e.getMessage(), e);
             return null;
         }
     }

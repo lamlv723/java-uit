@@ -1,6 +1,7 @@
 package controllers.device;
 
 import models.device.AssetRequest;
+import models.main.Employee;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import services.device.AssetRequestService;
@@ -15,6 +16,7 @@ class AssetRequestControllerTest {
     private AssetRequestController assetRequestController;
     private AssetRequestService assetRequestServiceMock;
 
+
     @BeforeEach
     void setUp() {
         assetRequestServiceMock = mock(AssetRequestService.class);
@@ -23,22 +25,35 @@ class AssetRequestControllerTest {
 
     @Test
     void testAddAssetRequest() {
+        Employee currentUser = new Employee();
+        currentUser.setRole("ADMIN");
+
         AssetRequest request = new AssetRequest();
-        assetRequestController.addAssetRequest(request, "ADMIN");
-        verify(assetRequestServiceMock, times(1)).addAssetRequest(request, "ADMIN");
+        assetRequestController.addAssetRequest(request, currentUser);
+        verify(assetRequestServiceMock, times(1)).addAssetRequest(request, currentUser);
     }
 
     @Test
     void testUpdateAssetRequest() {
+        Employee currentUser = new Employee();
+        currentUser.setRole("ADMIN");
+
         AssetRequest request = new AssetRequest();
-        assetRequestController.updateAssetRequest(request, "ADMIN");
-        verify(assetRequestServiceMock, times(1)).updateAssetRequest(request, "ADMIN");
+        assetRequestController.updateAssetRequest(request, currentUser);
+        verify(assetRequestServiceMock, times(1)).updateAssetRequest(request, currentUser);
     }
 
     @Test
     void testDeleteAssetRequest() {
-        assetRequestController.deleteAssetRequest(1, "ADMIN");
-        verify(assetRequestServiceMock, times(1)).deleteAssetRequest(1, "ADMIN");
+        // Arrange: Chuẩn bị các tham số cần thiết
+        Employee currentUser = new Employee();
+        int requestId = 1;
+
+        // Act: Gọi phương thức của đối tượng đang được test "assetRequestController"
+        assetRequestController.deleteAssetRequest(requestId, currentUser);
+
+        // Assert/Verify: Xác minh rằng controller đã gọi đến service đúng một lần
+        verify(assetRequestServiceMock, times(1)).deleteAssetRequest(requestId, currentUser);
     }
 
     @Test
@@ -51,9 +66,20 @@ class AssetRequestControllerTest {
 
     @Test
     void testGetAllAssetRequests() {
+        // 1. Arrange: Tạo người dùng hiện tại giả
+        Employee currentUser = new Employee();
         List<AssetRequest> requests = Arrays.asList(new AssetRequest(), new AssetRequest());
-        when(assetRequestServiceMock.getAllAssetRequests()).thenReturn(requests);
-        List<AssetRequest> result = assetRequestController.getAllAssetRequests();
+
+        // 2. Dạy cho service mock phải làm gì khi được gọi với currentUser
+        when(assetRequestServiceMock.getAllAssetRequests(currentUser)).thenReturn(requests);
+
+        // 3. Act: Gọi phương thức của controller với currentUser
+        List<AssetRequest> result = assetRequestController.getAllAssetRequests(currentUser);
+
+        // 4. Assert: Kiểm tra kết quả
         assertEquals(2, result.size());
+
+        // 5. Verify: Xác minh controller đã gọi đúng phương thức của service
+        verify(assetRequestServiceMock, times(1)).getAllAssetRequests(currentUser);
     }
 }

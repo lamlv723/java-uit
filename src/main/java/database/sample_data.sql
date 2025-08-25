@@ -4,6 +4,17 @@ SET character_set_connection = utf8mb4;
 SET character_set_results = utf8mb4;
 SET sql_mode = '';
 USE asset_management;
+
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE AssetRequestItem;
+TRUNCATE TABLE AssetRequest;
+TRUNCATE TABLE Asset;
+TRUNCATE TABLE Vendor;
+TRUNCATE TABLE AssetCategory;
+TRUNCATE TABLE Employee;
+TRUNCATE TABLE Department;
+SET FOREIGN_KEY_CHECKS = 1;
+
 -- Seed data for Department
 INSERT INTO Department (department_id, department_name, head_employee_id) VALUES
 (1, 'Phong Ke Toan', NULL),

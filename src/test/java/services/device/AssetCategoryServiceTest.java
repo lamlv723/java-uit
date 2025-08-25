@@ -2,6 +2,7 @@ package services.device;
 
 import dao.device.interfaces.AssetCategoryDAO;
 import models.device.AssetCategory;
+import models.main.Employee;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -34,20 +35,26 @@ class AssetCategoryServiceTest {
     @Test
     void testAddAssetCategory() {
         AssetCategory category = new AssetCategory();
-        assetCategoryService.addAssetCategory(category, "ADMIN");
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
+        assetCategoryService.addAssetCategory(category, currentUser);
         verify(assetCategoryDAOMock, times(1)).addAssetCategory(category);
     }
 
     @Test
     void testUpdateAssetCategory() {
         AssetCategory category = new AssetCategory();
-        assetCategoryService.updateAssetCategory(category, "ADMIN");
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
+        assetCategoryService.updateAssetCategory(category, currentUser);
         verify(assetCategoryDAOMock, times(1)).updateAssetCategory(category);
     }
 
     @Test
     void testDeleteAssetCategory() {
-        assetCategoryService.deleteAssetCategory(1, "ADMIN");
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
+        assetCategoryService.deleteAssetCategory(1, currentUser);
         verify(assetCategoryDAOMock, times(1)).deleteAssetCategory(1);
     }
 

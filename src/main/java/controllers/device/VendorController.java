@@ -1,5 +1,6 @@
 package controllers.device;
 
+import models.main.Employee;
 import services.device.VendorService;
 
 import java.util.List;
@@ -17,16 +18,16 @@ public class VendorController {
         return vendorService;
     }
 
-    public void addVendor(Vendor vendor, String currentUserRole) {
-        vendorService.addVendor(vendor, currentUserRole);
+    public void addVendor(Vendor vendor, Employee currentUser) {
+        vendorService.addVendor(vendor, currentUser);
     }
 
-    public void updateVendor(Vendor vendor, String currentUserRole) {
-        vendorService.updateVendor(vendor, currentUserRole);
+    public void updateVendor(Vendor vendor, Employee currentUser) {
+        vendorService.updateVendor(vendor, currentUser);
     }
 
-    public void deleteVendor(int vendorId, String currentUserRole) {
-        vendorService.deleteVendor(vendorId, currentUserRole);
+    public void deleteVendor(int vendorId, Employee currentUser) {
+        vendorService.deleteVendor(vendorId, currentUser);
     }
 
     public Vendor getVendorById(int vendorId) {

@@ -1,6 +1,7 @@
 package services.device;
 
 import models.device.Asset;
+import models.main.Employee;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -33,8 +34,11 @@ class AssetServiceTest {
 
     @Test
     void testAddAsset() {
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
         Asset asset = new Asset();
-        assetService.addAsset(asset);
+
+        assetService.addAsset(asset, currentUser);
         verify(assetDAOMock, times(1)).save(asset);
     }
 
@@ -56,15 +60,19 @@ class AssetServiceTest {
 
     @Test
     void testUpdateAsset() {
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
         Asset asset = new Asset();
-        assetService.updateAsset(asset);
+        assetService.updateAsset(asset, currentUser);
         verify(assetDAOMock, times(1)).update(asset);
     }
 
     @Test
     void testDeleteAsset() {
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
         Asset asset = new Asset();
-        assetService.deleteAsset(asset);
+        assetService.deleteAsset(asset, currentUser);
         verify(assetDAOMock, times(1)).delete(asset);
     }
 }

@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import controllers.main.EmployeeController;
+import controllers.user.UserSession;
 import services.main.EmployeeService;
 import models.main.Employee;
 import views.main.components.EmployeeTable;
@@ -11,6 +12,9 @@ import views.main.components.EmployeeTable;
 public class EmployeeManagementView extends JFrame {
     private EmployeeTable table;
     private EmployeeController employeeController;
+    private JButton btnAdd; // Make buttons class members
+    private JButton btnEdit;
+    private JButton btnDelete;
 
     public EmployeeManagementView() {
         setTitle("Quản lý Nhân viên");
@@ -23,16 +27,20 @@ public class EmployeeManagementView extends JFrame {
         loadDataToTable();
         JScrollPane scrollPane = new JScrollPane(table);
 
-        JButton btnAdd = new JButton("Thêm");
-        JButton btnEdit = new JButton("Sửa");
-        JButton btnDelete = new JButton("Xóa");
+        btnAdd = new JButton("Thêm");
+        btnEdit = new JButton("Sửa");
+        btnDelete = new JButton("Xóa");
         JPanel panelButtons = new JPanel();
         panelButtons.add(btnAdd);
         panelButtons.add(btnEdit);
         panelButtons.add(btnDelete);
 
+        // Apply role-based restrictions
+        applyRoles();
+
         // Action for Add
         btnAdd.addActionListener(e -> {
+            Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
             JTextField tfFirstName = new JTextField();
             JTextField tfLastName = new JTextField();
             JTextField tfEmail = new JTextField();
@@ -63,18 +71,24 @@ public class EmployeeManagementView extends JFrame {
                 String username = tfUsername.getText().trim();
                 String password = tfPassword.getText().trim();
                 // Gọi service xử lý nghiệp vụ, trả về lỗi nếu có
-                String error = employeeController.getEmployeeService().addEmployeeFromInput(firstName, lastName, email,
-                        phone, deptIdStr, role, username, password, "ADMIN");
-                if (error == null) {
-                    loadDataToTable();
-                } else {
-                    JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                try {
+                    String error = employeeController.getEmployeeService().addEmployeeFromInput(firstName, lastName, email,
+                            phone, deptIdStr, role, username, password, currentUser);
+                    if (error == null) {
+                        loadDataToTable();
+                    } else {
+                        JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
                 }
             }
         });
 
         // Action for Edit
         btnEdit.addActionListener(e -> {
+            Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
             int row = table.getSelectedRow();
             if (row == -1) {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn một nhân viên để sửa!", "Thông báo",
@@ -137,8 +151,14 @@ public class EmployeeManagementView extends JFrame {
                     } else {
                         emp.setDepartmentId(null);
                     }
-                    employeeController.updateEmployee(emp, "ADMIN");
-                    loadDataToTable();
+
+                    try {
+                        employeeController.updateEmployee(emp, currentUser);
+                        loadDataToTable();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                        ex.printStackTrace();
+                    }
                 } else {
                     JOptionPane.showMessageDialog(this, "Các trường bắt buộc không được để trống!", "Lỗi",
                             JOptionPane.ERROR_MESSAGE);
@@ -148,6 +168,7 @@ public class EmployeeManagementView extends JFrame {
 
         // Action for Delete
         btnDelete.addActionListener(e -> {
+            Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
             int row = table.getSelectedRow();
             if (row == -1) {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn một nhân viên để xóa!", "Thông báo",
@@ -158,8 +179,13 @@ public class EmployeeManagementView extends JFrame {
             int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa nhân viên này?", "Xác nhận xóa",
                     JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                employeeController.deleteEmployee(id, "ADMIN"); // TODO: lấy role thực tế nếu có
-                loadDataToTable();
+                try {
+                    employeeController.deleteEmployee(id, currentUser);
+                    loadDataToTable();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.", "Lỗi Hệ Thống", JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
+                }
             }
         });
 
@@ -168,7 +194,19 @@ public class EmployeeManagementView extends JFrame {
     }
 
     private void loadDataToTable() {
-        List<Employee> list = employeeController.getAllEmployees();
+        Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
+        List<Employee> list = employeeController.getAllEmployees(currentUser);
         table.setEmployeeData(list);
+    }
+
+    private void applyRoles() {
+        String role = UserSession.getInstance().getCurrentUserRole();
+        // Only Admin can add, edit, or delete employees.
+        // Manager and Staff cannot.
+        boolean isAdmin = "Admin".equalsIgnoreCase(role);
+
+        btnAdd.setVisible(isAdmin);
+        btnEdit.setVisible(isAdmin);
+        btnDelete.setVisible(isAdmin);
     }
 }

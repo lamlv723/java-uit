@@ -1,5 +1,6 @@
 package controllers.device;
 
+import models.main.Employee;
 import services.device.AssetService;
 
 import java.util.List;
@@ -17,8 +18,8 @@ public class AssetController {
         return assetService;
     }
 
-    public void addAsset(Asset asset) {
-        assetService.addAsset(asset);
+    public void addAsset(Asset asset, Employee currentUser) {
+        assetService.addAsset(asset, currentUser);
     }
 
     public Asset getAssetById(int id) {
@@ -29,11 +30,11 @@ public class AssetController {
         return assetService.getAllAssets();
     }
 
-    public void updateAsset(Asset asset) {
-        assetService.updateAsset(asset);
+    public void updateAsset(Asset asset, Employee currentUser) {
+        assetService.updateAsset(asset, currentUser);
     }
 
-    public void deleteAsset(Asset asset) {
-        assetService.deleteAsset(asset);
+    public void deleteAsset(Asset asset, Employee currentUser) {
+        assetService.deleteAsset(asset, currentUser);
     }
 }
