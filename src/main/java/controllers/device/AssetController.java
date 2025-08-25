@@ -18,7 +18,7 @@ public class AssetController {
         return assetService;
     }
 
-    public void addAsset(Asset asset, Employee currentUser) { // Thay đổi ở đây
+    public void addAsset(Asset asset, Employee currentUser) {
         assetService.addAsset(asset, currentUser);
     }
 
@@ -30,11 +30,11 @@ public class AssetController {
         return assetService.getAllAssets();
     }
 
-    public void updateAsset(Asset asset, Employee currentUser) { // Thay đổi ở đây
+    public void updateAsset(Asset asset, Employee currentUser) {
         assetService.updateAsset(asset, currentUser);
     }
 
-    public void deleteAsset(Asset asset, Employee currentUser) { // Thay đổi ở đây
+    public void deleteAsset(Asset asset, Employee currentUser) {
         assetService.deleteAsset(asset, currentUser);
     }
 }

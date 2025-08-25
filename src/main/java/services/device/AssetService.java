@@ -13,8 +13,8 @@ public class AssetService {
     private AssetDAOImpl assetDAO = new AssetDAOImpl();
     private static final Logger logger = LoggerFactory.getLogger(AssetService.class);
 
-    public void addAsset(Asset asset, Employee currentUser) { // Thay đổi ở đây
-        if (!"Admin".equalsIgnoreCase(currentUser.getRole())) { // Lấy role từ currentUser
+    public void addAsset(Asset asset, Employee currentUser) {
+        if (!"Admin".equalsIgnoreCase(currentUser.getRole())) {
             logger.warn("Authorization Error: User {} attempted to add an asset.", currentUser.getUsername());
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
@@ -29,7 +29,7 @@ public class AssetService {
         return assetDAO.getAll();
     }
 
-    public void updateAsset(Asset asset, Employee currentUser) { // Thay đổi ở đây
+    public void updateAsset(Asset asset, Employee currentUser) {
         if (!"Admin".equalsIgnoreCase(currentUser.getRole())) {
             logger.warn("Authorization Error: User {} attempted to update an asset.", currentUser.getUsername());
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
@@ -37,7 +37,7 @@ public class AssetService {
         assetDAO.update(asset);
     }
 
-    public void deleteAsset(Asset asset, Employee currentUser) { // Thay đổi ở đây
+    public void deleteAsset(Asset asset, Employee currentUser) {
         if (!"Admin".equalsIgnoreCase(currentUser.getRole())) {
             logger.warn("Authorization Error: User {} attempted to delete an asset.", currentUser.getUsername());
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
