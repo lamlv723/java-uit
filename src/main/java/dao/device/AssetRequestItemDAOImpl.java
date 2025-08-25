@@ -89,7 +89,7 @@ public class AssetRequestItemDAOImpl implements AssetRequestItemDAO {
             }
 
             String role = currentUser.getRole();
-            String baseQuery = "FROM AssetRequestItem i WHERE i.assetRequest.requestType = 'borrow' AND i.assetRequest.status NOT LIKE 'Rejected'";
+            String baseQuery = "FROM AssetRequestItem i WHERE i.assetRequest.status NOT LIKE 'Rejected'";
 
             if ("Admin".equalsIgnoreCase(role)) {
                 // Admin thấy tất cả
