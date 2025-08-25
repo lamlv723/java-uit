@@ -82,14 +82,14 @@ public class AssetRequestItemDAOImpl implements AssetRequestItemDAO {
     }
 
     @Override
-    public List<AssetRequestItem> getAllBorrowedAssetRequestItems(Employee currentUser) {
+    public List<AssetRequestItem> getFilteredRequestItems(Employee currentUser) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             if (currentUser == null) {
                 return new java.util.ArrayList<>();
             }
 
             String role = currentUser.getRole();
-            String baseQuery = "FROM AssetRequestItem i WHERE i.assetRequest.requestType = 'borrow' AND i.assetRequest.status NOT LIKE 'Rejected'";
+            String baseQuery = "FROM AssetRequestItem i WHERE i.assetRequest.status NOT LIKE 'Rejected'";
 
             if ("Admin".equalsIgnoreCase(role)) {
                 // Admin thấy tất cả

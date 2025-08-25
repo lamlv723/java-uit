@@ -38,8 +38,8 @@ public class AssetRequestItemService {
         return assetRequestItemDAO.getAllAssetRequestItems();
     }
 
-    public List<AssetRequestItem> getAllBorrowedAssetRequestItems(Employee currentUser){
-        return assetRequestItemDAO.getAllBorrowedAssetRequestItems(currentUser);
+    public List<AssetRequestItem> getFilteredRequestItems(Employee currentUser){
+        return assetRequestItemDAO.getFilteredRequestItems(currentUser);
     }
 
     /**

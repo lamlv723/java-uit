@@ -61,7 +61,7 @@ public class AssetRequestItemManagementView extends JFrame {
 
     private void loadDataToTable() {
         Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
-        List<AssetRequestItem> allItems = assetRequestItemController.getAllBorrowedAssetRequestItems(currentUser);
+        List<AssetRequestItem> allItems = assetRequestItemController.getFilteredRequestItems(currentUser);
         
         if (specificRequestId != null) {
             // Nếu đây là cửa sổ chi tiết, lọc danh sách chỉ hiển thị các item của request này
