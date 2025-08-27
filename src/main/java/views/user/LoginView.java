@@ -4,6 +4,7 @@ import controllers.user.UserSession;
 import dao.main.EmployeeDAOImpl;
 import models.main.Employee;
 import views.main.MainView;
+import views.common.CustomComponent;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,13 +12,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class LoginView extends JFrame {
-    private JTextField usernameField;
-    private JPasswordField passwordField;
-    private JButton loginButton;
+    private CustomComponent.SearchField usernameField;
+    private CustomComponent.PasswordFieldWithReveal passwordField;
+    private CustomComponent.PrimaryButton loginButton;
     private JLabel statusLabel;
 
     public LoginView() {
-        setTitle("Đăng nhập");
+        setTitle("Asset Management");
         setSize(400, 250);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -30,11 +31,16 @@ public class LoginView extends JFrame {
         JLabel usernameLabel = new JLabel("Tên đăng nhập:");
         gbc.gridx = 0;
         gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
         panel.add(usernameLabel, gbc);
 
-        usernameField = new JTextField(20);
+        usernameField = new CustomComponent.SearchField("");
+        usernameField.setColumns(20);
         gbc.gridx = 1;
         gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
         panel.add(usernameField, gbc);
 
         // Label và field cho Mật khẩu
@@ -43,16 +49,21 @@ public class LoginView extends JFrame {
         gbc.gridy = 1;
         panel.add(passwordLabel, gbc);
 
-        passwordField = new JPasswordField(20);
+        passwordField = new CustomComponent.PasswordFieldWithReveal("");
+        passwordField.setColumns(20);
         gbc.gridx = 1;
         gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
         panel.add(passwordField, gbc);
 
         // Nút Đăng nhập
-        loginButton = new JButton("Đăng nhập");
+        loginButton = new CustomComponent.PrimaryButton("Đăng nhập");
         gbc.gridx = 1;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.weightx = 0;
         panel.add(loginButton, gbc);
 
         // Label hiển thị trạng thái
@@ -61,6 +72,8 @@ public class LoginView extends JFrame {
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         panel.add(statusLabel, gbc);
 
         add(panel);

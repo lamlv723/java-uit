@@ -4,11 +4,13 @@ import java.sql.SQLException;
 import views.user.LoginView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.formdev.flatlaf.FlatLightLaf;
 
 public class App {
     private static final Logger logger = LoggerFactory.getLogger(App.class);
 
     public static void main(String[] args) {
+        FlatLightLaf.setup();
         if (isTestMode(args)) {
             // Bỏ qua khởi động UI và kiểm tra DB khi chạy unit test
             return;
