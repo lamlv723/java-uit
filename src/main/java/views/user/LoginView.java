@@ -31,13 +31,12 @@ public class LoginView extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //Font cho toàn bộ
-        Font thuong = new Font("Arial", Font.PLAIN, 16);
-        Font dam = new Font("Arial", Font.BOLD, 16);
-        UIManager.put("Title.font", thuong);
-        UIManager.put("Label.font", thuong);
-        UIManager.put("TextField.font", thuong);
-        UIManager.put("PasswordField.font", thuong);
-        UIManager.put("Button.font", dam);
+        Font FontThuong = new Font("Sergoe UI", Font.PLAIN, 14);
+        Font FontDam = new Font("Sergoe UI", Font.BOLD, 14);
+        UIManager.put("Title.font", FontThuong);
+        UIManager.put("Label.font", FontThuong);
+        UIManager.put("TextField.font", FontThuong);
+        UIManager.put("PasswordField.font", FontThuong);
         
         //Panel Login
         JPanel root = new JPanel(new BorderLayout());
@@ -137,6 +136,7 @@ public class LoginView extends JFrame {
         loginButton.putClientProperty("JButton.buttonType", "roundRect");
         loginButton.setBackground(new Color(33, 150, 243));
         loginButton.setForeground(Color.WHITE);
+        loginButton.setFont(loginButton.getFont().deriveFont(Font.BOLD, 14f));
         footer.add(loginButton, BorderLayout.CENTER);
         footer.setBorder(new EmptyBorder(12, 0, 0, 0));
 
