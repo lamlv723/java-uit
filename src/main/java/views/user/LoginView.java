@@ -10,83 +10,171 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import com.formdev.flatlaf.FlatClientProperties;
+
 
 public class LoginView extends JFrame {
     private CustomComponent.SearchField usernameField;
     private CustomComponent.PasswordFieldWithReveal passwordField;
     private CustomComponent.PrimaryButton loginButton;
     private JLabel statusLabel;
-
+    
+    
     public LoginView() {
         setTitle("Asset Management");
-        setSize(400, 250);
+        setSize(480, 480);
+        setResizable(false);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel panel = new JPanel(new GridBagLayout());
+        //Font cho toàn bộ
+        Font thuong = new Font("Arial", Font.PLAIN, 16);
+        Font dam = new Font("Arial", Font.BOLD, 16);
+        UIManager.put("Title.font", thuong);
+        UIManager.put("Label.font", thuong);
+        UIManager.put("TextField.font", thuong);
+        UIManager.put("PasswordField.font", thuong);
+        UIManager.put("Button.font", dam);
+        
+        //Panel Login
+        JPanel root = new JPanel(new BorderLayout());
+        root.setBackground(new Color(250, 250, 250));
+        root.setBorder(new EmptyBorder(0, 0, 0, 0));
+
+        //Panel Card bo góc
+        JPanel card = new JPanel(new BorderLayout(0, 18));
+        card.setOpaque(true);
+        card.setBackground(Color.WHITE);
+        card.setBorder(new EmptyBorder(32, 32, 32, 32));
+        
+        // Header: Avatar + Tiêu đề
+        JPanel header = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        header.setOpaque(false);
+        // header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
+        
+        int AVATAR_SIZE = 72;
+        java.net.URL url = LoginView.class.getResource("/icons/user.png");
+        JLabel avatar;
+        if (url != null) {
+            // tạo icon đã scale
+            ImageIcon raw = new ImageIcon(url);
+            Image img = raw.getImage().getScaledInstance(AVATAR_SIZE, AVATAR_SIZE, Image.SCALE_SMOOTH);
+            avatar = new JLabel(new ImageIcon(img), SwingConstants.CENTER);
+        } else {
+            // fallback emoji
+            avatar = new JLabel("\uD83D\uDC64", SwingConstants.CENTER);
+            avatar.setFont(avatar.getFont().deriveFont(56f));
+        }
+        avatar.setAlignmentX(Component.CENTER_ALIGNMENT);
+        header.add(avatar);
+        
+        JLabel title = new JLabel("Đăng nhập", SwingConstants.CENTER);
+        title.setFont(title.getFont().deriveFont(Font.BOLD, 22f));
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        title.setBorder(new EmptyBorder(8, 0, 0, 0));
+        
+        JPanel headerWrap = new JPanel();
+        headerWrap.setOpaque(false);
+        headerWrap.setLayout(new BoxLayout(headerWrap, BoxLayout.Y_AXIS));
+        headerWrap.add(header);
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        headerWrap.add(title);
+        
+        //Form 2 hàng Username, Password
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.insets = new Insets(0, 0, 10, 0);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
 
-        // Label và field cho Tên đăng nhập
+        // Label Tên đăng nhập
         JLabel usernameLabel = new JLabel("Tên đăng nhập:");
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.NONE;
-        panel.add(usernameLabel, gbc);
-
-        usernameField = new CustomComponent.SearchField("");
-        usernameField.setColumns(20);
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        panel.add(usernameField, gbc);
-
+        usernameLabel.setBorder(new EmptyBorder(0, 2, 6, 2));
+        form.add(usernameLabel, gbc);
+        
+        // field Tên đăng nhập
+        gbc.gridy++;
+        usernameField = new CustomComponent.SearchField("Nhập tên đăng nhập");
+        usernameField.setColumns(22);
+        usernameField.setPreferredSize(new Dimension(340, 38));
+        form.add(usernameField, gbc);
+        java.net.URL userIco = LoginView.class.getResource("/icons/user.svg");
+        if (userIco != null)
+            usernameField.putClientProperty(FlatClientProperties.TEXT_FIELD_LEADING_ICON, new ImageIcon(userIco));
+        
         // Label và field cho Mật khẩu
+        gbc.gridy++;
+        gbc.insets = new Insets(12, 0, 10, 0);
         JLabel passwordLabel = new JLabel("Mật khẩu:");
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        panel.add(passwordLabel, gbc);
+        passwordLabel.setBorder(new EmptyBorder(0, 2, 6, 2));
+        form.add(passwordLabel, gbc);
+        
+        gbc.gridy++;
+        gbc.insets = new Insets(0, 0, 0, 0);
+        passwordField = new CustomComponent.PasswordFieldWithReveal("Nhập mật khẩu");
+        passwordField.setColumns(22);
+        passwordField.setPreferredSize(new Dimension(340, 38));
+        form.add(passwordField, gbc);
+        java.net.URL lockIco = LoginView.class.getResource("/icons/lock.svg");
+        if (lockIco != null)
+            passwordField.putClientProperty(FlatClientProperties.TEXT_FIELD_LEADING_ICON, new ImageIcon(lockIco));
+        passwordField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập mật khẩu");
+        passwordField.putClientProperty("JComponent.roundRect", true); // bo góc
+        usernameField.putClientProperty("JComponent.roundRect", true); // bo góc
 
-        passwordField = new CustomComponent.PasswordFieldWithReveal("");
-        passwordField.setColumns(20);
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        panel.add(passwordField, gbc);
 
-        // Nút Đăng nhập
+        // Footer: Nút Đăng nhập
+        JPanel footer = new JPanel(new BorderLayout());
+        footer.setOpaque(false);
         loginButton = new CustomComponent.PrimaryButton("Đăng nhập");
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.weightx = 0;
-        panel.add(loginButton, gbc);
+        loginButton.setPreferredSize(new Dimension(340, 40));
+        loginButton.putClientProperty("JButton.buttonType", "roundRect");
+        loginButton.setBackground(new Color(33, 150, 243));
+        loginButton.setForeground(Color.WHITE);
+        footer.add(loginButton, BorderLayout.CENTER);
+        footer.setBorder(new EmptyBorder(12, 0, 0, 0));
 
-        // Label hiển thị trạng thái
-        statusLabel = new JLabel("");
-        statusLabel.setForeground(Color.RED);
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        panel.add(statusLabel, gbc);
-
-        add(panel);
-
+        // Label trạng thái màu đỏ bên dưới nút
+        statusLabel = new JLabel("", SwingConstants.CENTER);
+        statusLabel.setForeground(new Color(250, 250, 250));
+        statusLabel.setBorder(new EmptyBorder(0, 0, 0, 0));
+        
+        // Ghép header, form vào card
+        card.add(headerWrap, BorderLayout.NORTH);
+        card.add(form, BorderLayout.CENTER);
+        
+        // Gom footer + status vào panel dọc
+        JPanel bottomWrap = new JPanel();
+        bottomWrap.setOpaque(false);
+        bottomWrap.setLayout(new BoxLayout(bottomWrap, BoxLayout.Y_AXIS));
+        bottomWrap.add(footer);
+        bottomWrap.add(statusLabel);
+        card.add(bottomWrap, BorderLayout.SOUTH);
+        
+        root.add(card,BorderLayout.CENTER);
+        setContentPane(root);
+                        
         // Đặt nút Đăng nhập làm nút mặc định khi nhấn Enter
         this.getRootPane().setDefaultButton(loginButton);
-
+        
         // Action Listener cho nút Đăng nhập
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String username = usernameField.getText();
+                String username = usernameField.getText().trim();
                 String password = new String(passwordField.getPassword());
+
+                // Kiểm tra rỗng để báo sớm
+                if (username.isEmpty() || password.isEmpty()) {
+                    statusLabel.setText("Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.");
+                    return;
+                }
 
                 EmployeeDAOImpl employeeDAO = new EmployeeDAOImpl();
                 Employee employee = employeeDAO.getEmployeeByUsernameAndPassword(username, password);
@@ -95,7 +183,7 @@ public class LoginView extends JFrame {
                     // Đăng nhập thành công
                     UserSession.getInstance().setLoggedInEmployee(employee);
                     JOptionPane.showMessageDialog(LoginView.this, "Đăng nhập thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-
+                    
                     // Mở MainView và đóng LoginView
                     new MainView().setVisible(true);
                     dispose();
