@@ -22,17 +22,16 @@ public class LoginView extends JFrame {
     private CustomComponent.PrimaryButton loginButton;
     private JLabel statusLabel;
     
-    
     public LoginView() {
         setTitle("Asset Management");
-        setSize(480, 480);
+        setSize(400, 470);
         setResizable(false);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //Font cho toàn bộ
-        Font FontThuong = new Font("Sergoe UI", Font.PLAIN, 14);
-        Font FontDam = new Font("Sergoe UI", Font.BOLD, 14);
+        Font FontThuong = new Font("Segoe UI", Font.PLAIN, 14);
+        Font FontDam = new Font("Segoe UI", Font.BOLD, 14);
         UIManager.put("Title.font", FontThuong);
         UIManager.put("Label.font", FontThuong);
         UIManager.put("TextField.font", FontThuong);
@@ -54,7 +53,7 @@ public class LoginView extends JFrame {
         header.setOpaque(false);
         // header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
         
-        int AVATAR_SIZE = 72;
+        int AVATAR_SIZE = 56;
         java.net.URL url = LoginView.class.getResource("/icons/user.png");
         JLabel avatar;
         if (url != null) {
@@ -65,7 +64,7 @@ public class LoginView extends JFrame {
         } else {
             // fallback emoji
             avatar = new JLabel("\uD83D\uDC64", SwingConstants.CENTER);
-            avatar.setFont(avatar.getFont().deriveFont(56f));
+            avatar.setFont(avatar.getFont().deriveFont(40f));
         }
         avatar.setAlignmentX(Component.CENTER_ALIGNMENT);
         header.add(avatar);
@@ -101,7 +100,7 @@ public class LoginView extends JFrame {
         gbc.gridy++;
         usernameField = new CustomComponent.SearchField("Nhập tên đăng nhập");
         usernameField.setColumns(22);
-        usernameField.setPreferredSize(new Dimension(340, 38));
+        usernameField.setPreferredSize(new Dimension(330, 48));
         form.add(usernameField, gbc);
         java.net.URL userIco = LoginView.class.getResource("/icons/user.svg");
         if (userIco != null)
@@ -118,7 +117,7 @@ public class LoginView extends JFrame {
         gbc.insets = new Insets(0, 0, 0, 0);
         passwordField = new CustomComponent.PasswordFieldWithReveal("Nhập mật khẩu");
         passwordField.setColumns(22);
-        passwordField.setPreferredSize(new Dimension(340, 38));
+        passwordField.setPreferredSize(new Dimension(330, 48));
         form.add(passwordField, gbc);
         java.net.URL lockIco = LoginView.class.getResource("/icons/lock.svg");
         if (lockIco != null)
@@ -141,10 +140,11 @@ public class LoginView extends JFrame {
         footer.setBorder(new EmptyBorder(12, 0, 0, 0));
 
         // Label trạng thái màu đỏ bên dưới nút
-        statusLabel = new JLabel("", SwingConstants.CENTER);
-        statusLabel.setForeground(new Color(250, 250, 250));
+        statusLabel = new JLabel(" ", SwingConstants.CENTER);
+        statusLabel.setForeground(new Color(206, 33, 39));
         statusLabel.setBorder(new EmptyBorder(0, 0, 0, 0));
-        
+        statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         // Ghép header, form vào card
         card.add(headerWrap, BorderLayout.NORTH);
         card.add(form, BorderLayout.CENTER);
@@ -173,6 +173,9 @@ public class LoginView extends JFrame {
                 // Kiểm tra rỗng để báo sớm
                 if (username.isEmpty() || password.isEmpty()) {
                     statusLabel.setText("Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.");
+                    statusLabel.setVisible(true);
+                    statusLabel.revalidate();
+                    statusLabel.repaint();
                     return;
                 }
 
@@ -190,6 +193,9 @@ public class LoginView extends JFrame {
                 } else {
                     // Đăng nhập thất bại
                     statusLabel.setText("Tên đăng nhập hoặc mật khẩu không đúng.");
+                    statusLabel.setVisible(true);
+                    statusLabel.revalidate();
+                    statusLabel.repaint();
                 }
             }
         });
