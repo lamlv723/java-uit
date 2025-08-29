@@ -1,111 +1,93 @@
 package views.main;
 
-import controllers.user.UserSession;
-import views.user.ChangePasswordView;
-import views.user.LoginView;
+import java.awt.Color;
 
-import javax.swing.*;
-import java.awt.*;
 
-public class MainView extends JFrame {
+public class MainView extends javax.swing.JFrame {
+
+
     public MainView() {
-        setTitle("Enterprise Asset Management System (Java Swing, Hibernate, Maven, MySQL)");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 400);
+        initComponents();
+        setBackground(new Color(0, 0, 0, 0));
+        menu1.initMoving(MainView.this);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        panelBorder2 = new views.common.PanelBorder();
+        menu1 = new views.common.Menu();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setUndecorated(true);
+
+        panelBorder2.setBackground(new java.awt.Color(250, 250, 250));
+
+        javax.swing.GroupLayout panelBorder2Layout = new javax.swing.GroupLayout(panelBorder2);
+        panelBorder2.setLayout(panelBorder2Layout);
+        panelBorder2Layout.setHorizontalGroup(
+            panelBorder2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelBorder2Layout.createSequentialGroup()
+                .addComponent(menu1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 826, Short.MAX_VALUE))
+        );
+        panelBorder2Layout.setVerticalGroup(
+            panelBorder2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(menu1, javax.swing.GroupLayout.DEFAULT_SIZE, 665, Short.MAX_VALUE)
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(panelBorder2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(panelBorder2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        pack();
         setLocationRelativeTo(null);
+    }// </editor-fold>//GEN-END:initComponents
 
-        /************************ MENU BAR ************************/
-        // Menu quản lý CRUD
-        JMenuBar menuBar = new JMenuBar();
-        JMenu menuDevice = new JMenu("Thiết bị");
-        JMenuItem mnuAssetCategory = new JMenuItem("Danh mục tài sản");
-        JMenuItem mnuAsset = new JMenuItem("Tài sản");
-        JMenuItem mnuAssetRequest = new JMenuItem("Yêu cầu tài sản");
-        JMenuItem mnuAssetRequestItem = new JMenuItem("Chi tiết yêu cầu");
-        JMenuItem mnuVendor = new JMenuItem("Nhà cung cấp");
-        menuDevice.add(mnuAssetCategory);
-        menuDevice.add(mnuAsset);
-        menuDevice.add(mnuAssetRequest);
-        menuDevice.add(mnuAssetRequestItem);
-        menuDevice.add(mnuVendor);
 
-        JMenu menuMain = new JMenu("Chính");
-        JMenuItem mnuDepartment = new JMenuItem("Phòng ban");
-        JMenuItem mnuEmployee = new JMenuItem("Nhân viên");
-        menuMain.add(mnuDepartment);
-        menuMain.add(mnuEmployee);
-
-        menuBar.add(menuDevice);
-        menuBar.add(menuMain);
-        setJMenuBar(menuBar);
-
-        // PERSONAL PROFILE
-        // Tạo menu cho người dùng hiện tại
-        JMenu menuUser = new JMenu();
-        if (UserSession.getInstance().getLoggedInEmployee() != null) {
-            String firstName = UserSession.getInstance().getLoggedInEmployee().getFirstName();
-            String lastName = UserSession.getInstance().getLoggedInEmployee().getLastName();
-            String fullName = String.join(" ", firstName, lastName);
-            menuUser.setText(fullName);
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(MainView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(MainView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(MainView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(MainView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
 
-        JMenuItem mnuMyAssets = new JMenuItem("Tài sản của tôi");
-        JMenuItem mnuChangePassword = new JMenuItem("Đổi mật khẩu");
-        JMenuItem mnuLogout = new JMenuItem("Đăng xuất");
-
-        // Thêm các menu con vào menu người dùng
-        menuUser.add(mnuMyAssets);
-        menuUser.add(mnuChangePassword);
-        menuUser.add(mnuLogout);
-
-        // Thêm menu người dùng vào menu bar và căn lề phải
-        menuBar.add(Box.createHorizontalGlue());
-        menuBar.add(menuUser);
-        setJMenuBar(menuBar);
-
-
-        /************************ ACTIONS ************************/
-        // Action mở các view quản lý
-        mnuAssetCategory.addActionListener(e -> new views.device.AssetCategoryManagementView().setVisible(true));
-        mnuAsset.addActionListener(e -> new views.device.AssetManagementView().setVisible(true));
-        mnuAssetRequest.addActionListener(e -> new views.device.AssetRequestManagementView().setVisible(true));
-        mnuAssetRequestItem.addActionListener(e -> new views.device.AssetRequestItemManagementView().setVisible(true));
-        mnuVendor.addActionListener(e -> new views.device.VendorManagementView().setVisible(true));
-        mnuDepartment.addActionListener(e -> new views.main.DepartmentManagementView().setVisible(true));
-        mnuEmployee.addActionListener(e -> new views.main.EmployeeManagementView().setVisible(true));
-
-        // Action cho nút "Đổi mật khẩu"
-        mnuChangePassword.addActionListener(e -> {
-            new ChangePasswordView().setVisible(true);
-        });
-
-        // Action cho nút "Tài sản của tôi"
-        mnuMyAssets.addActionListener(e -> {
-            new views.device.MyAssetsView().setVisible(true);
-        });
-
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-        JLabel label = new JLabel(
-                "Welcome to Enterprise Asset Management System (Java Swing, Hibernate, Maven, MySQL) App!",
-                SwingConstants.CENTER);
-        panel.add(label, BorderLayout.CENTER);
-        add(panel);
-
-        // Action cho nút Đăng xuất
-        mnuLogout.addActionListener(e -> {
-            // Xóa phiên làm việc hiện tại
-            UserSession.getInstance().clearSession();
-
-            // Đóng MainView và mở lại LoginView
-            dispose();
-            new LoginView().setVisible(true);
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new MainView().setVisible(true);
+            }
         });
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new MainView().setVisible(true);
-        });
-    }
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private views.common.Menu menu1;
+    private views.common.PanelBorder panelBorder2;
+    // End of variables declaration//GEN-END:variables
 }
