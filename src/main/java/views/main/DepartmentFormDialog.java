@@ -4,6 +4,7 @@ import controllers.main.DepartmentController;
 import controllers.user.UserSession;
 import models.main.Department;
 import models.main.Employee;
+import services.main.EmployeeService;
 import ui.IconFactory;
 import utils.UITheme;
 import utils.UIUtils;
@@ -12,13 +13,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 /** Dialog thêm / sửa Phòng ban với UI thống nhất. */
 public class DepartmentFormDialog extends JDialog {
     private final DepartmentController controller;
     private final Department department; // null => add
     private JTextField tfName;
-    private JTextField tfHeadId;
+    private JComboBox<Employee> cbHead;
+//    private JTextField tfHeadId;
     private boolean saved = false;
     private Point dragOffset;
 
@@ -65,19 +68,69 @@ public class DepartmentFormDialog extends JDialog {
 
     private void initForm() {
         tfName = new JTextField();
-        tfHeadId = new JTextField();
+        // Initialize and populate the JComboBox for head employee
+        cbHead = new JComboBox<>();
+        loadEmployeesIntoComboBox();
+
         if (department != null) {
             tfName.setText(department.getDepartmentName());
-            if (department.getHeadEmployee()!=null)
-                tfHeadId.setText(String.valueOf(department.getHeadEmployee().getEmployeeId()));
+            if (department.getHeadEmployee() != null) {
+                // Select the current head employee in the JComboBox
+                for (int i = 0; i < cbHead.getItemCount(); i++) {
+                    Employee emp = cbHead.getItemAt(i);
+                    if (emp != null && emp.getEmployeeId().equals(department.getHeadEmployee().getEmployeeId())) {
+                        cbHead.setSelectedIndex(i);
+                        break;
+                    }
+                }
+            }
         }
+    }
+
+    // Method to load employees and set up the JComboBox
+    private void loadEmployeesIntoComboBox() {
+        EmployeeService employeeService = new EmployeeService();
+        List<Employee> employees = employeeService.getEmployeesByRole("Staff");
+
+
+        // If we are editing a department that already has a manager,
+        // that manager might not be in the "Staff" list. We should add them to the list.
+        if (department != null && department.getHeadEmployee() != null) {
+            Employee currentHead = department.getHeadEmployee();
+            // Check if the current head is already in the list to avoid duplicates
+            boolean alreadyInList = employees.stream().anyMatch(e -> e.getEmployeeId().equals(currentHead.getEmployeeId()));
+            if (!alreadyInList) {
+                cbHead.addItem(currentHead);
+            }
+        }
+
+        cbHead.addItem(null); // Add option for no head
+        if (employees != null) {
+            for (Employee emp : employees) {
+                cbHead.addItem(emp);
+            }
+        }
+
+        cbHead.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Employee) {
+                    Employee emp = (Employee) value;
+                    setText(emp.getEmployeeId() + ": " + emp.getFullName() + " (" + emp.getEmail() + ")");
+                } else {
+                    setText("— Không có —");
+                }
+                return this;
+            }
+        });
     }
 
     private JPanel buildFormPanel() {
         JPanel p = new JPanel(new GridBagLayout()); p.setOpaque(false); p.setBorder(BorderFactory.createEmptyBorder(16,24,8,24));
         GridBagConstraints gbc = new GridBagConstraints(); gbc.insets=new Insets(6,8,6,8); gbc.anchor=GridBagConstraints.WEST; gbc.fill=GridBagConstraints.HORIZONTAL; gbc.weightx=1; gbc.gridx=0; gbc.gridy=0;
         addField(p,gbc,"Tên phòng ban *", tfName);
-        addField(p,gbc,"ID trưởng phòng", tfHeadId);
+        addField(p,gbc,"Trưởng phòng", cbHead);
         return p;
     }
     private void addField(JPanel p, GridBagConstraints gbc, String label, JComponent input){ gbc.gridwidth=1; gbc.gridx=0; p.add(new JLabel(label),gbc); gbc.gridx=1; p.add(input,gbc); gbc.gridy++; }
@@ -121,31 +174,25 @@ public class DepartmentFormDialog extends JDialog {
         return b;
     }
 
-    private void onSave() {
-        if (tfName.getText().trim().isEmpty()) {
-            UIUtils.showErrorDialog(this, "Tên phòng ban không được rỗng", "Lỗi");
+    private void onSave(){
+        if(tfName.getText().trim().isEmpty()){
+            UIUtils.showErrorDialog(this,"Tên phòng ban không được rỗng","Lỗi");
             return;
         }
         Department d = department == null ? new Department() : department;
         d.setDepartmentName(tfName.getText().trim());
-        String headStr = tfHeadId.getText().trim();
-        if (!headStr.isEmpty()) {
-            try {
-                int hid = Integer.parseInt(headStr);
-                Employee head = new Employee();
-                head.setEmployeeId(hid);
-                d.setHeadEmployee(head);
-            } catch (NumberFormatException ex) {
-                UIUtils.showErrorDialog(this, "ID trưởng phòng phải là số", "Lỗi");
-                return;
-            }
-        } else {
-            d.setHeadEmployee(null);
-        }
+
+        // Get the selected employee from the JComboBox
+        Employee selectedHead = (Employee) cbHead.getSelectedItem();
+        d.setHeadEmployee(selectedHead);
+
         Employee user = UserSession.getInstance().getLoggedInEmployee();
         try {
-            if (department == null) controller.addDepartment(d, user);
-            else controller.updateDepartment(d, user);
+            if (department == null) {
+                controller.addDepartment(d, user);
+            } else {
+                controller.updateDepartment(d, user);
+            }
             saved = true;
             dispose();
         } catch (Exception ex) {

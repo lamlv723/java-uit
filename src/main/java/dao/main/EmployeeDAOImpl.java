@@ -9,6 +9,8 @@ import org.hibernate.query.Query;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
 import java.util.List;
 
 public class EmployeeDAOImpl implements EmployeeDAO {
@@ -120,6 +122,18 @@ public class EmployeeDAOImpl implements EmployeeDAO {
         } catch (Exception e) {
             logger.error("Error getting employee by username and password: {}", e.getMessage(), e);
             return null;
+        }
+    }
+
+    @Override
+    public List<Employee> getEmployeesByRole(String role) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<Employee> query = session.createQuery("FROM Employee WHERE role = :role", Employee.class);
+            query.setParameter("role", role);
+            return query.getResultList();
+        } catch (Exception e) {
+            logger.error("Error getting employees by role '{}': {}", role, e.getMessage(), e);
+            return Collections.emptyList();
         }
     }
 

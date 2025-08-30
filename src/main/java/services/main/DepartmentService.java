@@ -12,10 +12,13 @@ import models.main.Department;
 
 public class DepartmentService {
     private DepartmentDAO departmentDAO;
+    private EmployeeService employeeService;
+
     private static final Logger logger = LoggerFactory.getLogger(DepartmentService.class);
 
     public DepartmentService() {
         this.departmentDAO = new DepartmentDAOImpl();
+        this.employeeService = new EmployeeService();
     }
 
     public void addDepartment(Department department, Employee currentUser) {
@@ -26,6 +29,12 @@ public class DepartmentService {
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
         departmentDAO.addDepartment(department);
+
+        // After adding the department, update the head employee's role and department
+        Employee head = department.getHeadEmployee();
+        if (head != null) {
+            promoteAndAssignEmployeeToDepartment(head, department, currentUser);
+        }
     }
 
     public void updateDepartment(Department department, Employee currentUser) {
@@ -36,6 +45,23 @@ public class DepartmentService {
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
         departmentDAO.updateDepartment(department);
+
+        // After adding the department, update the head employee's role and department
+        Employee head = department.getHeadEmployee();
+        if (head != null) {
+            promoteAndAssignEmployeeToDepartment(head, department, currentUser);
+        }
+    }
+
+    private void promoteAndAssignEmployeeToDepartment(Employee employee, Department department, Employee currentUser) {
+        // Fetch the latest state of the employee
+        Employee employeeToUpdate = employeeService.getEmployeeById(employee.getEmployeeId());
+        if (employeeToUpdate != null) {
+            employeeToUpdate.setRole("Manager");
+            employeeToUpdate.setDepartment(department);
+            employeeService.updateEmployee(employeeToUpdate, currentUser);
+            logger.info("Promoted and assigned employee {} to department {}", employeeToUpdate.getUsername(), department.getDepartmentName());
+        }
     }
 
     public void deleteDepartment(int departmentId, Employee currentUser) {
