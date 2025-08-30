@@ -2,8 +2,11 @@ package views.main;
 
 import controllers.main.EmployeeController;
 import controllers.user.UserSession;
+import models.main.Department;
 import models.main.Employee;
+import services.main.DepartmentService;
 import utils.UIUtils;
+import java.util.List;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +14,8 @@ import java.awt.*;
 /** Dialog thêm / sửa Nhân viên dùng BaseFormDialog */
 public class EmployeeFormDialog extends views.common.BaseFormDialog {
     private final EmployeeController controller; private final Employee employee; // null => add
-    private JTextField tfFirstName, tfLastName, tfEmail, tfPhone, tfDeptId, tfRole, tfUsername, tfPassword;
+    private JTextField tfFirstName, tfLastName, tfEmail, tfPhone, tfRole, tfUsername, tfPassword;
+    private JComboBox<Department> cbDepartment;
 
     public EmployeeFormDialog(Frame owner, EmployeeController controller, Employee employee){
         super(owner, 520, 460, "user", employee == null ? "Thêm Nhân viên" : "Chỉnh sửa Nhân viên");
@@ -21,7 +25,35 @@ public class EmployeeFormDialog extends views.common.BaseFormDialog {
         buildUI();
     }
 
-    private void initForm(){ tfFirstName=new JTextField(); tfLastName=new JTextField(); tfEmail=new JTextField(); tfPhone=new JTextField(); tfDeptId=new JTextField(); tfRole=new JTextField(); tfUsername=new JTextField(); tfPassword=new JTextField(); if(employee!=null){ tfFirstName.setText(employee.getFirstName()); tfLastName.setText(employee.getLastName()); tfEmail.setText(employee.getEmail()); tfPhone.setText(employee.getPhoneNumber()); if(employee.getDepartmentId()!=null) tfDeptId.setText(String.valueOf(employee.getDepartmentId())); tfRole.setText(employee.getRole()); tfUsername.setText(employee.getUsername()); tfPassword.setText(employee.getPassword()); } }
+    private void initForm() {
+        tfFirstName = new JTextField();
+        tfLastName = new JTextField();
+        tfEmail = new JTextField();
+        tfPhone = new JTextField();
+        cbDepartment = new JComboBox<>();
+        loadDepartmentsIntoComboBox();
+        tfRole = new JTextField();
+        tfUsername = new JTextField();
+        tfPassword = new JTextField();
+        if (employee != null) {
+            tfFirstName.setText(employee.getFirstName());
+            tfLastName.setText(employee.getLastName());
+            tfEmail.setText(employee.getEmail());
+            tfPhone.setText(employee.getPhoneNumber());
+            if (employee.getDepartment() != null) {
+                for (int i = 0; i < cbDepartment.getItemCount(); i++) {
+                    Department dept = cbDepartment.getItemAt(i);
+                    if (dept != null && dept.getDepartmentId().equals(employee.getDepartmentId())) {
+                        cbDepartment.setSelectedIndex(i);
+                        break;
+                    }
+                }
+            }
+            tfRole.setText(employee.getRole());
+            tfUsername.setText(employee.getUsername());
+            tfPassword.setText(employee.getPassword());
+        }
+    }
 
     protected JPanel buildFormPanel() {
         JPanel p = new JPanel(new GridBagLayout());
@@ -38,13 +70,49 @@ public class EmployeeFormDialog extends views.common.BaseFormDialog {
         addField(p, gbc, "Họ *", tfLastName);
         addField(p, gbc, "Email *", tfEmail);
         addField(p, gbc, "Số điện thoại", tfPhone);
-        addField(p, gbc, "ID phòng ban", tfDeptId);
+        addField(p, gbc, "Phòng ban", cbDepartment);
         addField(p, gbc, "Vai trò *", tfRole);
         addField(p, gbc, "Tên đăng nhập *", tfUsername);
         addField(p, gbc, "Mật khẩu *", tfPassword);
         return p;
     }
-    private void addField(JPanel p, GridBagConstraints gbc, String label, JComponent input){ gbc.gridwidth=1; gbc.gridx=0; p.add(new JLabel(label),gbc); gbc.gridx=1; p.add(input,gbc); gbc.gridy++; }
+
+    // Method to load departments into the JComboBox
+    private void loadDepartmentsIntoComboBox() {
+        DepartmentService departmentService = new DepartmentService();
+        List<Department> departments = departmentService.getAllDepartments(UserSession.getInstance().getLoggedInEmployee());
+
+        // Add a null option for "No Department"
+        cbDepartment.addItem(null);
+        if (departments != null) {
+            for (Department dept : departments) {
+                cbDepartment.addItem(dept);
+            }
+        }
+
+        // Custom renderer to display department's name
+        cbDepartment.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Department) {
+                    setText(((Department) value).getDepartmentName());
+                } else {
+                    setText("— Không thuộc phòng ban —");
+                }
+                return this;
+            }
+        });
+    }
+
+    private void addField(JPanel p, GridBagConstraints gbc, String label, JComponent input) {
+        gbc.gridwidth = 1;
+        gbc.gridx = 0;
+        p.add(new JLabel(label), gbc);
+        gbc.gridx = 1;
+        p.add(input, gbc);
+        gbc.gridy++;
+    }
 
     protected void onSave() {
         if (tfFirstName.getText().trim().isEmpty() || tfLastName.getText().trim().isEmpty()
@@ -61,17 +129,11 @@ public class EmployeeFormDialog extends views.common.BaseFormDialog {
         e.setRole(tfRole.getText().trim());
         e.setUsername(tfUsername.getText().trim());
         e.setPassword(tfPassword.getText().trim());
-        String deptStr = tfDeptId.getText().trim();
-        if (!deptStr.isEmpty()) {
-            try {
-                e.setDepartmentId(Integer.parseInt(deptStr));
-            } catch (NumberFormatException ex) {
-                UIUtils.showErrorDialog(this, "ID phòng ban phải là số", "Lỗi");
-                return;
-            }
-        } else {
-            e.setDepartmentId(null);
-        }
+
+        // Get the selected Department object from the JComboBox
+        Department selectedDept = (Department) cbDepartment.getSelectedItem();
+        e.setDepartment(selectedDept);
+
         Employee user = UserSession.getInstance().getLoggedInEmployee();
         try {
             if (employee == null)
