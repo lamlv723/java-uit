@@ -45,7 +45,7 @@ public class AssetDAOImpl implements AssetDAO {
             return query.list();
         } catch (Exception e) {
             logger.error("Error getting all assets: {}", e.getMessage(), e);
-            return null;
+            return java.util.Collections.emptyList();
         }
     }
 
@@ -84,7 +84,7 @@ public class AssetDAOImpl implements AssetDAO {
             return query.list();
         } catch (Exception e) {
             logger.error("Error getting all available assets: {}", e.getMessage(), e);
-            return null;
+            return java.util.Collections.emptyList();
         }
     }
 

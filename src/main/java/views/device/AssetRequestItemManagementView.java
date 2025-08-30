@@ -1,77 +1,106 @@
 package views.device;
 
 import controllers.device.AssetRequestItemController;
-import services.device.AssetRequestItemService;
 import controllers.user.UserSession;
-import models.main.Employee;
 import models.device.AssetRequestItem;
+import models.main.Employee;
+import services.device.AssetRequestItemService;
+import utils.UIUtils;
+import views.common.BaseManagementFrame;
 import views.device.components.AssetRequestItemTable;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
-public class AssetRequestItemManagementView extends JFrame {
+/**
+ * Quản lý Chi tiết Yêu cầu Tài sản - dùng BaseManagementFrame
+ * Hỗ trợ mở ở chế độ tổng (tất cả) hoặc chỉ cho một request cụ thể.
+ */
+public class AssetRequestItemManagementView extends BaseManagementFrame {
     private final AssetRequestItemController assetRequestItemController;
-    private final AssetRequestItemTable table;
-    private final Integer specificRequestId; // Dùng để xác định đây là view chi tiết hay view tổng
+    private final AssetRequestItemTable itemTable;
+    private final Integer specificRequestId; // null => xem tất cả
 
-    /**
-     * Biến static này sẽ giữ tham chiếu đến cửa sổ "Xem tất cả chi tiết".
-     * Khi một request mới được tạo ở cửa sổ khác, nó sẽ gọi đến biến này để làm mới dữ liệu.
-     */
+    // Giữ instance cửa sổ tổng để refresh khi nơi khác tạo mới request items
     public static AssetRequestItemManagementView generalInstance = null;
 
-    /**
-     * Constructor cho cửa sổ xem TẤT CẢ items (QLCTYCTS tổng).
-     * Được gọi từ menu chính.
-     */
+    // Cửa sổ tổng
     public AssetRequestItemManagementView() {
         this(null);
         generalInstance = this;
-        setTitle("Quản lý Chi tiết Yêu cầu Tài sản (Tất cả)");
-
-        this.addWindowListener(new java.awt.event.WindowAdapter() {
-            @Override
-            public void windowClosed(java.awt.event.WindowEvent windowEvent) {
-                generalInstance = null;
-            }
-        });
     }
 
+    // Cửa sổ chi tiết theo requestId
     public AssetRequestItemManagementView(Integer requestId) {
+        super("Quản lý Chi tiết Yêu cầu Tài sản",
+                (requestId == null ? "Chi tiết Yêu cầu Tài sản (Tất cả)" : "Chi tiết Yêu cầu Tài sản"),
+                "clipboard-list", 950, 580,
+                Color.decode("#1F1C2C"), Color.decode("#928DAB"));
         this.specificRequestId = requestId;
-        setTitle("Quản lý Chi tiết Yêu cầu Tài sản");
-        setSize(800, 500);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
         assetRequestItemController = new AssetRequestItemController(new AssetRequestItemService());
-        table = new AssetRequestItemTable();
-        loadDataToTable();
-        JScrollPane scrollPane = new JScrollPane(table);
-
-        getContentPane().add(scrollPane, BorderLayout.CENTER);
+        itemTable = (AssetRequestItemTable) this.table;
+        loadData();
+        // Luôn ẩn các nút CRUD & action bar vì màn hình chỉ xem
+        if (btnAdd != null)
+            btnAdd.setVisible(false);
+        if (btnEdit != null)
+            btnEdit.setVisible(false);
+        if (btnDelete != null)
+            btnDelete.setVisible(false);
+        if (actionBarPanel != null)
+            actionBarPanel.setVisible(false);
+        revalidate();
+        repaint();
+        if (requestId == null) {
+            addWindowListener(new java.awt.event.WindowAdapter() {
+                public void windowClosed(java.awt.event.WindowEvent e) {
+                    if (generalInstance == AssetRequestItemManagementView.this)
+                        generalInstance = null;
+                }
+            });
+        }
     }
 
     public void refreshData() {
-        loadDataToTable();
+        loadData();
     }
 
-    private void loadDataToTable() {
+    @Override
+    protected JTable createTable() {
+        // Nếu xem tất cả thì cần cột Request ID, nếu xem 1 request cụ thể thì bỏ
+        return new AssetRequestItemTable(this.specificRequestId == null);
+    }
+
+    @Override
+    protected void loadData() {
         Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
-        List<AssetRequestItem> allItems = assetRequestItemController.getFilteredRequestItems(currentUser);
-        
+        List<AssetRequestItem> all = assetRequestItemController.getFilteredRequestItems(currentUser);
+        if (all == null) {
+            UIUtils.showErrorDialog(this, "Không thể tải dữ liệu chi tiết yêu cầu.", "Lỗi");
+            return;
+        }
         if (specificRequestId != null) {
-            // Nếu đây là cửa sổ chi tiết, lọc danh sách chỉ hiển thị các item của request này
-            List<AssetRequestItem> filteredList = allItems.stream()
-                .filter(item -> specificRequestId.equals(item.getAssetRequest().getRequestId()))
-                .collect(Collectors.toList());
-            table.setAssetRequestItemData(filteredList);
+            List<AssetRequestItem> filtered = all.stream()
+                    .filter(i -> i.getAssetRequest() != null
+                            && specificRequestId.equals(i.getAssetRequest().getRequestId()))
+                    .collect(Collectors.toList());
+            itemTable.setAssetRequestItemData(filtered);
         } else {
-            // Nếu là cửa sổ tổng, hiển thị tất cả
-            table.setAssetRequestItemData(allItems);
+            itemTable.setAssetRequestItemData(all);
         }
     }
+
+    @Override
+    protected void onAdd() {
+        /* disabled */ }
+
+    @Override
+    protected void onEdit(int selectedRow) {
+        /* disabled */ }
+
+    @Override
+    protected void onDelete(int selectedRow) {
+        /* disabled */ }
 }

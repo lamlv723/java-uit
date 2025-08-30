@@ -18,10 +18,16 @@ public class AssetTable extends JTable {
             }
         };
         setModel(model);
+        // Giữ nguyên cấu trúc cột, tránh Swing tự tái tạo khi model thay đổi
+        setAutoCreateColumnsFromModel(false);
     }
 
     public void setAssetData(Object[][] data) {
-        model.setDataVector(data, new String[] { "ID", "Tên tài sản", "Loại", "Nhà cung cấp", "Tình trạng" });
+        // Không dùng setDataVector vì sẽ tạo lại cột và làm mất cell renderer đã gán.
+        model.setRowCount(0);
+        for (Object[] row : data) {
+            model.addRow(row);
+        }
     }
 
     // Nhận List<Asset>
@@ -33,9 +39,26 @@ public class AssetTable extends JTable {
             data[i][1] = a.getAssetName();
             data[i][2] = a.getCategory() != null ? a.getCategory().getCategoryName() : "";
             data[i][3] = a.getVendor() != null ? a.getVendor().getVendorName() : "";
-            data[i][4] = a.getStatus();
+            data[i][4] = mapStatusForDisplay(a.getStatus());
         }
         setAssetData(data);
+    }
+
+    private String mapStatusForDisplay(String raw) {
+        if (raw == null) return "";
+        String v = raw.trim();
+        switch (v.toLowerCase()) {
+            case "available":
+                return "Available";
+            case "borrowed":
+            case "đang mượn":
+                return "Borrowed";
+            case "retired":
+            case "ngưng sử dụng":
+                return "Retired";
+            default:
+                return v; // fallback nếu DB phát sinh giá trị ngoài 3 trạng thái chuẩn
+        }
     }
 
     public DefaultTableModel getModel() {
