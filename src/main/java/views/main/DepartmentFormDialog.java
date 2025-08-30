@@ -94,9 +94,65 @@ public class DepartmentFormDialog extends JDialog {
         bar.add(cancel);
         return bar;
     }
-    private JButton btn(String text, Color color){ JButton b=new JButton(text){ protected void paintComponent(Graphics g){ Graphics2D g2=(Graphics2D)g.create(); g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON); g2.setColor(getBackground()); g2.fillRoundRect(0,0,getWidth(),getHeight(),10,10); g2.dispose(); super.paintComponent(g);} public void updateUI(){ super.updateUI(); setContentAreaFilled(false); setOpaque(false);} }; b.setBackground(color); b.setForeground(Color.WHITE); b.setFont(UITheme.fontMedium(14)); b.setBorder(BorderFactory.createEmptyBorder(8,18,8,18)); b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); b.setFocusPainted(false); return b; }
 
-    private void onSave(){ if(tfName.getText().trim().isEmpty()){ UIUtils.showErrorDialog(this,"Tên phòng ban không được rỗng","Lỗi"); return; } Department d = department==null? new Department(): department; d.setDepartmentName(tfName.getText().trim()); String headStr=tfHeadId.getText().trim(); if(!headStr.isEmpty()){ try{ int hid=Integer.parseInt(headStr); Employee head = new Employee(); head.setEmployeeId(hid); d.setHeadEmployee(head);} catch(NumberFormatException ex){ UIUtils.showErrorDialog(this,"ID trưởng phòng phải là số","Lỗi"); return;} } else { d.setHeadEmployee(null);} Employee user= UserSession.getInstance().getLoggedInEmployee(); try { if(department==null) controller.addDepartment(d,user); else controller.updateDepartment(d,user); saved=true; dispose(); } catch(Exception ex){ UIUtils.showErrorDialog(this,"Không thể lưu phòng ban: "+ex.getMessage(),"Lỗi Hệ thống"); ex.printStackTrace(); } }
+    private JButton btn(String text, Color color) {
+        JButton b = new JButton(text) {
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+
+            public void updateUI() {
+                super.updateUI();
+                setContentAreaFilled(false);
+                setOpaque(false);
+            }
+        };
+        b.setBackground(color);
+        b.setForeground(Color.WHITE);
+        b.setFont(UITheme.fontMedium(14));
+        b.setBorder(BorderFactory.createEmptyBorder(8, 18, 8, 18));
+        b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.setFocusPainted(false);
+        return b;
+    }
+
+    private void onSave() {
+        if (tfName.getText().trim().isEmpty()) {
+            UIUtils.showErrorDialog(this, "Tên phòng ban không được rỗng", "Lỗi");
+            return;
+        }
+        Department d = department == null ? new Department() : department;
+        d.setDepartmentName(tfName.getText().trim());
+        String headStr = tfHeadId.getText().trim();
+        if (!headStr.isEmpty()) {
+            try {
+                int hid = Integer.parseInt(headStr);
+                Employee head = new Employee();
+                head.setEmployeeId(hid);
+                d.setHeadEmployee(head);
+            } catch (NumberFormatException ex) {
+                UIUtils.showErrorDialog(this, "ID trưởng phòng phải là số", "Lỗi");
+                return;
+            }
+        } else {
+            d.setHeadEmployee(null);
+        }
+        Employee user = UserSession.getInstance().getLoggedInEmployee();
+        try {
+            if (department == null) controller.addDepartment(d, user);
+            else controller.updateDepartment(d, user);
+            saved = true;
+            dispose();
+        } catch (Exception ex) {
+            UIUtils.showErrorDialog(this, "Không thể lưu phòng ban: " + ex.getMessage(), "Lỗi Hệ thống");
+            ex.printStackTrace();
+        }
+    }
 
     public boolean isSaved(){ return saved; }
 }
