@@ -30,7 +30,7 @@ public class DepartmentTable extends JTable {
             data[i][0] = d.getDepartmentId();
             data[i][1] = d.getDepartmentName();
             data[i][2] = d.getHeadEmployee() != null
-                    ? (d.getHeadEmployee().getFirstName() + " " + d.getHeadEmployee().getLastName())
+                    ? (d.getHeadEmployee().getFullName())
                     : "";
         }
         setDepartmentData(data);
