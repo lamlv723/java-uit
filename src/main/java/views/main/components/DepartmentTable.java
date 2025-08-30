@@ -29,9 +29,7 @@ public class DepartmentTable extends JTable {
             Department d = departments.get(i);
             data[i][0] = d.getDepartmentId();
             data[i][1] = d.getDepartmentName();
-            data[i][2] = d.getHeadEmployee() != null
-                    ? (d.getHeadEmployee().getFullName())
-                    : "";
+            data[i][2] = d.getHeadEmployee() != null ? (d.getHeadEmployee().getEmployeeId() + ": " + d.getHeadEmployee().getFullName() + " (" + d.getHeadEmployee().getEmail() + ")") : "";
         }
         setDepartmentData(data);
     }
