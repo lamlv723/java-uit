@@ -213,7 +213,7 @@ Dự án áp dụng nhiều mẫu thiết kế (Design Patterns) nổi bật nh�
 
 - **MVC (Model - View - Controller):**
 
-  - Tổ chức code theo 3 lớp: Model (dữ liệu, nghiệp vụ), View (giao diện), Controller (điều phối luồng xử lý)
+  - Tổ chức code theo 3 lớp: Model (dữ liệu, nghiệp vụ), View (giao diện), Controller (điều phối luồng xử lý).
   - Giúp giao diện và logic xử lý tách biệt, dễ mở rộng và kiểm thử. (Ví dụ: `AssetController`, `AssetService`, các view trong `views/`)
 
 - **Singleton (Kết nối Database):**
