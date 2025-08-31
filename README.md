@@ -35,13 +35,14 @@ mysql -u root -p < src/main/java/database/init.sql
 
 ### 3. Nạp dữ liệu mẫu (seed data)
 
-Sau khi migration xong, để thêm dữ liệu mẫu cho các bảng (phục vụ test/demo), chạy:
+Sau khi migration xong, để thêm dữ liệu mẫu cho các bảng (phục vụ test/demo), có thể chỉnh sửa file `sample_data.sql` nếu muốn thay đổi sample data, chạy:
+
 
 ```bash
 mysql -u root -p < src/main/java/database/sample_data.sql
 ```
 
-(Có thể chỉnh sửa file sample_data.sql nếu muốn thay đổi dữ liệu mẫu)
+(Nhập mật khẩu khi được hỏi)
 
 ### 3. Hướng dẫn cấu hình MySQL với Maven
 
