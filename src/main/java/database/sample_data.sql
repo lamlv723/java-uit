@@ -1,10 +1,16 @@
+-- =================================================================
+-- PHẦN 0: THIẾT LẬP KẾT NỐI VÀ DATABASE
+-- =================================================================
 SET NAMES utf8mb4;
 SET character_set_client = utf8mb4;
 SET character_set_connection = utf8mb4;
 SET character_set_results = utf8mb4;
 SET sql_mode = '';
+
 USE asset_management;
 
+-- Xóa dữ liệu cũ trong các bảng để tránh xung đột
+-- Lưu ý: Thứ tự xóa rất quan trọng để không vi phạm ràng buộc khóa ngoại
 SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE AssetRequestItem;
 TRUNCATE TABLE AssetRequest;
@@ -15,451 +21,399 @@ TRUNCATE TABLE Employee;
 TRUNCATE TABLE Department;
 SET FOREIGN_KEY_CHECKS = 1;
 
--- Seed data for Department
-INSERT INTO Department (department_id, department_name, head_employee_id) VALUES
-(1, 'Phong Ke Toan', NULL),
-(2, 'Phong Nhan Su', NULL),
-(3, 'Phong IT', NULL),
-(4, 'Phong Kinh Doanh', NULL),
-(5, 'Phong Marketing', NULL),
-(6, 'Phong Hanh Chinh', NULL),
-(7, 'Phong Dao Tao', NULL),
-(8, 'Phong Bao Ve', NULL),
-(9, 'Phong Ky Thuat', NULL),
-(10, 'Phong Du An', NULL),
-(11, 'Phong Phap Che', NULL),
-(12, 'Phong Quan He Khach Hang', NULL),
-(13, 'Phong Chinh Sach', NULL),
-(14, 'Phong Thiet Bi', NULL),
-(15, 'Phong Van Thu', NULL),
-(16, 'Phong Lap Trinh', NULL),
-(17, 'Phong Thiet Ke', NULL),
-(18, 'Phong Ho Tro', NULL),
-(19, 'Phong Nghien Cuu', NULL),
-(20, 'Phong Phat Trien', NULL),
-(21, 'Phong Kiem Thu', NULL),
-(22, 'Phong Giao Hang', NULL),
-(23, 'Phong Bao Tri', NULL),
-(24, 'Phong Kiem Toan', NULL),
-(25, 'Phong Tu Van', NULL),
-(26, 'Phong Chuyen Mon', NULL),
-(27, 'Phong Doi Ngoai', NULL),
-(28, 'Phong Truyen Thong', NULL),
-(29, 'Phong Su Kien', NULL),
-(30, 'Phong Hoach Dinh', NULL),
-(31, 'Phong Quan Tri', NULL),
-(32, 'Phong Kiem Dinh', NULL),
-(33, 'Phong Giam Sat', NULL),
-(34, 'Phong Phan Tich', NULL),
-(35, 'Phong Lap Ke Hoach', NULL),
-(36, 'Phong Quan Ly Du An', NULL),
-(37, 'Phong Kiem Soat', NULL),
-(38, 'Phong Phat Trien San Pham', NULL),
-(39, 'Phong Kiem Nghiem', NULL),
-(40, 'Phong Doi Tac', NULL),
-(41, 'Phong Kinh Te', NULL),
-(42, 'Phong Quan Ly Chat Luong', NULL),
-(43, 'Phong Giao Dich', NULL),
-(44, 'Phong Ho Tro Khach Hang', NULL),
-(45, 'Phong Kiem Tra', NULL),
-(46, 'Phong Phan Phoi', NULL),
-(47, 'Phong Van Chuyen', NULL),
-(48, 'Phong Bao Hanh', NULL),
-(49, 'Phong Lap Rap', NULL),
-(50, 'Phong Dieu Phoi', NULL);
+-- =================================================================
+-- PHẦN 1: TẠO DỮ LIỆU CHO PHÒNG BAN VÀ NHÂN VIÊN
+-- =================================================================
 
--- Seed data for Employee
-INSERT INTO Employee (employee_id, first_name, last_name, email, phone_number, department_id, role, username, password, status) VALUES
-(1, 'Nguyen', 'Van A', 'nguyenvana1@email.com', '0900000001', 1, 'Admin', 'nguyenvana1', 'matkhau1', 'Active'),
-(2, 'Tran', 'Thi B', 'tranthib2@email.com', '0900000002', 2, 'Manager', 'tranthib2', 'matkhau2', 'Active'),
-(3, 'Le', 'Van C', 'levanc3@email.com', '0900000003', 3, 'Staff', 'levanc3', 'matkhau3', 'Active'),
-(4, 'Pham', 'Thi D', 'phamthid4@email.com', '0900000004', 4, 'Staff', 'phamthid4', 'matkhau4', 'Active'),
-(5, 'Hoang', 'Van E', 'hoangvane5@email.com', '0900000005', 5, 'Manager', 'hoangvane5', 'matkhau5', 'Active'),
-(6, 'Vu', 'Thi F', 'vuthif6@email.com', '0900000006', 6, 'Staff', 'vuthif6', 'matkhau6', 'Active'),
-(7, 'Do', 'Van G', 'dovang7@email.com', '0900000007', 7, 'Staff', 'dovang7', 'matkhau7', 'Active'),
-(8, 'Bui', 'Thi H', 'buithih8@email.com', '0900000008', 8, 'Manager', 'buithih8', 'matkhau8', 'Active'),
-(9, 'Dang', 'Van I', 'dangvani9@email.com', '0900000009', 9, 'Staff', 'dangvani9', 'matkhau9', 'Active'),
-(10, 'Ngo', 'Thi K', 'ngothik10@email.com', '0900000010', 10, 'Staff', 'ngothik10', 'matkhau10', 'Active'),
-(11, 'Nguyen', 'Van L', 'nguyenvanl11@email.com', '0900000011', 11, 'Staff', 'nguyenvanl11', 'matkhau11', 'Active'),
-(12, 'Tran', 'Thi M', 'tranthim12@email.com', '0900000012', 12, 'Manager', 'tranthim12', 'matkhau12', 'Active'),
-(13, 'Le', 'Van N', 'levann13@email.com', '0900000013', 13, 'Staff', 'levann13', 'matkhau13', 'Active'),
-(14, 'Pham', 'Thi O', 'phamthio14@email.com', '0900000014', 14, 'Staff', 'phamthio14', 'matkhau14', 'Active'),
-(15, 'Hoang', 'Van P', 'hoangvanp15@email.com', '0900000015', 15, 'Manager', 'hoangvanp15', 'matkhau15', 'Active'),
-(16, 'Vu', 'Thi Q', 'vuthiq16@email.com', '0900000016', 16, 'Staff', 'vuthiq16', 'matkhau16', 'Active'),
-(17, 'Do', 'Van R', 'dovanr17@email.com', '0900000017', 17, 'Staff', 'dovanr17', 'matkhau17', 'Active'),
-(18, 'Bui', 'Thi S', 'buithis18@email.com', '0900000018', 18, 'Manager', 'buithis18', 'matkhau18', 'Active'),
-(19, 'Dang', 'Van T', 'dangvant19@email.com', '0900000019', 19, 'Staff', 'dangvant19', 'matkhau19', 'Active'),
-(20, 'Ngo', 'Thi U', 'ngothiu20@email.com', '0900000020', 20, 'Staff', 'ngothiu20', 'matkhau20', 'Active'),
-(21, 'Nguyen', 'Van V', 'nguyenvanv21@email.com', '0900000021', 21, 'Staff', 'nguyenvanv21', 'matkhau21', 'Active'),
-(22, 'Tran', 'Thi X', 'tranthix22@email.com', '0900000022', 22, 'Manager', 'tranthix22', 'matkhau22', 'Active'),
-(23, 'Le', 'Van Y', 'levany23@email.com', '0900000023', 23, 'Staff', 'levany23', 'matkhau23', 'Active'),
-(24, 'Pham', 'Thi Z', 'phamthiz24@email.com', '0900000024', 24, 'Staff', 'phamthiz24', 'matkhau24', 'Active'),
-(25, 'Hoang', 'Van AA', 'hoangvanaa25@email.com', '0900000025', 25, 'Manager', 'hoangvanaa25', 'matkhau25', 'Active'),
-(26, 'Vu', 'Thi AB', 'vuthiab26@email.com', '0900000026', 26, 'Staff', 'vuthiab26', 'matkhau26', 'Active'),
-(27, 'Do', 'Van AC', 'dovanac27@email.com', '0900000027', 27, 'Staff', 'dovanac27', 'matkhau27', 'Active'),
-(28, 'Bui', 'Thi AD', 'buithiad28@email.com', '0900000028', 28, 'Manager', 'buithiad28', 'matkhau28', 'Active'),
-(29, 'Dang', 'Van AE', 'dangvanae29@email.com', '0900000029', 29, 'Staff', 'dangvanae29', 'matkhau29', 'Active'),
-(30, 'Ngo', 'Thi AF', 'ngothiaf30@email.com', '0900000030', 30, 'Staff', 'ngothiaf30', 'matkhau30', 'Active'),
-(31, 'Nguyen', 'Van AG', 'nguyenvanag31@email.com', '0900000031', 31, 'Staff', 'nguyenvanag31', 'matkhau31', 'Active'),
-(32, 'Tran', 'Thi AH', 'tranthiah32@email.com', '0900000032', 32, 'Manager', 'tranthiah32', 'matkhau32', 'Active'),
-(33, 'Le', 'Van AI', 'levanai33@email.com', '0900000033', 33, 'Staff', 'levanai33', 'matkhau33', 'Active'),
-(34, 'Pham', 'Thi AJ', 'phamthiaj34@email.com', '0900000034', 34, 'Staff', 'phamthiaj34', 'matkhau34', 'Active'),
-(35, 'Hoang', 'Van AK', 'hoangvanak35@email.com', '0900000035', 35, 'Manager', 'hoangvanak35', 'matkhau35', 'Active'),
-(36, 'Vu', 'Thi AL', 'vuthial36@email.com', '0900000036', 36, 'Staff', 'vuthial36', 'matkhau36', 'Active'),
-(37, 'Do', 'Van AM', 'dovanam37@email.com', '0900000037', 37, 'Staff', 'dovanam37', 'matkhau37', 'Active'),
-(38, 'Bui', 'Thi AN', 'buithian38@email.com', '0900000038', 38, 'Manager', 'buithian38', 'matkhau38', 'Active'),
-(39, 'Dang', 'Van AO', 'dangvanao39@email.com', '0900000039', 39, 'Staff', 'dangvanao39', 'matkhau39', 'Active'),
-(40, 'Ngo', 'Thi AP', 'ngothiap40@email.com', '0900000040', 40, 'Staff', 'ngothiap40', 'matkhau40', 'Active'),
-(41, 'Nguyen', 'Van AQ', 'nguyenvanaq41@email.com', '0900000041', 41, 'Staff', 'nguyenvanaq41', 'matkhau41', 'Active'),
-(42, 'Tran', 'Thi AR', 'tranthiar42@email.com', '0900000042', 42, 'Manager', 'tranthiar42', 'matkhau42', 'Active'),
-(43, 'Le', 'Van AS', 'levanas43@email.com', '0900000043', 43, 'Staff', 'levanas43', 'matkhau43', 'Active'),
-(44, 'Pham', 'Thi AT', 'phamthiat44@email.com', '0900000044', 44, 'Staff', 'phamthiat44', 'matkhau44', 'Active'),
-(45, 'Hoang', 'Van AU', 'hoangvanau45@email.com', '0900000045', 45, 'Manager', 'hoangvanau45', 'matkhau45', 'Active'),
-(46, 'Vu', 'Thi AV', 'vuthiav46@email.com', '0900000046', 46, 'Staff', 'vuthiav46', 'matkhau46', 'Active'),
-(47, 'Do', 'Van AW', 'dovanaw47@email.com', '0900000047', 47, 'Staff', 'dovanaw47', 'matkhau47', 'Active'),
-(48, 'Bui', 'Thi AX', 'buithiax48@email.com', '0900000048', 48, 'Manager', 'buithiax48', 'matkhau48', 'Active'),
-(49, 'Dang', 'Van AY', 'dangvanay49@email.com', '0900000049', 49, 'Staff', 'dangvanay49', 'matkhau49', 'Active'),
-(50, 'Ngo', 'Thi AZ', 'ngothiaz50@email.com', '0900000050', 50, 'Staff', 'ngothiaz50', 'matkhau50', 'Active');
+-- Dữ liệu cho 10 phòng ban
+INSERT INTO `Department` (`department_id`, `department_name`, `head_employee_id`) VALUES
+(1, 'Ban Giám đốc', NULL),
+(2, 'Phòng Kế toán', NULL),
+(3, 'Phòng Nhân sự', NULL),
+(4, 'Phòng IT', NULL),
+(5, 'Phòng Kinh doanh', NULL),
+(6, 'Phòng Marketing', NULL),
+(7, 'Phòng Hành chính', NULL),
+(8, 'Phòng Dự án', NULL),
+(9, 'Phòng Chăm sóc khách hàng', NULL),
+(10, 'Phòng Kỹ thuật', NULL);
 
--- Cập nhật head_employee_id cho Department
-UPDATE Department SET head_employee_id = 1 WHERE department_id = 1;
-UPDATE Department SET head_employee_id = 2 WHERE department_id = 2;
-UPDATE Department SET head_employee_id = 3 WHERE department_id = 3;
-UPDATE Department SET head_employee_id = 4 WHERE department_id = 4;
-UPDATE Department SET head_employee_id = 5 WHERE department_id = 5;
-UPDATE Department SET head_employee_id = 6 WHERE department_id = 6;
-UPDATE Department SET head_employee_id = 7 WHERE department_id = 7;
-UPDATE Department SET head_employee_id = 8 WHERE department_id = 8;
-UPDATE Department SET head_employee_id = 9 WHERE department_id = 9;
-UPDATE Department SET head_employee_id = 10 WHERE department_id = 10;
-UPDATE Department SET head_employee_id = 11 WHERE department_id = 11;
-UPDATE Department SET head_employee_id = 12 WHERE department_id = 12;
-UPDATE Department SET head_employee_id = 13 WHERE department_id = 13;
-UPDATE Department SET head_employee_id = 14 WHERE department_id = 14;
-UPDATE Department SET head_employee_id = 15 WHERE department_id = 15;
-UPDATE Department SET head_employee_id = 16 WHERE department_id = 16;
-UPDATE Department SET head_employee_id = 17 WHERE department_id = 17;
-UPDATE Department SET head_employee_id = 18 WHERE department_id = 18;
-UPDATE Department SET head_employee_id = 19 WHERE department_id = 19;
-UPDATE Department SET head_employee_id = 20 WHERE department_id = 20;
-UPDATE Department SET head_employee_id = 21 WHERE department_id = 21;
-UPDATE Department SET head_employee_id = 22 WHERE department_id = 22;
-UPDATE Department SET head_employee_id = 23 WHERE department_id = 23;
-UPDATE Department SET head_employee_id = 24 WHERE department_id = 24;
-UPDATE Department SET head_employee_id = 25 WHERE department_id = 25;
-UPDATE Department SET head_employee_id = 26 WHERE department_id = 26;
-UPDATE Department SET head_employee_id = 27 WHERE department_id = 27;
-UPDATE Department SET head_employee_id = 28 WHERE department_id = 28;
-UPDATE Department SET head_employee_id = 29 WHERE department_id = 29;
-UPDATE Department SET head_employee_id = 30 WHERE department_id = 30;
-UPDATE Department SET head_employee_id = 31 WHERE department_id = 31;
-UPDATE Department SET head_employee_id = 32 WHERE department_id = 32;
-UPDATE Department SET head_employee_id = 33 WHERE department_id = 33;
-UPDATE Department SET head_employee_id = 34 WHERE department_id = 34;
-UPDATE Department SET head_employee_id = 35 WHERE department_id = 35;
-UPDATE Department SET head_employee_id = 36 WHERE department_id = 36;
-UPDATE Department SET head_employee_id = 37 WHERE department_id = 37;
-UPDATE Department SET head_employee_id = 38 WHERE department_id = 38;
-UPDATE Department SET head_employee_id = 39 WHERE department_id = 39;
-UPDATE Department SET head_employee_id = 40 WHERE department_id = 40;
-UPDATE Department SET head_employee_id = 41 WHERE department_id = 41;
-UPDATE Department SET head_employee_id = 42 WHERE department_id = 42;
-UPDATE Department SET head_employee_id = 43 WHERE department_id = 43;
-UPDATE Department SET head_employee_id = 44 WHERE department_id = 44;
-UPDATE Department SET head_employee_id = 45 WHERE department_id = 45;
-UPDATE Department SET head_employee_id = 46 WHERE department_id = 46;
-UPDATE Department SET head_employee_id = 47 WHERE department_id = 47;
-UPDATE Department SET head_employee_id = 48 WHERE department_id = 48;
-UPDATE Department SET head_employee_id = 49 WHERE department_id = 49;
-UPDATE Department SET head_employee_id = 50 WHERE department_id = 50;
--- Seed data for AssetCategory
-INSERT INTO AssetCategory (category_id, category_name, description) VALUES
-(1, 'May tinh xach tay', 'Danh muc may tinh xach tay'),
-(2, 'May chieu', 'Danh muc may chieu'),
-(3, 'Ban', 'Danh muc ban'),
-(4, 'Ghe', 'Danh muc ghe'),
-(5, 'May in', 'Danh muc may in'),
-(6, 'May scan', 'Danh muc may scan'),
-(7, 'May tinh de ban', 'Danh muc may tinh de ban'),
-(8, 'Man hinh', 'Danh muc man hinh'),
-(9, 'Ban phim', 'Danh muc ban phim'),
-(10, 'Chuot', 'Danh muc chuot'),
-(11, 'Router', 'Danh muc router'),
-(12, 'Switch', 'Danh muc switch'),
-(13, 'May fax', 'Danh muc may fax'),
-(14, 'May photo', 'Danh muc may photo'),
-(15, 'May dieu hoa', 'Danh muc may dieu hoa'),
-(16, 'May loc nuoc', 'Danh muc may loc nuoc'),
-(17, 'Tu lanh', 'Danh muc tu lanh'),
-(18, 'Quat', 'Danh muc quat'),
-(19, 'Den', 'Danh muc den'),
-(20, 'Camera', 'Danh muc camera'),
-(21, 'May pos', 'Danh muc may pos'),
-(22, 'May tinh bang', 'Danh muc may tinh bang'),
-(23, 'May chi chieu', 'Danh muc may chi chieu'),
-(24, 'May hut bui', 'Danh muc may hut bui'),
-(25, 'May say', 'Danh muc may say'),
-(26, 'May hut am', 'Danh muc may hut am'),
-(27, 'May loc khong khi', 'Danh muc may loc khong khi'),
-(28, 'May in mau', 'Danh muc may in mau'),
-(29, 'May in laser', 'Danh muc may in laser'),
-(30, 'May in kim', 'Danh muc may in kim'),
-(31, 'May in phun', 'Danh muc may in phun'),
-(32, 'May in 3d', 'Danh muc may in 3d'),
-(33, 'May in nhiet', 'Danh muc may in nhiet'),
-(34, 'May in tem', 'Danh muc may in tem'),
-(35, 'May in the', 'Danh muc may in the'),
-(36, 'May in hoa don', 'Danh muc may in hoa don'),
-(37, 'May in van tay', 'Danh muc may in van tay'),
-(38, 'May in ma vach', 'Danh muc may in ma vach'),
-(39, 'May in sieu toc', 'Danh muc may in sieu toc'),
-(40, 'May in khac', 'Danh muc may in khac'),
-(41, 'May in mini', 'Danh muc may in mini'),
-(42, 'May in di dong', 'Danh muc may in di dong'),
-(43, 'May in wifi', 'Danh muc may in wifi'),
-(44, 'May in bluetooth', 'Danh muc may in bluetooth'),
-(45, 'May in usb', 'Danh muc may in usb'),
-(46, 'May in lan', 'Danh muc may in lan'),
-(47, 'May in wifi lan', 'Danh muc may in wifi lan'),
-(48, 'May in bluetooth lan', 'Danh muc may in bluetooth lan'),
-(49, 'May in usb lan', 'Danh muc may in usb lan'),
-(50, 'May in khong day', 'Danh muc may in khong day');
+-- Dữ liệu cho nhân viên (khoảng 60 người)
+-- first_name: Tên
+-- last_name: Họ và tên lót
+-- username: firstname + first character of lastname
+-- Mật khẩu cho tất cả tài khoản là: 12345
+INSERT INTO `Employee` (`employee_id`, `first_name`, `last_name`, `email`, `phone_number`, `department_id`, `role`, `username`, `password`, `status`) VALUES
+-- Tài khoản đặc biệt
+(1, 'Hệ thống', 'Quản trị', 'admin@company.com', '0901112220', 4, 'Admin', 'admin', '12345', 'Active'),
+(2, 'Cấp cao', 'Quản lý', 'manager@company.com', '0901112221', 5, 'Manager', 'manager', '12345', 'Active'),
+(3, 'Văn phòng', 'Nhân viên', 'staff@company.com', '0901112222', 5, 'Staff', 'staff', '12345', 'Active'),
 
-INSERT INTO Vendor (vendor_id, vendor_name, contact_person, phone_number, email, address) VALUES
-(1, 'Cong ty TNHH May Tinh A', 'Nguyen Van A', '0911000001', 'vendor1@email.com', '123 Duong 1, Quan 1, TP HCM'),
-(2, 'Cong ty TNHH May Tinh B', 'Tran Thi B', '0911000002', 'vendor2@email.com', '124 Duong 2, Quan 2, TP HCM'),
-(3, 'Cong ty TNHH May Tinh C', 'Le Van C', '0911000003', 'vendor3@email.com', '125 Duong 3, Quan 3, TP HCM'),
-(4, 'Cong ty TNHH May Tinh D', 'Pham Thi D', '0911000004', 'vendor4@email.com', '126 Duong 4, Quan 4, TP HCM'),
-(5, 'Cong ty TNHH May Tinh E', 'Hoang Van E', '0911000005', 'vendor5@email.com', '127 Duong 5, Quan 5, TP HCM'),
-(6, 'Cong ty TNHH May Tinh F', 'Vu Thi F', '0911000006', 'vendor6@email.com', '128 Duong 6, Quan 6, TP HCM'),
-(7, 'Cong ty TNHH May Tinh G', 'Do Van G', '0911000007', 'vendor7@email.com', '129 Duong 7, Quan 7, TP HCM'),
-(8, 'Cong ty TNHH May Tinh H', 'Bui Thi H', '0911000008', 'vendor8@email.com', '130 Duong 8, Quan 8, TP HCM'),
-(9, 'Cong ty TNHH May Tinh I', 'Dang Van I', '0911000009', 'vendor9@email.com', '131 Duong 9, Quan 9, TP HCM'),
-(10, 'Cong ty TNHH May Tinh K', 'Ngo Thi K', '0911000010', 'vendor10@email.com', '132 Duong 10, Quan 10, TP HCM'),
-(11, 'Cong ty TNHH May Tinh L', 'Nguyen Van L', '0911000011', 'vendor11@email.com', '133 Duong 11, Quan 11, TP HCM'),
-(12, 'Cong ty TNHH May Tinh M', 'Tran Thi M', '0911000012', 'vendor12@email.com', '134 Duong 12, Quan 12, TP HCM'),
-(13, 'Cong ty TNHH May Tinh N', 'Le Van N', '0911000013', 'vendor13@email.com', '135 Duong 13, Quan 1, TP HCM'),
-(14, 'Cong ty TNHH May Tinh O', 'Pham Thi O', '0911000014', 'vendor14@email.com', '136 Duong 14, Quan 2, TP HCM'),
-(15, 'Cong ty TNHH May Tinh P', 'Hoang Van P', '0911000015', 'vendor15@email.com', '137 Duong 15, Quan 3, TP HCM'),
-(16, 'Cong ty TNHH May Tinh Q', 'Vu Thi Q', '0911000016', 'vendor16@email.com', '138 Duong 16, Quan 4, TP HCM'),
-(17, 'Cong ty TNHH May Tinh R', 'Do Van R', '0911000017', 'vendor17@email.com', '139 Duong 17, Quan 5, TP HCM'),
-(18, 'Cong ty TNHH May Tinh S', 'Bui Thi S', '0911000018', 'vendor18@email.com', '140 Duong 18, Quan 6, TP HCM'),
-(19, 'Cong ty TNHH May Tinh T', 'Dang Van T', '0911000019', 'vendor19@email.com', '141 Duong 19, Quan 7, TP HCM'),
-(20, 'Cong ty TNHH May Tinh U', 'Ngo Thi U', '0911000020', 'vendor20@email.com', '142 Duong 20, Quan 8, TP HCM'),
-(21, 'Cong ty TNHH May Tinh V', 'Nguyen Van V', '0911000021', 'vendor21@email.com', '143 Duong 21, Quan 9, TP HCM'),
-(22, 'Cong ty TNHH May Tinh X', 'Tran Thi X', '0911000022', 'vendor22@email.com', '144 Duong 22, Quan 10, TP HCM'),
-(23, 'Cong ty TNHH May Tinh Y', 'Le Van Y', '0911000023', 'vendor23@email.com', '145 Duong 23, Quan 11, TP HCM'),
-(24, 'Cong ty TNHH May Tinh Z', 'Pham Thi Z', '0911000024', 'vendor24@email.com', '146 Duong 24, Quan 12, TP HCM'),
-(25, 'Cong ty TNHH May Tinh AA', 'Hoang Van AA', '0911000025', 'vendor25@email.com', '147 Duong 25, Quan 1, TP HCM'),
-(26, 'Cong ty TNHH May Tinh AB', 'Vu Thi AB', '0911000026', 'vendor26@email.com', '148 Duong 26, Quan 2, TP HCM'),
-(27, 'Cong ty TNHH May Tinh AC', 'Do Van AC', '0911000027', 'vendor27@email.com', '149 Duong 27, Quan 3, TP HCM'),
-(28, 'Cong ty TNHH May Tinh AD', 'Bui Thi AD', '0911000028', 'vendor28@email.com', '150 Duong 28, Quan 4, TP HCM'),
-(29, 'Cong ty TNHH May Tinh AE', 'Dang Van AE', '0911000029', 'vendor29@email.com', '151 Duong 29, Quan 5, TP HCM'),
-(30, 'Cong ty TNHH May Tinh AF', 'Ngo Thi AF', '0911000030', 'vendor30@email.com', '152 Duong 30, Quan 6, TP HCM'),
-(31, 'Cong ty TNHH May Tinh AG', 'Nguyen Van AG', '0911000031', 'vendor31@email.com', '153 Duong 31, Quan 7, TP HCM'),
-(32, 'Cong ty TNHH May Tinh AH', 'Tran Thi AH', '0911000032', 'vendor32@email.com', '154 Duong 32, Quan 8, TP HCM'),
-(33, 'Cong ty TNHH May Tinh AI', 'Le Van AI', '0911000033', 'vendor33@email.com', '155 Duong 33, Quan 9, TP HCM'),
-(34, 'Cong ty TNHH May Tinh AJ', 'Pham Thi AJ', '0911000034', 'vendor34@email.com', '156 Duong 34, Quan 10, TP HCM'),
-(35, 'Cong ty TNHH May Tinh AK', 'Hoang Van AK', '0911000035', 'vendor35@email.com', '157 Duong 35, Quan 11, TP HCM'),
-(36, 'Cong ty TNHH May Tinh AL', 'Vu Thi AL', '0911000036', 'vendor36@email.com', '158 Duong 36, Quan 12, TP HCM'),
-(37, 'Cong ty TNHH May Tinh AM', 'Do Van AM', '0911000037', 'vendor37@email.com', '159 Duong 37, Quan 1, TP HCM'),
-(38, 'Cong ty TNHH May Tinh AN', 'Bui Thi AN', '0911000038', 'vendor38@email.com', '160 Duong 38, Quan 2, TP HCM'),
-(39, 'Cong ty TNHH May Tinh AO', 'Dang Van AO', '0911000039', 'vendor39@email.com', '161 Duong 39, Quan 3, TP HCM'),
-(40, 'Cong ty TNHH May Tinh AP', 'Ngo Thi AP', '0911000040', 'vendor40@email.com', '162 Duong 40, Quan 4, TP HCM'),
-(41, 'Cong ty TNHH May Tinh AQ', 'Nguyen Van AQ', '0911000041', 'vendor41@email.com', '163 Duong 41, Quan 5, TP HCM'),
-(42, 'Cong ty TNHH May Tinh AR', 'Tran Thi AR', '0911000042', 'vendor42@email.com', '164 Duong 42, Quan 6, TP HCM'),
-(43, 'Cong ty TNHH May Tinh AS', 'Le Van AS', '0911000043', 'vendor43@email.com', '165 Duong 43, Quan 7, TP HCM'),
-(44, 'Cong ty TNHH May Tinh AT', 'Pham Thi AT', '0911000044', 'vendor44@email.com', '166 Duong 44, Quan 8, TP HCM'),
-(45, 'Cong ty TNHH May Tinh AU', 'Hoang Van AU', '0911000045', 'vendor45@email.com', '167 Duong 45, Quan 9, TP HCM'),
-(46, 'Cong ty TNHH May Tinh AV', 'Vu Thi AV', '0911000046', 'vendor46@email.com', '168 Duong 46, Quan 10, TP HCM'),
-(47, 'Cong ty TNHH May Tinh AW', 'Do Van AW', '0911000047', 'vendor47@email.com', '169 Duong 47, Quan 11, TP HCM'),
-(48, 'Cong ty TNHH May Tinh AX', 'Bui Thi AX', '0911000048', 'vendor48@email.com', '170 Duong 48, Quan 12, TP HCM'),
-(49, 'Cong ty TNHH May Tinh AY', 'Dang Van AY', '0911000049', 'vendor49@email.com', '171 Duong 49, Quan 1, TP HCM'),
-(50, 'Cong ty TNHH May Tinh AZ', 'Ngo Thi AZ', '0911000050', 'vendor50@email.com', '172 Duong 50, Quan 2, TP HCM');
+-- Ban Giám đốc (Department ID: 1)
+(4, 'An', 'Nguyễn Văn', 'an.nv@company.com', '0910000001', 1, 'Manager', 'annv', '12345', 'Active'), -- Giám đốc
+(5, 'Bình', 'Trần Thị', 'binh.tt@company.com', '0910000002', 1, 'Staff', 'binhtt', '12345', 'Active'), -- Trợ lý
 
--- Seed data for Asset
-INSERT INTO Asset (asset_id, asset_name, description, serial_number, purchase_date, purchase_price, warranty_expiry_date, status, category_id, vendor_id) VALUES
--- 50 assets, chia đều các category và vendor, trạng thái Available
-(1, 'May tinh xach tay 1', 'May tinh xach tay cho phong 1', 'SN00001', '2023-01-01', 15000000, '2026-01-01', 'Available', 1, 1),
-(2, 'May tinh xach tay 2', 'May tinh xach tay cho phong 2', 'SN00002', '2023-01-02', 15000000, '2026-01-02', 'Available', 1, 2),
-(3, 'May chieu 1', 'May chieu cho phong 3', 'SN00003', '2023-01-03', 8000000, '2026-01-03', 'Available', 2, 3),
-(4, 'May chieu 2', 'May chieu cho phong 4', 'SN00004', '2023-01-04', 8000000, '2026-01-04', 'Available', 2, 4),
-(5, 'Ban 1', 'Ban cho phong 5', 'SN00005', '2023-01-05', 2000000, '2026-01-05', 'Available', 3, 5),
-(6, 'Ban 2', 'Ban cho phong 6', 'SN00006', '2023-01-06', 2000000, '2026-01-06', 'Available', 3, 6),
-(7, 'Ghe 1', 'Ghe cho phong 7', 'SN00007', '2023-01-07', 1000000, '2026-01-07', 'Available', 4, 7),
-(8, 'Ghe 2', 'Ghe cho phong 8', 'SN00008', '2023-01-08', 1000000, '2026-01-08', 'Available', 4, 8),
-(9, 'May in 1', 'May in cho phong 9', 'SN00009', '2023-01-09', 5000000, '2026-01-09', 'Available', 5, 9),
-(10, 'May in 2', 'May in cho phong 10', 'SN00010', '2023-01-10', 5000000, '2026-01-10', 'Available', 5, 10),
-(11, 'May scan 1', 'May scan cho phong 11', 'SN00011', '2023-01-11', 4000000, '2026-01-11', 'Available', 6, 11),
-(12, 'May scan 2', 'May scan cho phong 12', 'SN00012', '2023-01-12', 4000000, '2026-01-12', 'Available', 6, 12),
-(13, 'May tinh de ban 1', 'May tinh de ban cho phong 13', 'SN00013', '2023-01-13', 12000000, '2026-01-13', 'Available', 7, 13),
-(14, 'May tinh de ban 2', 'May tinh de ban cho phong 14', 'SN00014', '2023-01-14', 12000000, '2026-01-14', 'Available', 7, 14),
-(15, 'Man hinh 1', 'Man hinh cho phong 15', 'SN00015', '2023-01-15', 3000000, '2026-01-15', 'Available', 8, 15),
-(16, 'Man hinh 2', 'Man hinh cho phong 16', 'SN00016', '2023-01-16', 3000000, '2026-01-16', 'Available', 8, 16),
-(17, 'Ban phim 1', 'Ban phim cho phong 17', 'SN00017', '2023-01-17', 500000, '2026-01-17', 'Available', 9, 17),
-(18, 'Ban phim 2', 'Ban phim cho phong 18', 'SN00018', '2023-01-18', 500000, '2026-01-18', 'Available', 9, 18),
-(19, 'Chuot 1', 'Chuot cho phong 19', 'SN00019', '2023-01-19', 300000, '2026-01-19', 'Available', 10, 19),
-(20, 'Chuot 2', 'Chuot cho phong 20', 'SN00020', '2023-01-20', 300000, '2026-01-20', 'Available', 10, 20),
-(21, 'Router 1', 'Router cho phong 21', 'SN00021', '2023-01-21', 1000000, '2026-01-21', 'Available', 11, 21),
-(22, 'Router 2', 'Router cho phong 22', 'SN00022', '2023-01-22', 1000000, '2026-01-22', 'Available', 11, 22),
-(23, 'Switch 1', 'Switch cho phong 23', 'SN00023', '2023-01-23', 2000000, '2026-01-23', 'Available', 12, 23),
-(24, 'Switch 2', 'Switch cho phong 24', 'SN00024', '2023-01-24', 2000000, '2026-01-24', 'Available', 12, 24),
-(25, 'May fax 1', 'May fax cho phong 25', 'SN00025', '2023-01-25', 2500000, '2026-01-25', 'Available', 13, 25),
-(26, 'May fax 2', 'May fax cho phong 26', 'SN00026', '2023-01-26', 2500000, '2026-01-26', 'Available', 13, 26),
-(27, 'May photo 1', 'May photo cho phong 27', 'SN00027', '2023-01-27', 7000000, '2026-01-27', 'Available', 14, 27),
-(28, 'May photo 2', 'May photo cho phong 28', 'SN00028', '2023-01-28', 7000000, '2026-01-28', 'Available', 14, 28),
-(29, 'May dieu hoa 1', 'May dieu hoa cho phong 29', 'SN00029', '2023-01-29', 9000000, '2026-01-29', 'Available', 15, 29),
-(30, 'May dieu hoa 2', 'May dieu hoa cho phong 30', 'SN00030', '2023-01-30', 9000000, '2026-01-30', 'Available', 15, 30),
-(31, 'May loc nuoc 1', 'May loc nuoc cho phong 31', 'SN00031', '2023-01-31', 3500000, '2026-01-31', 'Available', 16, 31),
-(32, 'May loc nuoc 2', 'May loc nuoc cho phong 32', 'SN00032', '2023-02-01', 3500000, '2026-02-01', 'Available', 16, 32),
-(33, 'Tu lanh 1', 'Tu lanh cho phong 33', 'SN00033', '2023-02-02', 6000000, '2026-02-02', 'Available', 17, 33),
-(34, 'Tu lanh 2', 'Tu lanh cho phong 34', 'SN00034', '2023-02-03', 6000000, '2026-02-03', 'Available', 17, 34),
-(35, 'Quat 1', 'Quat cho phong 35', 'SN00035', '2023-02-04', 800000, '2026-02-04', 'Available', 18, 35),
-(36, 'Quat 2', 'Quat cho phong 36', 'SN00036', '2023-02-05', 800000, '2026-02-05', 'Available', 18, 36),
-(37, 'Den 1', 'Den cho phong 37', 'SN00037', '2023-02-06', 200000, '2026-02-06', 'Available', 19, 37),
-(38, 'Den 2', 'Den cho phong 38', 'SN00038', '2023-02-07', 200000, '2026-02-07', 'Available', 19, 38),
-(39, 'Camera 1', 'Camera cho phong 39', 'SN00039', '2023-02-08', 3000000, '2026-02-08', 'Available', 20, 39),
-(40, 'Camera 2', 'Camera cho phong 40', 'SN00040', '2023-02-09', 3000000, '2026-02-09', 'Available', 20, 40),
-(41, 'May pos 1', 'May pos cho phong 41', 'SN00041', '2023-02-10', 4000000, '2026-02-10', 'Available', 21, 41),
-(42, 'May pos 2', 'May pos cho phong 42', 'SN00042', '2023-02-11', 4000000, '2026-02-11', 'Available', 21, 42),
-(43, 'May tinh bang 1', 'May tinh bang cho phong 43', 'SN00043', '2023-02-12', 7000000, '2026-02-12', 'Available', 22, 43),
-(44, 'May tinh bang 2', 'May tinh bang cho phong 44', 'SN00044', '2023-02-13', 7000000, '2026-02-13', 'Available', 22, 44),
-(45, 'May chi chieu 1', 'May chi chieu cho phong 45', 'SN00045', '2023-02-14', 8000000, '2026-02-14', 'Available', 23, 45),
-(46, 'May chi chieu 2', 'May chi chieu cho phong 46', 'SN00046', '2023-02-15', 8000000, '2026-02-15', 'Available', 23, 46),
-(47, 'May hut bui 1', 'May hut bui cho phong 47', 'SN00047', '2023-02-16', 2500000, '2026-02-16', 'Available', 24, 47),
-(48, 'May hut bui 2', 'May hut bui cho phong 48', 'SN00048', '2023-02-17', 2500000, '2026-02-17', 'Available', 24, 48),
-(49, 'May say 1', 'May say cho phong 49', 'SN00049', '2023-02-18', 1500000, '2026-02-18', 'Available', 25, 49),
-(50, 'May say 2', 'May say cho phong 50', 'SN00050', '2023-02-19', 1500000, '2026-02-19', 'Available', 25, 50);
+-- Phòng Kế toán (Department ID: 2)
+(6, 'Huyền', 'Lê Thị', 'huyen.lt@company.com', '0912345678', 2, 'Manager', 'huyenlt', '12345', 'Active'),
+(7, 'Minh', 'Trần Văn', 'minh.tv@company.com', '0912345679', 2, 'Staff', 'minhtv', '12345', 'Active'),
+(8, 'Yến', 'Hoàng Thị', 'yen.ht@company.com', '0912345680', 2, 'Staff', 'yenht', '12345', 'Active'),
+(9, 'Dũng', 'Vũ Văn', 'dung.vv@company.com', '0912345681', 2, 'Staff', 'dungvv', '12345', 'Active'),
 
--- Seed data for AssetRequest
-INSERT INTO AssetRequest (request_id, employee_id, request_type, request_date, status, approver_id, approval_date, rejected_date, expected_return_date) VALUES
--- 50 requests, chia đều các employee, loại borrow và return, trạng thái Pending/Approved/Completed
--- Đã bổ sung giá trị cho các trường approval_date, expected_return_date để tránh NULL nếu có thể
-(1, 1, 'borrow', '2025-07-01 08:00:00', 'Pending', 2, '2025-07-01 09:00:00',NULL, '2025-07-10'),
-(2, 2, 'borrow', '2025-07-02 09:00:00', 'Approved', 1, '2025-07-02 10:00:00',NULL, '2025-07-12'),
-(3, 3, 'borrow', '2025-07-03 10:00:00', 'Approved', 4, '2025-07-03 11:00:00', NULL,'2025-07-13'),
-(4, 4, 'return', '2025-07-04 11:00:00', 'Pending', 3, '2025-07-04 12:00:00',NULL, '2025-07-14'),
-(5, 5, 'return', '2025-07-05 12:00:00', 'Approved', 6, '2025-07-05 13:00:00',NULL, '2025-07-15'),
-(6, 6, 'borrow', '2025-07-06 13:00:00', 'Pending', 5, '2025-07-06 14:00:00', NULL,'2025-07-16'),
-(7, 7, 'borrow', '2025-07-07 14:00:00', 'Approved', 8, '2025-07-07 15:00:00', NULL,'2025-07-17'),
-(8, 8, 'borrow', '2025-07-08 15:00:00', 'Approved', 7, '2025-07-08 16:00:00', NULL,'2025-07-18'),
-(9, 9, 'return', '2025-07-09 16:00:00', 'Pending', 10, '2025-07-09 17:00:00', NULL,'2025-07-19'),
-(10, 10, 'return', '2025-07-10 17:00:00', 'Approved', 9, '2025-07-10 18:00:00', NULL,'2025-07-20'),
-(11, 11, 'borrow', '2025-07-11 08:00:00', 'Pending', 12, NULL, NULL,'2025-07-21'),
-(12, 12, 'borrow', '2025-07-12 09:00:00', 'Approved', 11, '2025-07-12 10:00:00',NULL, '2025-07-22'),
-(13, 13, 'borrow', '2025-07-13 10:00:00', 'Approved', 14, '2025-07-13 11:00:00', NULL,'2025-07-23'),
-(14, 14, 'return', '2025-07-14 11:00:00', 'Pending', 13, NULL,NULL, NULL),
-(15, 15, 'return', '2025-07-15 12:00:00', 'Approved', 16, '2025-07-15 13:00:00',NULL, NULL),
-(16, 16, 'borrow', '2025-07-16 13:00:00', 'Pending', 15, NULL, NULL,'2025-07-26'),
-(17, 17, 'borrow', '2025-07-17 14:00:00', 'Approved', 18, '2025-07-17 15:00:00',NULL, '2025-07-27'),
-(18, 18, 'borrow', '2025-07-18 15:00:00', 'Approved', 17, '2025-07-18 16:00:00', NULL,'2025-07-28'),
-(19, 19, 'return', '2025-07-19 16:00:00', 'Pending', 20, NULL, NULL,NULL),
-(20, 20, 'return', '2025-07-20 17:00:00', 'Approved', 19, '2025-07-20 18:00:00',NULL, NULL),
-(21, 21, 'borrow', '2025-07-21 08:00:00', 'Pending', 22, NULL, NULL,'2025-07-31'),
-(22, 22, 'borrow', '2025-07-22 09:00:00', 'Approved', 21, '2025-07-22 10:00:00', NULL,'2025-08-01'),
-(23, 23, 'borrow', '2025-07-23 10:00:00', 'Approved', 24, '2025-07-23 11:00:00',NULL, '2025-08-02'),
-(24, 24, 'return', '2025-07-24 11:00:00', 'Pending', 23, NULL, NULL,NULL),
-(25, 25, 'return', '2025-07-25 12:00:00', 'Approved', 26, '2025-07-25 13:00:00', NULL,NULL),
-(26, 26, 'borrow', '2025-07-26 13:00:00', 'Pending', 25, NULL, NULL,'2025-08-05'),
-(27, 27, 'borrow', '2025-07-27 14:00:00', 'Approved', 28, '2025-07-27 15:00:00', NULL,'2025-08-06'),
-(28, 28, 'borrow', '2025-07-28 15:00:00', 'Approved', 27, '2025-07-28 16:00:00', NULL,'2025-08-07'),
-(29, 29, 'return', '2025-07-29 16:00:00', 'Pending', 30, NULL, NULL,NULL),
-(30, 30, 'return', '2025-07-30 17:00:00', 'Approved', 29, '2025-07-30 18:00:00', NULL,NULL),
-(31, 31, 'borrow', '2025-07-31 08:00:00', 'Pending', 32, NULL, NULL,'2025-08-10'),
-(32, 32, 'borrow', '2025-08-01 09:00:00', 'Approved', 31, '2025-08-01 10:00:00',NULL, '2025-08-11'),
-(33, 33, 'borrow', '2025-08-02 10:00:00', 'Approved', 34, '2025-08-02 11:00:00', NULL,'2025-08-12'),
-(34, 34, 'return', '2025-08-03 11:00:00', 'Pending', 33, NULL, NULL,NULL),
-(35, 35, 'return', '2025-08-04 12:00:00', 'Approved', 36, '2025-08-04 13:00:00',NULL, NULL),
-(36, 36, 'borrow', '2025-08-05 13:00:00', 'Pending', 35, NULL, NULL,'2025-08-15'),
-(37, 37, 'borrow', '2025-08-06 14:00:00', 'Approved', 38, '2025-08-06 15:00:00',NULL, '2025-08-16'),
-(38, 38, 'borrow', '2025-08-07 15:00:00', 'Approved', 37, '2025-08-07 16:00:00', NULL,'2025-08-17'),
-(39, 39, 'return', '2025-08-08 16:00:00', 'Pending', 40, NULL,NULL, NULL),
-(40, 40, 'return', '2025-08-09 17:00:00', 'Approved', 39, '2025-08-09 18:00:00',NULL, NULL),
-(41, 41, 'borrow', '2025-08-10 08:00:00', 'Pending', 42, NULL,NULL, '2025-08-20'),
-(42, 42, 'borrow', '2025-08-11 09:00:00', 'Approved', 41, '2025-08-11 10:00:00', NULL,'2025-08-21'),
-(43, 43, 'borrow', '2025-08-12 10:00:00', 'Approved', 44, '2025-08-12 11:00:00', NULL,'2025-08-22'),
-(44, 44, 'return', '2025-08-13 11:00:00', 'Pending', 43, NULL, NULL,NULL),
-(45, 45, 'return', '2025-08-14 12:00:00', 'Approved', 46, '2025-08-14 13:00:00', NULL,NULL),
-(46, 46, 'borrow', '2025-08-15 13:00:00', 'Pending', 45, NULL, NULL,'2025-08-25'),
-(47, 47, 'borrow', '2025-08-16 14:00:00', 'Approved', 48, '2025-08-16 15:00:00',NULL, '2025-08-26'),
-(48, 48, 'borrow', '2025-08-17 15:00:00', 'Approved', 47, '2025-08-17 16:00:00', NULL,'2025-08-27'),
-(49, 49, 'return', '2025-08-18 16:00:00', 'Pending', 50, NULL, NULL,NULL),
-(50, 50, 'return', '2025-08-19 17:00:00', 'Approved', 49, '2025-08-19 18:00:00', NULL,NULL);
+-- Phòng Nhân sự (Department ID: 3)
+(10, 'Dung', 'Phạm Thị', 'dung.pt@company.com', '0987654321', 3, 'Manager', 'dungpt', '12345', 'Active'),
+(11, 'An', 'Nguyễn Hữu', 'an.nh@company.com', '0987654322', 3, 'Staff', 'annh', '12345', 'Active'),
+(12, 'Mai', 'Vũ Thị', 'mai.vt@company.com', '0987654323', 3, 'Staff', 'maivt', '12345', 'Active'),
+(13, 'Hương', 'Đỗ Thị', 'huong.dt@company.com', '0987654324', 3, 'Staff', 'huongdt', '12345', 'Active'),
+(14, 'Nam', 'Bùi Văn', 'nam.bv@company.com', '0987654325', 3, 'Staff', 'nambv', '12345', 'Active'),
 
--- Seed data for AssetRequestItem
+-- Phòng IT (Department ID: 4)
+(15, 'Tùng', 'Hoàng Văn', 'tung.hv@company.com', '0901112223', 4, 'Manager', 'tunghv', '12345', 'Active'),
+(16, 'Đức', 'Phan Văn', 'duc.pv@company.com', '0901112224', 4, 'Staff', 'ducpv', '12345', 'Active'),
+(17, 'Linh', 'Lưu Thị', 'linh.lt@company.com', '0901112225', 4, 'Staff', 'linhlt', '12345', 'Active'),
+(18, 'Giang', 'Đinh Văn', 'giang.dv@company.com', '0901112226', 4, 'Staff', 'giangdv', '12345', 'Active'),
+(19, 'Trang', 'Ngô Thị', 'trang.nt@company.com', '0901112227', 4, 'Staff', 'trangnt', '12345', 'Active'),
 
--- Insert các dòng borrow trước (có borrow_date khác NULL)
-INSERT INTO AssetRequestItem (request_item_id, request_id, asset_id, borrow_date, return_date, condition_on_borrow, condition_on_return) VALUES
--- Đã bổ sung giá trị cho các trường return_date, condition_on_borrow, condition_on_return để tránh NULL nếu có thể
-(2, 2, 2, '2025-07-02 11:00:00', '2025-07-12 11:00:00', 'Tot', 'Binh thuong'),
-(3, 3, 3, '2025-07-03 12:00:00', '2025-07-13 12:00:00', 'Tot', 'Binh thuong'),
-(7, 7, 7, '2025-07-07 16:00:00', '2025-07-17 16:00:00', 'Tot', 'Binh thuong'),
-(8, 8, 8, '2025-07-08 17:00:00', '2025-07-18 17:00:00', 'Tot', 'Binh thuong'),
-(12, 12, 12, '2025-07-12 11:00:00', '2025-07-22 11:00:00', 'Tot', 'Binh thuong'),
-(13, 13, 13, '2025-07-13 12:00:00', '2025-07-23 12:00:00', 'Tot', 'Binh thuong'),
-(17, 17, 17, '2025-07-17 16:00:00', '2025-07-27 16:00:00', 'Tot', 'Binh thuong'),
-(18, 18, 18, '2025-07-18 17:00:00', '2025-07-28 17:00:00', 'Tot', 'Binh thuong'),
-(22, 22, 22, '2025-07-22 11:00:00', '2025-08-01 11:00:00', 'Tot', 'Binh thuong'),
-(23, 23, 23, '2025-07-23 12:00:00', '2025-08-02 12:00:00', 'Tot', 'Binh thuong'),
-(27, 27, 27, '2025-07-27 16:00:00', '2025-08-06 16:00:00', 'Tot', 'Binh thuong'),
-(28, 28, 28, '2025-07-28 17:00:00', '2025-08-07 17:00:00', 'Tot', 'Binh thuong'),
-(32, 32, 32, '2025-08-01 11:00:00', '2025-08-11 11:00:00', 'Tot', 'Binh thuong'),
-(33, 33, 33, '2025-08-02 12:00:00', '2025-08-12 12:00:00', 'Tot', 'Binh thuong'),
-(37, 37, 37, '2025-08-06 16:00:00', '2025-08-16 16:00:00', 'Tot', 'Binh thuong'),
-(38, 38, 38, '2025-08-07 17:00:00', '2025-08-17 17:00:00', 'Tot', 'Binh thuong'),
-(42, 42, 42, '2025-08-11 11:00:00', '2025-08-21 11:00:00', 'Tot', 'Binh thuong'),
-(43, 43, 43, '2025-08-12 12:00:00', '2025-08-22 12:00:00', 'Tot', 'Binh thuong'),
-(47, 47, 47, '2025-08-16 16:00:00', '2025-08-26 16:00:00', 'Tot', 'Binh thuong'),
-(48, 48, 48, '2025-08-17 17:00:00', '2025-08-27 17:00:00', 'Tot', 'Binh thuong');
+-- Phòng Kinh doanh (Department ID: 5)
+(20, 'Long', 'Đặng Văn', 'long.dv@company.com', '0911223344', 5, 'Manager', 'longdv', '12345', 'Active'),
+(21, 'Ngọc', 'Bùi Thị', 'ngoc.bt@company.com', '0911223345', 5, 'Staff', 'ngocbt', '12345', 'Active'),
+(22, 'Sơn', 'Lý Văn', 'son.lv@company.com', '0911223346', 5, 'Staff', 'sonlv', '12345', 'Active'),
+(23, 'Thảo', 'Trịnh Thị', 'thao.tt@company.com', '0911223347', 5, 'Staff', 'thaott', '12345', 'Active'),
+(24, 'Phúc', 'Hồ Văn', 'phuc.hv@company.com', '0911223348', 5, 'Staff', 'phuchv', '12345', 'Active'),
+(25, 'Lan', 'Mai Thị', 'lan.mt@company.com', '0911223349', 5, 'Staff', 'lanmt', '12345', 'Active'),
 
--- Cập nhật head_employee_id cho Department để không còn NULL
-UPDATE Department SET head_employee_id = 1 WHERE department_id = 1;
-UPDATE Department SET head_employee_id = 2 WHERE department_id = 2;
-UPDATE Department SET head_employee_id = 3 WHERE department_id = 3;
-UPDATE Department SET head_employee_id = 4 WHERE department_id = 4;
-UPDATE Department SET head_employee_id = 5 WHERE department_id = 5;
-UPDATE Department SET head_employee_id = 6 WHERE department_id = 6;
-UPDATE Department SET head_employee_id = 7 WHERE department_id = 7;
-UPDATE Department SET head_employee_id = 8 WHERE department_id = 8;
-UPDATE Department SET head_employee_id = 9 WHERE department_id = 9;
-UPDATE Department SET head_employee_id = 10 WHERE department_id = 10;
-UPDATE Department SET head_employee_id = 11 WHERE department_id = 11;
-UPDATE Department SET head_employee_id = 12 WHERE department_id = 12;
-UPDATE Department SET head_employee_id = 13 WHERE department_id = 13;
-UPDATE Department SET head_employee_id = 14 WHERE department_id = 14;
-UPDATE Department SET head_employee_id = 15 WHERE department_id = 15;
-UPDATE Department SET head_employee_id = 16 WHERE department_id = 16;
-UPDATE Department SET head_employee_id = 17 WHERE department_id = 17;
-UPDATE Department SET head_employee_id = 18 WHERE department_id = 18;
-UPDATE Department SET head_employee_id = 19 WHERE department_id = 19;
-UPDATE Department SET head_employee_id = 20 WHERE department_id = 20;
-UPDATE Department SET head_employee_id = 21 WHERE department_id = 21;
-UPDATE Department SET head_employee_id = 22 WHERE department_id = 22;
-UPDATE Department SET head_employee_id = 23 WHERE department_id = 23;
-UPDATE Department SET head_employee_id = 24 WHERE department_id = 24;
-UPDATE Department SET head_employee_id = 25 WHERE department_id = 25;
-UPDATE Department SET head_employee_id = 26 WHERE department_id = 26;
-UPDATE Department SET head_employee_id = 27 WHERE department_id = 27;
-UPDATE Department SET head_employee_id = 28 WHERE department_id = 28;
-UPDATE Department SET head_employee_id = 29 WHERE department_id = 29;
-UPDATE Department SET head_employee_id = 30 WHERE department_id = 30;
-UPDATE Department SET head_employee_id = 31 WHERE department_id = 31;
-UPDATE Department SET head_employee_id = 32 WHERE department_id = 32;
-UPDATE Department SET head_employee_id = 33 WHERE department_id = 33;
-UPDATE Department SET head_employee_id = 34 WHERE department_id = 34;
-UPDATE Department SET head_employee_id = 35 WHERE department_id = 35;
-UPDATE Department SET head_employee_id = 36 WHERE department_id = 36;
-UPDATE Department SET head_employee_id = 37 WHERE department_id = 37;
-UPDATE Department SET head_employee_id = 38 WHERE department_id = 38;
-UPDATE Department SET head_employee_id = 39 WHERE department_id = 39;
-UPDATE Department SET head_employee_id = 40 WHERE department_id = 40;
-UPDATE Department SET head_employee_id = 41 WHERE department_id = 41;
-UPDATE Department SET head_employee_id = 42 WHERE department_id = 42;
-UPDATE Department SET head_employee_id = 43 WHERE department_id = 43;
-UPDATE Department SET head_employee_id = 44 WHERE department_id = 44;
-UPDATE Department SET head_employee_id = 45 WHERE department_id = 45;
-UPDATE Department SET head_employee_id = 46 WHERE department_id = 46;
-UPDATE Department SET head_employee_id = 47 WHERE department_id = 47;
-UPDATE Department SET head_employee_id = 48 WHERE department_id = 48;
-UPDATE Department SET head_employee_id = 49 WHERE department_id = 49;
-UPDATE Department SET head_employee_id = 50 WHERE department_id = 50;
+-- Phòng Marketing (Department ID: 6)
+(26, 'Hà', 'Ngô Thị', 'ha.nt@company.com', '0955667788', 6, 'Manager', 'hant', '12345', 'Active'),
+(27, 'Kiên', 'Trịnh Văn', 'kien.tv@company.com', '0955667789', 6, 'Staff', 'kientv', '12345', 'Active'),
+(28, 'Ánh', 'Dương Thị', 'anh.dt@company.com', '0955667790', 6, 'Staff', 'anhdt', '12345', 'Active'),
+(29, 'Quân', 'Lại Văn', 'quan.lv@company.com', '0955667791', 6, 'Staff', 'quanlv', '12345', 'Active'),
+
+-- Phòng Hành chính (Department ID: 7)
+(30, 'Tâm', 'Vương Thị', 'tam.vt@company.com', '0922334455', 7, 'Manager', 'tamvt', '12345', 'Active'),
+(31, 'Hải', 'Tô Văn', 'hai.tv@company.com', '0922334456', 7, 'Staff', 'haitv', '12345', 'Active'),
+(32, 'Nga', 'Chu Thị', 'nga.ct@company.com', '0922334457', 7, 'Staff', 'ngact', '12345', 'Active'),
+
+-- Phòng Dự án (Department ID: 8)
+(33, 'Mạnh', 'Phí Văn', 'manh.pv@company.com', '0933445566', 8, 'Manager', 'manhpv', '12345', 'Active'),
+(34, 'Thu', 'Tạ Thị', 'thu.tt@company.com', '0933445567', 8, 'Staff', 'thutt', '12345', 'Active'),
+(35, 'Hậu', 'Đoàn Văn', 'hau.dv@company.com', '0933445568', 8, 'Staff', 'haudv', '12345', 'Active'),
+(36, 'Kim', 'Uông Thị', 'kim.ut@company.com', '0933445569', 8, 'Staff', 'kimut', '12345', 'Active'),
+
+-- Phòng Chăm sóc khách hàng (Department ID: 9)
+(37, 'Thủy', 'Giang Thị', 'thuy.gt@company.com', '0944556677', 9, 'Manager', 'thuygt', '12345', 'Active'),
+(38, 'Thắng', 'Nhữ Văn', 'thang.nv@company.com', '0944556678', 9, 'Staff', 'thangnv', '12345', 'Active'),
+(39, 'Loan', 'Quách Thị', 'loan.qt@company.com', '0944556679', 9, 'Staff', 'loanqt', '12345', 'Active'),
+(40, 'Phong', 'Âu Dương', 'phong.ad@company.com', '0944556680', 9, 'Staff', 'phongad', '12345', 'Active'),
+(41, 'Lý', 'Kha Thị', 'ly.kt@company.com', '0944556681', 9, 'Staff', 'lykt', '12345', 'Active'),
+
+-- Phòng Kỹ thuật (Department ID: 10)
+(42, 'Khoa', 'Mạc Văn', 'khoa.mv@company.com', '0966778899', 10, 'Manager', 'khoamv', '12345', 'Active'),
+(43, 'Dương', 'Ninh Văn', 'duong.nv@company.com', '0966778900', 10, 'Staff', 'duongnv', '12345', 'Active'),
+(44, 'Nguyệt', 'Xa Thị', 'nguyet.xt@company.com', '0966778901', 10, 'Staff', 'nguyetxt', '12345', 'Active'),
+(45, 'Sơn', 'Thạch Văn', 'son.tv@company.com', '0966778902', 10, 'Staff', 'sontv', '12345', 'Active'),
+(46, 'Quỳnh', 'Tôn Nữ', 'quynh.tn@company.com', '0966778903', 10, 'Staff', 'quynhtn', '12345', 'Active'),
+(47, 'Bảo', 'Nguyễn Văn', 'bao.nv@company.com', '0912345682', 2, 'Staff', 'baonv', '12345', 'Deactivated'),
+(48, 'Chi', 'Trần Thị', 'chi.tt@company.com', '0987654326', 3, 'Staff', 'chitt', '12345', 'Deactivated'),
+(49, 'Đạt', 'Lê Văn', 'dat.lv@company.com', '0901112228', 4, 'Staff', 'datlv', '12345', 'Active'),
+(50, 'Tài', 'Phạm Văn', 'tai.pv@company.com', '0911223350', 5, 'Staff', 'taipv', '12345', 'Active'),
+(51, 'Giang', 'Hoàng Thị', 'giang.ht@company.com', '0955667792', 6, 'Staff', 'gianght', '12345', 'Active'),
+(52, 'Huy', 'Vũ Văn', 'huy.vv@company.com', '0922334458', 7, 'Staff', 'huyvv', '12345', 'Active'),
+(53, 'Linh', 'Đỗ Thị', 'linh.dt@company.com', '0933445570', 8, 'Staff', 'linhdt', '12345', 'Deactivated'),
+(54, 'Tú', 'Bùi Văn', 'tu.bv@company.com', '0944556682', 9, 'Staff', 'tubv', '12345', 'Active'),
+(55, 'Nga', 'Đặng Thị', 'nga.dt@company.com', '0966778904', 10, 'Staff', 'ngadt', '12345', 'Active'),
+(56, 'Quang', 'Ngô Văn', 'quang.nv@company.com', '0912345683', 2, 'Staff', 'quangnv', '12345', 'Active'),
+(57, 'Thủy', 'Phan Thị', 'thuy.pt@company.com', '0987654327', 3, 'Staff', 'thuypt', '12345', 'Active'),
+(58, 'Tín', 'Lưu Văn', 'tin.lv@company.com', '0901112229', 4, 'Staff', 'tinlv', '12345', 'Active'),
+(59, 'Hà', 'Đinh Thị', 'ha.dt@company.com', '0911223351', 5, 'Staff', 'hadt', '12345', 'Deactivated'),
+(60, 'Trường', 'Nguyễn Xuân', 'truong.nx@company.com', '0955667793', 6, 'Staff', 'truongnx', '12345', 'Active');
+
+
+-- Cập nhật trưởng phòng cho các phòng ban
+UPDATE `Department` SET `head_employee_id` = 4 WHERE `department_id` = 1;
+UPDATE `Department` SET `head_employee_id` = 6 WHERE `department_id` = 2;
+UPDATE `Department` SET `head_employee_id` = 10 WHERE `department_id` = 3;
+UPDATE `Department` SET `head_employee_id` = 15 WHERE `department_id` = 4;
+UPDATE `Department` SET `head_employee_id` = 20 WHERE `department_id` = 5;
+UPDATE `Department` SET `head_employee_id` = 26 WHERE `department_id` = 6;
+UPDATE `Department` SET `head_employee_id` = 30 WHERE `department_id` = 7;
+UPDATE `Department` SET `head_employee_id` = 33 WHERE `department_id` = 8;
+UPDATE `Department` SET `head_employee_id` = 37 WHERE `department_id` = 9;
+UPDATE `Department` SET `head_employee_id` = 42 WHERE `department_id` = 10;
+
+
+-- =================================================================
+-- PHẦN 2: TẠO DỮ LIỆU CHO TÀI SẢN, DANH MỤC, NHÀ CUNG CẤP
+-- =================================================================
+
+-- Dữ liệu cho các danh mục tài sản văn phòng
+INSERT INTO `AssetCategory` (`category_id`, `category_name`, `description`) VALUES
+(1, 'Máy tính xách tay', 'Các loại laptop cho nhân viên'),
+(2, 'Máy tính để bàn', 'Các loại PC cho công việc văn phòng và kỹ thuật'),
+(3, 'Màn hình', 'Màn hình máy tính các loại'),
+(4, 'Bàn phím', 'Bàn phím có dây và không dây'),
+(5, 'Chuột máy tính', 'Chuột có dây và không dây'),
+(6, 'Máy in', 'Máy in văn phòng, in laser, in màu'),
+(7, 'Máy chiếu', 'Máy chiếu cho phòng họp'),
+(8, 'Điện thoại bàn', 'Điện thoại IP cho văn phòng'),
+(9, 'Bàn làm việc', 'Bàn làm việc cá nhân và bàn họp'),
+(10, 'Ghế văn phòng', 'Ghế xoay, ghế họp'),
+(11, 'Tủ tài liệu', 'Tủ sắt, tủ gỗ đựng hồ sơ'),
+(12, 'Máy photocopy', 'Máy photocopy đa chức năng'),
+(13, 'Máy scan', 'Máy scan tài liệu chuyên dụng'),
+(14, 'Thiết bị mạng', 'Router, switch, access point'),
+(15, 'Camera an ninh', 'Hệ thống camera giám sát'),
+(16, 'Bảng trắng', 'Bảng viết bút lông cho phòng họp'),
+(17, 'Máy chấm công', 'Máy chấm công vân tay, thẻ từ'),
+(18, 'Máy điều hòa', 'Máy điều hòa không khí cho văn phòng'),
+(19, 'Máy lọc nước', 'Máy lọc nước uống nóng lạnh'),
+(20, 'Tủ lạnh', 'Tủ lạnh trữ đồ ăn, nước uống'),
+(21, 'Quạt', 'Quạt cây, quạt treo tường'),
+(22, 'Máy hút bụi', 'Máy hút bụi vệ sinh văn phòng');
+
+-- Dữ liệu cho 20 nhà cung cấp
+INSERT INTO `Vendor` (`vendor_id`, `vendor_name`, `contact_person`, `phone_number`, `email`, `address`) VALUES
+(1, 'Công ty TNHH Tech-Solutions', 'Trần Mạnh Hùng', '0988111222', 'hung.tm@techsolutions.com', '123 Lê Lợi, Quận 1, TP.HCM'),
+(2, 'Tập đoàn Máy tính FPT', 'Nguyễn Thị Lan Anh', '0977333444', 'lananh.nt@fpt.com.vn', '456 Nguyễn Thị Minh Khai, Quận 3, TP.HCM'),
+(3, 'Công ty Nội thất Hòa Phát', 'Lê Văn Bình', '0966555666', 'binh.lv@hoaphat.com', '789 Trường Chinh, Quận Tân Bình, TP.HCM'),
+(4, 'Siêu thị Điện máy Xanh', 'Phạm Anh Tuấn', '0955777888', 'tuan.pa@dienmayxanh.com', '101 CMT8, Quận 10, TP.HCM'),
+(5, 'Công ty Phong Vũ', 'Vũ Minh Đức', '0944999000', 'duc.vm@phongvu.vn', '268 Lý Thường Kiệt, Quận 11, TP.HCM'),
+(6, 'Công ty An Phát Computer', 'An Văn Phát', '0933111222', 'phat.av@anphatpc.com.vn', '49 Thái Hà, Đống Đa, Hà Nội'),
+(7, 'Thế Giới Di Động', 'Đoàn Văn Hiểu Em', '0922333444', 'em.dvh@thegioididong.com', '258A Nam Kỳ Khởi Nghĩa, Quận 3, TP.HCM'),
+(8, 'Công ty Nội thất The One', 'Nguyễn Minh Tâm', '0911555666', 'tam.nm@noithattheone.vn', 'Khu công nghiệp Tân Tạo, Bình Tân, TP.HCM'),
+(9, 'Công ty Sao Việt', 'Trần Sao Việt', '0900777888', 'viet.ts@saoviet.net', '333 Tô Hiến Thành, Quận 10, TP.HCM'),
+(10, 'Công ty Viễn thông A', 'Hoàng Ngọc Bích', '0988999000', 'bich.hn@vienthonga.com', '777 Trần Hưng Đạo, Quận 5, TP.HCM'),
+(11, 'Công ty máy tính Hà Nội', 'Lê Hà Nội', '0977111222', 'hanoi.l@hanoicomputer.vn', '129+131 Lê Thanh Nghị, Hai Bà Trưng, Hà Nội'),
+(12, 'Công ty GearVN', 'Phạm Thành Nhân', '0966333444', 'nhan.pt@gearvn.com', '78-80-82 Hoàng Hoa Thám, Phường 12, Tân Bình, TP.HCM'),
+(13, 'Công ty ô tô Trường Hải', 'Trần Bá Dương', '0955555666', 'duong.tb@thacogroup.vn', 'Khu công nghiệp Chu Lai, Quảng Nam'),
+(14, 'Công ty phần mềm MISA', 'Lữ Thành Long', '0944777888', 'long.lt@misa.com.vn', 'Tòa nhà MISA, Lô 1, CVPM Quang Trung, Quận 12, TP.HCM'),
+(15, 'Công ty Camera Vantech', 'Văn Công Tế', '0933999000', 'te.vc@vantech.vn', '44 Ký Con, Quận 1, TP.HCM'),
+(16, 'Công ty máy chấm công Ronald Jack', 'Ronald Jack', '0922111222', 'contact@ronaldjack.com', '123 Main Street, USA'),
+(17, 'Công ty Ricoh Vietnam', 'Yasunori Ando', '0911333444', 'ando.y@ricoh.com.vn', 'Tầng 17, Tòa nhà E.Town Central, 11 Đoàn Văn Bơ, Quận 4, TP.HCM'),
+(18, 'Công ty Cisco Systems Vietnam', 'Lương Thị Lệ Thủy', '0900555666', 'thuy.ltl@cisco.com', 'Phòng 1501, Tầng 15, Keangnam Hanoi Landmark Tower, Hà Nội'),
+(19, 'Công ty Dell Việt Nam', 'Ngô Thị Bích Hạnh', '0988777888', 'hanh.ntb@dell.com', 'Tầng 8, Tòa nhà Bitexco Financial, 2 Hải Triều, Quận 1, TP.HCM'),
+(20, 'Công ty HP Việt Nam', 'Lim Choon Teck', '0977999000', 'choonteck.lim@hp.com', 'Tầng 20, Tòa nhà Saigon Centre 2, 67 Lê Lợi, Quận 1, TP.HCM');
+
+-- Dữ liệu cho các tài sản trang thiết bị văn phòng
+INSERT INTO `Asset` (`asset_id`, `asset_name`, `description`, `serial_number`, `purchase_date`, `purchase_price`, `warranty_expiry_date`, `status`, `category_id`, `vendor_id`) VALUES
+-- Laptops (1-15)
+(1, 'Laptop Dell XPS 15', 'Laptop cho Giám đốc', 'DXPS15001', '2023-01-15', 45000000, '2026-01-15', 'Available', 1, 19),
+(2, 'Laptop ThinkPad X1 Carbon (1)', 'Laptop cho Trưởng phòng', 'TPX1C001', '2023-02-20', 42000000, '2026-02-20', 'Available', 1, 6),
+(3, 'Laptop ThinkPad X1 Carbon (2)', 'Laptop cho Trưởng phòng', 'TPX1C002', '2023-02-20', 42000000, '2026-02-20', 'Available', 1, 6),
+(4, 'Laptop HP Pavilion 15 (1)', 'Laptop cho nhân viên', 'HPPV15001', '2023-03-10', 18000000, '2025-03-10', 'Available', 1, 20),
+(5, 'Laptop HP Pavilion 15 (2)', 'Laptop cho nhân viên', 'HPPV15002', '2023-03-10', 18000000, '2025-03-10', 'Available', 1, 20),
+(6, 'Laptop HP Pavilion 15 (3)', 'Laptop cho nhân viên', 'HPPV15003', '2023-03-10', 18000000, '2025-03-10', 'Available', 1, 20),
+(7, 'Laptop HP Pavilion 15 (4)', 'Laptop cho nhân viên', 'HPPV15004', '2023-03-10', 18000000, '2025-03-10', 'Available', 1, 20),
+(8, 'Laptop Acer Aspire 5 (1)', 'Laptop cho nhân viên', 'ACAS5001', '2023-04-05', 16500000, '2025-04-05', 'Available', 1, 5),
+(9, 'Laptop Acer Aspire 5 (2)', 'Laptop cho nhân viên', 'ACAS5002', '2023-04-05', 16500000, '2025-04-05', 'Available', 1, 5),
+(10, 'Laptop Acer Aspire 5 (3)', 'Laptop cho nhân viên', 'ACAS5003', '2023-04-05', 16500000, '2025-04-05', 'Available', 1, 5),
+(11, 'Macbook Pro 14 M2 (1)', 'Laptop cho Marketing/Design', 'MBP14M201', '2023-06-15', 55000000, '2026-06-15', 'Available', 1, 7),
+(12, 'Macbook Pro 14 M2 (2)', 'Laptop cho Marketing/Design', 'MBP14M202', '2023-06-15', 55000000, '2026-06-15', 'Available', 1, 7),
+(13, 'Laptop Dell Latitude 5430 (1)', 'Laptop cho nhân viên kinh doanh', 'DLLT54301', '2022-12-20', 22000000, '2025-12-20', 'Available', 1, 19),
+(14, 'Laptop Dell Latitude 5430 (2)', 'Laptop cho nhân viên kinh doanh', 'DLLT54302', '2022-12-20', 22000000, '2025-12-20', 'Available', 1, 19),
+(15, 'Laptop Dell Latitude 5430 (3)', 'Laptop cho nhân viên kinh doanh', 'DLLT54303', '2022-12-20', 22000000, '2025-12-20', 'Retired', 1, 19),
+-- PCs (16-25)
+(16, 'PC Dell Vostro (1)', 'Máy tính để bàn cho kế toán', 'DVOS001', '2022-11-10', 15000000, '2025-11-10', 'Available', 2, 19),
+(17, 'PC Dell Vostro (2)', 'Máy tính để bàn cho kế toán', 'DVOS002', '2022-11-10', 15000000, '2025-11-10', 'Available', 2, 19),
+(18, 'PC Gaming Acer Nitro (1)', 'Máy tính cho phòng IT', 'ACNI001', '2023-05-30', 25000000, '2026-05-30', 'Available', 2, 5),
+(19, 'PC Gaming Acer Nitro (2)', 'Máy tính cho phòng IT', 'ACNI002', '2023-05-30', 25000000, '2026-05-30', 'Available', 2, 5),
+(20, 'PC HP All-in-One', 'Máy tính cho Lễ tân', 'HPAIO01', '2023-01-01', 19000000, '2025-01-01', 'Available', 2, 20),
+(21, 'PC HP ProDesk (1)', 'PC cho nhân viên', 'HPPD001', '2022-10-10', 14000000, '2025-10-10', 'Available', 2, 20),
+(22, 'PC HP ProDesk (2)', 'PC cho nhân viên', 'HPPD002', '2022-10-10', 14000000, '2025-10-10', 'Available', 2, 20),
+(23, 'PC HP ProDesk (3)', 'PC cho nhân viên', 'HPPD003', '2022-10-10', 14000000, '2025-10-10', 'Available', 2, 20),
+(24, 'PC HP ProDesk (4)', 'PC cho nhân viên', 'HPPD004', '2022-10-10', 14000000, '2025-10-10', 'Available', 2, 20),
+(25, 'PC HP ProDesk (5)', 'PC cho nhân viên', 'HPPD005', '2022-10-10', 14000000, '2025-10-10', 'Available', 2, 20),
+-- Màn hình (26-35)
+(26, 'Màn hình Dell UltraSharp 24" (1)', 'Màn hình cho nhân viên', 'DU24001', '2022-11-10', 7000000, '2025-11-10', 'Available', 3, 19),
+(27, 'Màn hình Dell UltraSharp 24" (2)', 'Màn hình cho nhân viên', 'DU24002', '2022-11-10', 7000000, '2025-11-10', 'Available', 3, 19),
+(28, 'Màn hình Dell UltraSharp 24" (3)', 'Màn hình cho nhân viên', 'DU24003', '2022-11-10', 7000000, '2025-11-10', 'Available', 3, 19),
+(29, 'Màn hình Dell UltraSharp 24" (4)', 'Màn hình cho nhân viên', 'DU24004', '2022-11-10', 7000000, '2025-11-10', 'Available', 3, 19),
+(30, 'Màn hình LG 27" (1)', 'Màn hình cho phòng IT', 'LG27001', '2023-05-30', 9000000, '2026-05-30', 'Available', 3, 4),
+(31, 'Màn hình LG 27" (2)', 'Màn hình cho phòng IT', 'LG27002', '2023-05-30', 9000000, '2026-05-30', 'Available', 3, 4),
+(32, 'Màn hình Samsung ViewFinity S8 32" (1)', 'Màn hình cho thiết kế', 'SSVF3201', '2023-06-15', 15000000, '2026-06-15', 'Available', 3, 4),
+(33, 'Màn hình Samsung ViewFinity S8 32" (2)', 'Màn hình cho thiết kế', 'SSVF3202', '2023-06-15', 15000000, '2026-06-15', 'Available', 3, 4),
+(34, 'Màn hình AOC 24" (1)', 'Màn hình cho nhân viên', 'AOC24001', '2022-09-01', 4000000, '2024-09-01', 'Available', 3, 5),
+(35, 'Màn hình AOC 24" (2)', 'Màn hình cho nhân viên', 'AOC24002', '2022-09-01', 4000000, '2024-09-01', 'Retired', 3, 5),
+-- Thiết bị văn phòng khác (36-78)
+(36, 'Bàn phím Logitech K120 (1)', 'Bàn phím văn phòng', 'LOGK12001', '2022-11-10', 250000, '2024-11-10', 'Available', 4, 5),
+(37, 'Bàn phím Logitech K120 (2)', 'Bàn phím văn phòng', 'LOGK12002', '2022-11-10', 250000, '2024-11-10', 'Available', 4, 5),
+(38, 'Chuột Logitech M185 (1)', 'Chuột không dây', 'LOGM18501', '2022-11-10', 300000, '2024-11-10', 'Available', 5, 5),
+(39, 'Chuột Logitech M185 (2)', 'Chuột không dây', 'LOGM18502', '2022-11-10', 300000, '2024-11-10', 'Available', 5, 5),
+(40, 'Máy in Canon LBP2900', 'Máy in phòng Kế toán', 'CAN290001', '2022-09-01', 4500000, '2024-09-01', 'Available', 6, 2),
+(41, 'Máy in HP LaserJet Pro M404dn', 'Máy in phòng Nhân sự', 'HPLJM4041', '2023-02-01', 8000000, '2025-02-01', 'Available', 6, 20),
+(42, 'Máy in màu Epson L8050', 'Máy in phòng Marketing', 'EPSL80501', '2023-07-01', 7500000, '2025-07-01', 'Available', 6, 4),
+(43, 'Máy chiếu Epson EB-X06', 'Máy chiếu phòng họp lớn', 'EPSX06001', '2023-03-10', 12000000, '2025-03-10', 'Available', 7, 4),
+(44, 'Máy chiếu ViewSonic PA503XB', 'Máy chiếu phòng họp nhỏ', 'VSPA503X1', '2023-03-10', 9500000, '2025-03-10', 'Available', 7, 9),
+(45, 'Điện thoại IP Yealink T31P (1)', 'Điện thoại phòng Kinh doanh', 'YEAT31P01', '2023-01-05', 1500000, '2025-01-05', 'Available', 8, 1),
+(46, 'Điện thoại IP Yealink T31P (2)', 'Điện thoại phòng Kinh doanh', 'YEAT31P02', '2023-01-05', 1500000, '2025-01-05', 'Available', 8, 1),
+(47, 'Điện thoại IP Yealink T31P (3)', 'Điện thoại phòng Kinh doanh', 'YEAT31P03', '2023-01-05', 1500000, '2025-01-05', 'Available', 8, 1),
+(48, 'Bàn làm việc Hòa Phát 1.2m (1)', 'Bàn nhân viên', 'HPB12001', '2022-08-15', 2000000, '2027-08-15', 'Available', 9, 3),
+(49, 'Bàn làm việc Hòa Phát 1.2m (2)', 'Bàn nhân viên', 'HPB12002', '2022-08-15', 2000000, '2027-08-15', 'Available', 9, 3),
+(50, 'Bàn làm việc Hòa Phát 1.2m (3)', 'Bàn nhân viên', 'HPB12003', '2022-08-15', 2000000, '2027-08-15', 'Available', 9, 3),
+(51, 'Bàn làm việc Hòa Phát 1.2m (4)', 'Bàn nhân viên', 'HPB12004', '2022-08-15', 2000000, '2027-08-15', 'Available', 9, 3),
+(52, 'Ghế xoay Hòa Phát (1)', 'Ghế nhân viên', 'HPG001', '2022-08-15', 1200000, '2027-08-15', 'Available', 10, 3),
+(53, 'Ghế xoay Hòa Phát (2)', 'Ghế nhân viên', 'HPG002', '2022-08-15', 1200000, '2027-08-15', 'Available', 10, 3),
+(54, 'Ghế xoay Hòa Phát (3)', 'Ghế nhân viên', 'HPG003', '2022-08-15', 1200000, '2027-08-15', 'Available', 10, 3),
+(55, 'Ghế xoay Hòa Phát (4)', 'Ghế nhân viên', 'HPG004', '2022-08-15', 1200000, '2027-08-15', 'Available', 10, 3),
+(56, 'Tủ tài liệu sắt Hòa Phát (1)', 'Tủ phòng Kế toán', 'HPTS01', '2022-08-20', 3500000, '2027-08-20', 'Available', 11, 3),
+(57, 'Tủ tài liệu sắt Hòa Phát (2)', 'Tủ phòng Nhân sự', 'HPTS02', '2022-08-20', 3500000, '2027-08-20', 'Available', 11, 3),
+(58, 'Máy photocopy Ricoh MP 2014AD', 'Máy photo chung', 'RMP20141', '2022-05-10', 25000000, '2025-05-10', 'Available', 12, 17),
+(59, 'Máy scan Fujitsu fi-8170', 'Máy scan phòng Hành chính', 'FJ817001', '2023-09-09', 28000000, '2026-09-09', 'Available', 13, 2),
+(60, 'Switch Cisco Catalyst 2960', 'Switch mạng tầng 1', 'CS296001', '2022-04-01', 15000000, '2027-04-01', 'Available', 14, 18),
+(61, 'Router Wifi Aruba AP22', 'Wifi cho văn phòng', 'ARAP2201', '2022-04-01', 8000000, '2027-04-01', 'Available', 14, 18),
+(63, 'Camera Hikvision DS-2CE16D0T (1)', 'Camera ngoài trời', 'HK16D0T01', '2023-10-10', 1200000, '2025-10-10', 'Available', 15, 9),
+(64, 'Camera Hikvision DS-2CE16D0T (2)', 'Camera ngoài trời', 'HK16D0T02', '2023-10-10', 1200000, '2025-10-10', 'Available', 15, 9),
+(65, 'Bảng trắng Flipchart', 'Bảng phòng họp', 'FLC001', '2022-02-01', 1800000, '2032-02-01', 'Available', 16, 8),
+(66, 'Máy chấm công Ronald Jack X628', 'Máy chấm công cửa ra vào', 'RJX62801', '2022-01-15', 3200000, '2025-01-15', 'Available', 17, 16),
+(71, 'Bàn phím cơ Keychron K8 (1)', 'Bàn phím cho lập trình viên', 'KCK8001', '2023-11-11', 2500000, '2025-11-11', 'Available', 4, 12),
+(72, 'Bàn phím cơ Keychron K8 (2)', 'Bàn phím cho lập trình viên', 'KCK8002', '2023-11-11', 2500000, '2025-11-11', 'Available', 4, 12),
+(73, 'Chuột Logitech MX Master 3S (1)', 'Chuột cho lập trình viên/thiết kế', 'LOGMX3S01', '2023-11-11', 2800000, '2025-11-11', 'Available', 5, 12),
+(74, 'Chuột Logitech MX Master 3S (2)', 'Chuột cho lập trình viên/thiết kế', 'LOGMX3S02', '2023-11-11', 2800000, '2025-11-11', 'Available', 5, 12),
+(75, 'Ghế công thái học Epione Easy Chair (1)', 'Ghế cho nhân viên IT', 'EPEC001', '2023-08-08', 5000000, '2028-08-08', 'Available', 10, 8),
+(76, 'Ghế công thái học Epione Easy Chair (2)', 'Ghế cho nhân viên IT', 'EPEC002', '2023-08-08', 5000000, '2028-08-08', 'Available', 10, 8),
+(77, 'Bàn nâng hạ tự động Epione (1)', 'Bàn cho Trưởng phòng', 'EPBH001', '2023-08-08', 8000000, '2028-08-08', 'Available', 9, 8),
+(78, 'Bàn nâng hạ tự động Epione (2)', 'Bàn cho Trưởng phòng', 'EPBH002', '2023-08-08', 8000000, '2028-08-08', 'Available', 9, 8),
+(81, 'Laptop Dell Vostro 3400', 'Laptop dự phòng', 'DV340001', '2021-05-15', 17000000, '2024-05-15', 'Retired', 1, 19),
+(82, 'Màn hình Viewsonic 22"', 'Màn hình cũ', 'VS22001', '2020-02-10', 3000000, '2023-02-10', 'Retired', 3, 5),
+-- Bổ sung tài sản theo category mới
+(83, 'Điều hòa Daikin 12000BTU (1)', 'Điều hòa cho phòng họp lớn', 'DK12K001', '2022-05-20', 15000000, '2025-05-20', 'Available', 18, 4),
+(84, 'Điều hòa Daikin 9000BTU (1)', 'Điều hòa cho phòng Giám đốc', 'DK9K001', '2022-05-20', 11000000, '2025-05-20', 'Available', 18, 4),
+(85, 'Máy lọc nước Kangaroo KG10A3', 'Máy lọc nước khu vực chung', 'KG10A301', '2023-01-10', 7000000, '2025-01-10', 'Available', 19, 4),
+(86, 'Máy lọc nước Karofi KAD-D66', 'Máy lọc nước khu vực chung', 'KRD6601', '2023-01-10', 9500000, '2025-01-10', 'Available', 19, 5),
+(87, 'Tủ lạnh Panasonic Inverter 188 lít', 'Tủ lạnh phòng pantry', 'PN188L01', '2022-07-15', 6500000, '2024-07-15', 'Available', 20, 4),
+(88, 'Quạt cây Senko (1)', 'Quạt cho văn phòng', 'SNK001', '2022-04-01', 600000, '2024-04-01', 'Available', 21, 5),
+(89, 'Quạt cây Senko (2)', 'Quạt cho văn phòng', 'SNK002', '2022-04-01', 600000, '2024-04-01', 'Available', 21, 5),
+(90, 'Máy hút bụi Electrolux Z1231', 'Máy hút bụi cho tạp vụ', 'ELZ12311', '2023-03-03', 2500000, '2025-03-03', 'Available', 22, 4);
+
+-- 10 Approved Borrows
+INSERT INTO `AssetRequest` (`request_id`, `employee_id`, `request_type`, `request_date`, `status`, `approver_id`, `approval_date`, `rejected_date`, `expected_return_date`) VALUES
+(1, 17, 'borrow', '2025-05-10 09:00:00', 'Approved', 15, '2025-05-10 11:00:00', NULL, '2025-08-10'),
+(2, 22, 'borrow', '2025-05-11 10:00:00', 'Approved', 20, '2025-05-11 12:00:00', NULL, '2025-07-11'),
+(3, 28, 'borrow', '2025-05-12 14:00:00', 'Approved', 26, '2025-05-12 15:30:00', NULL, '2025-06-12'),
+(4, 35, 'borrow', '2025-05-13 08:30:00', 'Approved', 33, '2025-05-13 09:00:00', NULL, '2025-05-20'),
+(5, 44, 'borrow', '2025-05-14 11:00:00', 'Approved', 42, '2025-05-14 14:00:00', NULL, '2025-09-14'),
+(6, 7, 'borrow', '2025-06-01 09:00:00', 'Approved', 6, '2025-06-01 10:00:00', NULL, '2025-12-01'),
+(7, 12, 'borrow', '2025-06-02 14:00:00', 'Approved', 10, '2025-06-02 16:00:00', NULL, '2025-08-02'),
+(8, 18, 'borrow', '2025-06-03 10:00:00', 'Approved', 15, '2025-06-03 11:00:00', NULL, '2025-06-10'),
+(9, 23, 'borrow', '2025-06-04 15:00:00', 'Approved', 20, '2025-06-04 15:30:00', NULL, '2025-07-04'),
+(10, 31, 'borrow', '2025-06-05 13:00:00', 'Approved', 30, '2025-06-05 14:00:00', NULL, '2025-06-15');
+INSERT INTO `AssetRequestItem` (`request_id`, `asset_id`, `borrow_date`, `condition_on_borrow`) VALUES
+(1, 11, '2025-05-10 14:00:00', 'Mới 100%'),
+(2, 4, '2025-05-11 13:00:00', 'Còn tốt'),
+(3, 12, '2025-05-12 16:00:00', 'Còn tốt'),
+(4, 65, '2025-05-13 09:30:00', 'Mới'),
+(5, 71, '2025-05-14 15:00:00', 'Mới'),
+(6, 5, '2025-06-01 11:00:00', 'Đã qua sử dụng'),
+(7, 45, '2025-06-02 16:30:00', 'Còn tốt'),
+(8, 75, '2025-06-03 11:30:00', 'Mới'),
+(9, 13, '2025-06-04 16:00:00', '95%'),
+(10, 56, '2025-06-05 14:30:00', 'Còn tốt');
+UPDATE `Asset` SET `status` = 'Borrowed' WHERE `asset_id` IN (11, 4, 12, 65, 71, 5, 45, 75, 13, 56);
+
+-- 5 Pending Borrows
+INSERT INTO `AssetRequest` (`request_id`, `employee_id`, `request_type`, `request_date`, `status`, `approver_id`, `approval_date`, `rejected_date`, `expected_return_date`) VALUES
+(11, 40, 'borrow', '2025-07-15 09:30:00', 'Pending', NULL, NULL, NULL, '2025-08-15'),
+(12, 50, 'borrow', '2025-07-16 10:00:00', 'Pending', NULL, NULL, NULL, '2025-10-16'),
+(13, 55, 'borrow', '2025-07-17 11:00:00', 'Pending', NULL, NULL, NULL, '2025-07-24'),
+(14, 8, 'borrow', '2025-07-18 14:00:00', 'Pending', NULL, NULL, NULL, '2025-09-18'),
+(15, 16, 'borrow', '2025-07-19 16:00:00', 'Pending', NULL, NULL, NULL, '2025-07-29');
+INSERT INTO `AssetRequestItem` (`request_id`, `asset_id`) VALUES
+(11, 46),
+(12, 7),
+(13, 72),
+(14, 16),
+(15, 18);
+
+-- 5 Rejected Borrows
+INSERT INTO `AssetRequest` (`request_id`, `employee_id`, `request_type`, `request_date`, `status`, `approver_id`, `approval_date`, `rejected_date`, `expected_return_date`) VALUES
+(16, 24, 'borrow', '2025-07-01 10:00:00', 'Rejected', 20, NULL, '2025-07-01 11:00:00', '2025-08-01'),
+(17, 36, 'borrow', '2025-07-02 11:00:00', 'Rejected', 33, NULL, '2025-07-02 11:30:00', '2025-07-09'),
+(18, 45, 'borrow', '2025-07-03 13:00:00', 'Rejected', 42, NULL, '2025-07-03 14:00:00', '2025-07-13'),
+(19, 5, 'borrow', '2025-07-04 15:00:00', 'Rejected', 4, NULL, '2025-07-04 16:00:00', '2025-07-11'),
+(20, 13, 'borrow', '2025-07-05 16:00:00', 'Rejected', 10, NULL, '2025-07-05 17:00:00', '2025-07-15');
+-- No items for rejected requests
+
+-- 5 Approved Returns
+UPDATE `Asset` SET `status` = 'Borrowed' WHERE `asset_id` IN (1, 6, 2, 3, 32);
+INSERT INTO `AssetRequest` (`request_id`, `employee_id`, `request_type`, `request_date`, `status`, `approver_id`, `approval_date`, `rejected_date`, `expected_return_date`) VALUES
+(21, 1, 'return', '2025-07-20 09:00:00', 'Approved', 15, '2025-07-20 10:00:00', NULL, NULL),
+(22, 6, 'return', '2025-07-21 10:00:00', 'Approved', 6, '2025-07-21 11:00:00', NULL, NULL),
+(23, 2, 'return', '2025-07-22 11:00:00', 'Approved', 20, '2025-07-22 12:00:00', NULL, NULL),
+(24, 3, 'return', '2025-07-23 13:00:00', 'Approved', 30, '2025-07-23 14:00:00', NULL, NULL),
+(25, 27, 'return', '2025-07-24 14:00:00', 'Approved', 26, '2025-07-24 15:00:00', NULL, NULL);
+INSERT INTO `AssetRequestItem` (`request_id`, `asset_id`, `borrow_date`, `return_date`, `condition_on_borrow`, `condition_on_return`) VALUES
+(21, 1, '2025-04-20 09:00:00', '2025-07-20 10:30:00', 'Mới', 'Hơi trầy xước'),
+(22, 6, '2025-01-21 10:00:00', '2025-07-21 11:30:00', 'Tốt', 'Bình thường'),
+(23, 2, '2024-10-22 11:00:00', '2025-07-22 12:30:00', 'Tốt', 'Bình thường'),
+(24, 3, '2025-02-23 13:00:00', '2025-07-23 14:30:00', 'Tốt', 'Bình thường'),
+(25, 32, '2025-03-24 14:00:00', '2025-07-24 15:30:00', 'Mới', 'Bình thường');
+UPDATE `Asset` SET `status` = 'Available' WHERE `asset_id` IN (1, 6, 2, 3, 32);
+
+-- 5 Pending Returns
+UPDATE `Asset` SET `status` = 'Borrowed' WHERE `asset_id` IN (21, 22, 23, 24, 25);
+INSERT INTO `AssetRequest` (`request_id`, `employee_id`, `request_type`, `request_date`, `status`, `approver_id`, `approval_date`, `rejected_date`, `expected_return_date`) VALUES
+(26, 9, 'return', '2025-08-10 09:00:00', 'Pending', NULL, NULL, NULL, NULL),
+(27, 14, 'return', '2025-08-11 10:00:00', 'Pending', NULL, NULL, NULL, NULL),
+(28, 19, 'return', '2025-08-12 11:00:00', 'Pending', NULL, NULL, NULL, NULL),
+(29, 25, 'return', '2025-08-13 13:00:00', 'Pending', NULL, NULL, NULL, NULL),
+(30, 29, 'return', '2025-08-14 14:00:00', 'Pending', NULL, NULL, NULL, NULL);
+INSERT INTO `AssetRequestItem` (`request_id`, `asset_id`, `borrow_date`, `condition_on_borrow`) VALUES
+(26, 21, '2025-07-10 09:00:00', 'Tốt'),
+(27, 22, '2025-06-11 10:00:00', 'Tốt'),
+(28, 23, '2025-05-12 11:00:00', 'Tốt'),
+(29, 24, '2025-04-13 13:00:00', 'Tốt'),
+(30, 25, '2025-03-14 14:00:00', 'Tốt');
+
+-- 10 Approved Borrows bổ sung
+INSERT INTO `AssetRequest` (`request_id`, `employee_id`, `request_type`, `request_date`, `status`, `approver_id`, `approval_date`, `rejected_date`, `expected_return_date`) VALUES
+(31, 8, 'borrow', '2025-08-16 09:00:00', 'Approved', 6, '2025-08-16 10:00:00', NULL, '2025-09-16'),
+(32, 12, 'borrow', '2025-08-17 10:00:00', 'Approved', 10, '2025-08-17 11:00:00', NULL, '2025-09-17'),
+(33, 18, 'borrow', '2025-08-18 11:00:00', 'Approved', 15, '2025-08-18 12:00:00', NULL, '2025-09-18'),
+(34, 24, 'borrow', '2025-08-19 12:00:00', 'Approved', 20, '2025-08-19 13:00:00', NULL, '2025-09-19'),
+(35, 28, 'borrow', '2025-08-20 13:00:00', 'Approved', 26, '2025-08-20 14:00:00', NULL, '2025-09-20'),
+(36, 34, 'borrow', '2025-08-21 14:00:00', 'Approved', 33, '2025-08-21 15:00:00', NULL, '2025-09-21'),
+(37, 40, 'borrow', '2025-08-22 15:00:00', 'Approved', 37, '2025-08-22 16:00:00', NULL, '2025-09-22'),
+(38, 46, 'borrow', '2025-08-23 16:00:00', 'Approved', 42, '2025-08-23 17:00:00', NULL, '2025-09-23'),
+(39, 52, 'borrow', '2025-08-24 17:00:00', 'Approved', 37, '2025-08-24 18:00:00', NULL, '2025-09-24'),
+(40, 58, 'borrow', '2025-08-25 18:00:00', 'Approved', 42, '2025-08-25 19:00:00', NULL, '2025-09-25');
+
+INSERT INTO `AssetRequestItem` (`request_id`, `asset_id`, `borrow_date`, `condition_on_borrow`) VALUES
+(31, 8, '2025-08-16 10:30:00', 'Mới'),
+(32, 9, '2025-08-17 11:30:00', 'Tốt'),
+(33, 10, '2025-08-18 12:30:00', 'Tốt'),
+(34, 88, '2025-08-19 13:30:00', 'Mới'),
+(35, 89, '2025-08-20 14:30:00', 'Tốt'),
+(36, 90, '2025-08-21 15:30:00', 'Tốt'),
+(37, 14, '2025-08-22 16:30:00', 'Mới'),
+(38, 66, '2025-08-23 17:30:00', 'Tốt'),
+(39, 16, '2025-08-24 18:30:00', 'Tốt'),
+(40, 17, '2025-08-25 19:30:00', 'Mới');
+UPDATE `Asset` SET `status` = 'Borrowed' WHERE `asset_id` IN (8,9,10,11,12,13,14,15,16,17);
+
+-- 5 Pending Borrows bổ sung
+INSERT INTO `AssetRequest` (`request_id`, `employee_id`, `request_type`, `request_date`, `status`, `approver_id`, `approval_date`, `rejected_date`, `expected_return_date`) VALUES
+(41, 20, 'borrow', '2025-08-26 09:00:00', 'Pending', NULL, NULL, NULL, '2025-09-26'),
+(42, 25, 'borrow', '2025-08-27 10:00:00', 'Pending', NULL, NULL, NULL, '2025-09-27'),
+(43, 30, 'borrow', '2025-08-28 11:00:00', 'Pending', NULL, NULL, NULL, '2025-09-28'),
+(44, 35, 'borrow', '2025-08-29 12:00:00', 'Pending', NULL, NULL, NULL, '2025-09-29'),
+(45, 40, 'borrow', '2025-08-30 13:00:00', 'Pending', NULL, NULL, NULL, '2025-09-30');
+INSERT INTO `AssetRequestItem` (`request_id`, `asset_id`) VALUES
+(41, 18),
+(42, 19),
+(43, 20),
+(44, 28),
+(45, 29);
+
+-- 5 Approved Returns bổ sung
+UPDATE `Asset` SET `status` = 'Borrowed' WHERE `asset_id` IN (23,24,25,26,27);
+INSERT INTO `AssetRequest` (`request_id`, `employee_id`, `request_type`, `request_date`, `status`, `approver_id`, `approval_date`, `rejected_date`, `expected_return_date`) VALUES
+(46, 3, 'return', '2025-08-26 14:00:00', 'Approved', 1, '2025-08-26 15:00:00', NULL, NULL),
+(47, 5, 'return', '2025-08-27 15:00:00', 'Approved', 4, '2025-08-27 16:00:00', NULL, NULL),
+(48, 7, 'return', '2025-08-28 16:00:00', 'Approved', 6, '2025-08-28 17:00:00', NULL, NULL),
+(49, 9, 'return', '2025-08-29 17:00:00', 'Approved', 8, '2025-08-29 18:00:00', NULL, NULL),
+(50, 11, 'return', '2025-08-30 18:00:00', 'Approved', 10, '2025-08-30 19:00:00', NULL, NULL);
+INSERT INTO `AssetRequestItem` (`request_id`, `asset_id`, `borrow_date`, `return_date`, `condition_on_borrow`, `condition_on_return`) VALUES
+(46, 23, '2025-07-26 14:00:00', '2025-08-26 15:30:00', 'Tốt', 'Bình thường'),
+(47, 24, '2025-07-27 15:00:00', '2025-08-27 16:30:00', 'Tốt', 'Bình thường'),
+(48, 25, '2025-07-28 16:00:00', '2025-08-28 17:30:00', 'Tốt', 'Bình thường'),
+(49, 26, '2025-07-29 17:00:00', '2025-08-29 18:30:00', 'Tốt', 'Bình thường'),
+(50, 27, '2025-07-30 18:00:00', '2025-08-30 19:30:00', 'Tốt', 'Bình thường');
+UPDATE `Asset` SET `status` = 'Available' WHERE `asset_id` IN (23,24,25,26,27);

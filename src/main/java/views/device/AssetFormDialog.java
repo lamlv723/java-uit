@@ -47,15 +47,15 @@ public class AssetFormDialog extends JDialog {
         this.assetController = assetController;
         this.asset = asset;
 
-    setUndecorated(true);
-    setSize(520, 560);
-    setLocationRelativeTo(owner);
+        setUndecorated(true);
+        setSize(520, 560);
+        setLocationRelativeTo(owner);
 
-    // Panel chính đơn giản với viền 1px, bỏ shadow
-    JPanel content = new JPanel(new BorderLayout());
-    content.setBackground(Color.WHITE);
-    content.setBorder(BorderFactory.createLineBorder(new Color(210, 210, 210), 2));
-    setContentPane(content);
+        // Panel chính đơn giản với viền 1px, bỏ shadow
+        JPanel content = new JPanel(new BorderLayout());
+        content.setBackground(Color.WHITE);
+        content.setBorder(BorderFactory.createLineBorder(new Color(210, 210, 210), 2));
+        setContentPane(content);
 
         JPanel header = buildHeader();
         content.add(header, BorderLayout.NORTH);
@@ -179,7 +179,7 @@ public class AssetFormDialog extends JDialog {
 
     private JPanel buildFormPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
-    panel.setOpaque(false);
+        panel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 8, 6, 8);
         gbc.anchor = GridBagConstraints.WEST;

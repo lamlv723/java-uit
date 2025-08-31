@@ -13,7 +13,8 @@ public class AuthenticationService {
     private final EmployeeDAO employeeDAO = new EmployeeDAOImpl();
 
     public Employee authenticate(String username, String password) {
-        if (isBlank(username) || isBlank(password)) return null;
+        if (isBlank(username) || isBlank(password))
+            return null;
 
         // DB first
         Employee emp = employeeDAO.getEmployeeByUsernameAndPassword(username.trim(), password.trim());
@@ -51,9 +52,12 @@ public class AuthenticationService {
         return u.equals(uIn) && p.equals(pIn);
     }
 
-    private boolean isBlank(String s) { return s == null || s.trim().isEmpty(); }
+    private boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
 
-    private Employee buildDefault(int id, String first, String last, Integer deptId, String role, String username, String password) {
+    private Employee buildDefault(int id, String first, String last, Integer deptId, String role, String username,
+            String password) {
         Employee e = new Employee();
         e.setEmployeeId(id); // tạm thời (DB có thể khác, chỉ dùng trong session)
         e.setFirstName(first);

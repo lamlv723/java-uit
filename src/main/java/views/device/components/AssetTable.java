@@ -45,7 +45,8 @@ public class AssetTable extends JTable {
     }
 
     private String mapStatusForDisplay(String raw) {
-        if (raw == null) return "";
+        if (raw == null)
+            return "";
         String v = raw.trim();
         switch (v.toLowerCase()) {
             case "available":

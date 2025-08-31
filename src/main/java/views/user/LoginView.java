@@ -20,7 +20,7 @@ public class LoginView extends JFrame {
 
     public LoginView() {
         setTitle("Đăng nhập");
-        setSize(300, 450); // chiều cao > chiều ngang theo yêu cầu
+        setSize(300, 450);
         setResizable(false);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -42,10 +42,14 @@ public class LoginView extends JFrame {
         title.setForeground(new Color(40, 70, 130));
         title.setBorder(BorderFactory.createEmptyBorder(8, 0, 0, 0));
 
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        titlePanel.setBackground(Color.WHITE);
+        titlePanel.add(title);
+
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(Color.WHITE);
         header.add(userIcon, BorderLayout.CENTER);
-        header.add(title, BorderLayout.SOUTH);
+        header.add(titlePanel, BorderLayout.SOUTH);
         root.add(header, BorderLayout.NORTH);
 
         JPanel centerPanel = new JPanel(new GridBagLayout());
@@ -111,8 +115,7 @@ public class LoginView extends JFrame {
                 new MainView().setVisible(true);
                 dispose();
             } else {
-                // Hiển thị popup lỗi thay vì label
-                statusLabel.setText(" "); // giữ layout nhưng không hiện lỗi ở label
+                statusLabel.setText(" ");
                 JOptionPane.showMessageDialog(LoginView.this,
                         "Tên đăng nhập hoặc mật khẩu không đúng hoặc tài khoản bị khóa.",
                         "Lỗi đăng nhập",

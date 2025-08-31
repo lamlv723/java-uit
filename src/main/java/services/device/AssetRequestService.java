@@ -66,7 +66,8 @@ public class AssetRequestService {
         }
 
         if (!canUpdate) {
-            logger.warn("Authorization Error: User {} attempted to update a request they don't own.", currentUser.getUsername());
+            logger.warn("Authorization Error: User {} attempted to update a request they don't own.",
+                    currentUser.getUsername());
             throw new SecurityException("Bạn không có quyền sửa yêu cầu này.");
         }
 
@@ -99,7 +100,8 @@ public class AssetRequestService {
         }
 
         if (!canDelete) {
-            String errorMessage = "Authorization Error: User " + currentUser.getUsername() + " attempted to delete a request they don't own.";
+            String errorMessage = "Authorization Error: User " + currentUser.getUsername()
+                    + " attempted to delete a request they don't own.";
             logger.warn(errorMessage);
             throw new SecurityException("Bạn không có quyền xóa yêu cầu này.");
         }
@@ -188,7 +190,7 @@ public class AssetRequestService {
                     return "Không tìm thấy tài sản với ID: " + assetId;
                 }
                 // Logic kiểm tra nếu tài sản không có sẵn (quan trọng)
-                 if ("borrow".equalsIgnoreCase(requestType)) {
+                if ("borrow".equalsIgnoreCase(requestType)) {
                     if (!"Available".equalsIgnoreCase(asset.getStatus())) {
                         transaction.rollback();
                         return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId + ") không có sẵn để mượn.";
@@ -196,7 +198,8 @@ public class AssetRequestService {
                 } else if ("return".equalsIgnoreCase(requestType)) {
                     if (!"Borrowed".equalsIgnoreCase(asset.getStatus())) {
                         transaction.rollback();
-                        return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId + ") không ở trạng thái 'Borrowed' để có thể trả.";
+                        return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId
+                                + ") không ở trạng thái 'Borrowed' để có thể trả.";
                     }
                 }
 
@@ -225,10 +228,11 @@ public class AssetRequestService {
             transaction = session.beginTransaction();
 
             AssetRequest request = session.get(AssetRequest.class, requestId);
-            if (request == null) return "Không tìm thấy yêu cầu.";
-            if (!"Pending".equals(request.getStatus())) return "Chỉ có thể từ chối yêu cầu ở trạng thái 'Pending'.";
+            if (request == null)
+                return "Không tìm thấy yêu cầu.";
+            if (!"Pending".equals(request.getStatus()))
+                return "Chỉ có thể từ chối yêu cầu ở trạng thái 'Pending'.";
 
-            // === AUTHORIZATION LOGIC ===
             boolean canApprove = false;
             String currentUserRole = currentUser.getRole();
             Employee requestEmployee = request.getEmployee();
@@ -244,10 +248,11 @@ public class AssetRequestService {
             }
 
             if (!canApprove) {
-                logger.warn("Authorization Error: User {} attempted to approve a request they are not allowed to.", currentUser.getUsername());
+                logger.warn("Authorization Error: User {} attempted to approve a request they are not allowed to.",
+                        currentUser.getUsername());
                 throw new SecurityException("Bạn không có quyền duyệt yêu cầu này.");
             }
-            // === END - AUTHORIZATION LOGIC ===
+
 
             request.setStatus("Rejected");
             request.setApprover(currentUser);
@@ -257,7 +262,8 @@ public class AssetRequestService {
             transaction.commit();
             return null; // Thành công
         } catch (Exception e) {
-            if (transaction != null) transaction.rollback();
+            if (transaction != null)
+                transaction.rollback();
             return "Lỗi khi từ chối yêu cầu: " + e.getMessage();
         }
     }
@@ -271,11 +277,13 @@ public class AssetRequestService {
             transaction = session.beginTransaction();
             AssetRequest request = session.get(AssetRequest.class, requestId);
 
-            if (request == null) return "Không tìm thấy yêu cầu.";
-            if (!"borrow".equals(request.getRequestType())) return "Đây không phải là yêu cầu mượn.";
-            if (!"Pending".equals(request.getStatus())) return "Chỉ có thể hoàn tất yêu cầu đang 'Pending'.";
+            if (request == null)
+                return "Không tìm thấy yêu cầu.";
+            if (!"borrow".equals(request.getRequestType()))
+                return "Đây không phải là yêu cầu mượn.";
+            if (!"Pending".equals(request.getStatus()))
+                return "Chỉ có thể hoàn tất yêu cầu đang 'Pending'.";
 
-            // === AUTHORIZATION LOGIC ===
             boolean canApprove = false;
             String currentUserRole = currentUser.getRole();
             Employee requestEmployee = request.getEmployee();
@@ -291,19 +299,14 @@ public class AssetRequestService {
             }
 
             if (!canApprove) {
-                logger.warn("Authorization Error: User {} attempted to approve a request they are not allowed to.", currentUser.getUsername());
+                logger.warn("Authorization Error: User {} attempted to approve a request they are not allowed to.",
+                        currentUser.getUsername());
                 throw new SecurityException("Bạn không có quyền duyệt yêu cầu này.");
             }
 
             List<AssetRequestItem> items = assetRequestItemDAO.getAssetRequestItemsByRequestId(requestId);
-            for (AssetRequestItem item : items) {
-                Asset asset = item.getAsset();
-                asset.setStatus("Borrowed"); // Cập nhật trạng thái tài sản
-                item.setBorrowDate(Date.from(Instant.now())); // Set ngày mượn
-                session.update(asset);
-                session.update(item);
-            }
-            // === END - AUTHORIZATION LOGIC ===
+            applyBorrowApprovalCore(items, request, currentUser, session);
+
 
             request.setStatus("Approved");
             request.setApprover(currentUser);
@@ -313,14 +316,16 @@ public class AssetRequestService {
             transaction.commit();
             return null; // Thành công
         } catch (Exception e) {
-            if (transaction != null) transaction.rollback();
+            if (transaction != null)
+                transaction.rollback();
             e.printStackTrace();
             return "Lỗi khi hoàn tất yêu cầu mượn: " + e.getMessage();
         }
     }
 
     /**
-     * Hoàn tất yêu cầu TRẢ: Cập nhật trạng thái tài sản thành 'Available' và set return_date.
+     * Hoàn tất yêu cầu TRẢ: Cập nhật trạng thái tài sản thành 'Available' và set
+     * return_date.
      */
     public String approveReturnRequest(int requestId, Employee currentUser) {
         Transaction transaction = null;
@@ -328,11 +333,13 @@ public class AssetRequestService {
             transaction = session.beginTransaction();
             AssetRequest request = session.get(AssetRequest.class, requestId);
 
-            if (request == null) return "Không tìm thấy yêu cầu.";
-            if (!"return".equals(request.getRequestType())) return "Đây không phải là yêu cầu trả.";
-            if (!"Pending".equals(request.getStatus())) return "Chỉ có thể hoàn tất yêu cầu đang 'Pending'.";
+            if (request == null)
+                return "Không tìm thấy yêu cầu.";
+            if (!"return".equals(request.getRequestType()))
+                return "Đây không phải là yêu cầu trả.";
+            if (!"Pending".equals(request.getStatus()))
+                return "Chỉ có thể hoàn tất yêu cầu đang 'Pending'.";
 
-            // === AUTHORIZATION LOGIC ===
             boolean canApprove = false;
             String currentUserRole = currentUser.getRole();
             Employee requestEmployee = request.getEmployee();
@@ -348,10 +355,11 @@ public class AssetRequestService {
             }
 
             if (!canApprove) {
-                logger.warn("Authorization Error: User {} attempted to approve a request they are not allowed to.", currentUser.getUsername());
+                logger.warn("Authorization Error: User {} attempted to approve a request they are not allowed to.",
+                        currentUser.getUsername());
                 throw new SecurityException("Bạn không có quyền duyệt yêu cầu này.");
             }
-            // === END - AUTHORIZATION LOGIC ===
+
 
             List<AssetRequestItem> tempItemsToReturn = assetRequestItemDAO.getAssetRequestItemsByRequestId(requestId);
             if (tempItemsToReturn.isEmpty()) {
@@ -395,10 +403,45 @@ public class AssetRequestService {
             transaction.commit();
             return null; // Thành công
         } catch (Exception e) {
-            if (transaction != null) transaction.rollback();
+            if (transaction != null)
+                transaction.rollback();
             e.printStackTrace();
             return "Lỗi khi hoàn tất yêu cầu trả: " + e.getMessage();
         }
+    }
+
+    // ================= Unit-test friendly core logic helpers =================
+    /**
+     * Core logic for approving a borrow request (updates items + request) without
+     * starting/committing transaction.
+     * Provided to allow isolated unit tests without a live DB.
+     */
+    protected void applyBorrowApprovalCore(List<AssetRequestItem> items, AssetRequest request, Employee approver,
+            Session session) {
+        Date now = Date.from(Instant.now());
+        for (AssetRequestItem item : items) {
+            Asset asset = item.getAsset();
+            asset.setStatus("Borrowed");
+            item.setBorrowDate(now);
+            if (session != null) {
+                session.update(asset);
+                session.update(item);
+            }
+        }
+        request.setStatus("Approved");
+        request.setApprover(approver);
+        request.setApprovalDate(now);
+        if (session != null)
+            session.update(request);
+    }
+
+    /**
+     * Core logic for rejecting a request, used for unit tests.
+     */
+    protected void applyRejectCore(AssetRequest request, Employee approver) {
+        request.setStatus("Rejected");
+        request.setApprover(approver);
+        request.setRejectedDate(Date.from(Instant.now()));
     }
 
     public String updateRequestWithItems(int requestId, List<Integer> assetIds, Employee currentUser) {
@@ -434,18 +477,17 @@ public class AssetRequestService {
             }
 
             if (!canUpdate) {
-                logger.warn("Authorization Error: User {} attempted to update a request they don't own.", currentUser.getUsername());
+                logger.warn("Authorization Error: User {} attempted to update a request they don't own.",
+                        currentUser.getUsername());
                 throw new SecurityException("Bạn không có quyền sửa yêu cầu này.");
             }
-            // === LOGIC CHECK OWNERSHIP - END ===
 
-            if (request == null) {
-                return "Không tìm thấy yêu cầu để cập nhật.";
-            }
+
             String requestType = request.getRequestType();
 
             // 1. Xóa các item cũ
-            Query<?> deleteQuery = session.createQuery("DELETE FROM AssetRequestItem WHERE assetRequest.requestId = :requestId");
+            Query<?> deleteQuery = session
+                    .createQuery("DELETE FROM AssetRequestItem WHERE assetRequest.requestId = :requestId");
             deleteQuery.setParameter("requestId", requestId);
             deleteQuery.executeUpdate();
 
@@ -465,7 +507,8 @@ public class AssetRequestService {
                 } else if ("return".equalsIgnoreCase(requestType)) {
                     if (!"Borrowed".equalsIgnoreCase(asset.getStatus())) {
                         transaction.rollback();
-                        return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId + ") không ở trạng thái 'Borrowed' để có thể trả.";
+                        return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId
+                                + ") không ở trạng thái 'Borrowed' để có thể trả.";
                     }
                 }
 

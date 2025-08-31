@@ -75,4 +75,23 @@ class AssetServiceTest {
         assetService.deleteAsset(asset, currentUser);
         verify(assetDAOMock, times(1)).delete(asset);
     }
+
+    @Test
+    void testAddAssetValidation() {
+        Employee admin = new Employee();
+        admin.setRole("Admin");
+        String err = assetService.addAssetFromInput("", "desc", admin);
+        assertNotNull(err);
+        assertTrue(err.contains("Tên tài sản"));
+    }
+
+    @Test
+    void testCannotDeleteInUseAsset() {
+        Employee admin = new Employee();
+        admin.setRole("Admin");
+        Asset inUse = new Asset();
+        inUse.setStatus("Borrowed");
+        assertThrows(IllegalStateException.class, () -> assetService.deleteAsset(inUse, admin));
+        verify(assetDAOMock, never()).delete(any());
+    }
 }

@@ -13,11 +13,12 @@ import java.awt.*;
 
 /** Dialog thêm / sửa Nhân viên dùng BaseFormDialog */
 public class EmployeeFormDialog extends views.common.BaseFormDialog {
-    private final EmployeeController controller; private final Employee employee; // null => add
+    private final EmployeeController controller;
+    private final Employee employee; // null => add
     private JTextField tfFirstName, tfLastName, tfEmail, tfPhone, tfRole, tfUsername, tfPassword;
     private JComboBox<Department> cbDepartment;
 
-    public EmployeeFormDialog(Frame owner, EmployeeController controller, Employee employee){
+    public EmployeeFormDialog(Frame owner, EmployeeController controller, Employee employee) {
         super(owner, 520, 460, "user", employee == null ? "Thêm Nhân viên" : "Chỉnh sửa Nhân viên");
         this.controller = controller;
         this.employee = employee;
@@ -80,7 +81,8 @@ public class EmployeeFormDialog extends views.common.BaseFormDialog {
     // Method to load departments into the JComboBox
     private void loadDepartmentsIntoComboBox() {
         DepartmentService departmentService = new DepartmentService();
-        List<Department> departments = departmentService.getAllDepartments(UserSession.getInstance().getLoggedInEmployee());
+        List<Department> departments = departmentService
+                .getAllDepartments(UserSession.getInstance().getLoggedInEmployee());
 
         // Add a null option for "No Department"
         cbDepartment.addItem(null);
@@ -93,7 +95,8 @@ public class EmployeeFormDialog extends views.common.BaseFormDialog {
         // Custom renderer to display department's name
         cbDepartment.setRenderer(new DefaultListCellRenderer() {
             @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
+                    boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof Department) {
                     setText(((Department) value).getDepartmentName());

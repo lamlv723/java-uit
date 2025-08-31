@@ -125,4 +125,46 @@ class AssetRequestServiceTest {
         assertEquals(2, result.size());
         verify(assetRequestDAOMock, times(1)).getAllAssetRequests(currentUser);
     }
+
+    @Test
+    void testApproveRequestChangesAsset() throws Exception {
+        // Use core logic helper for unit style test
+        AssetRequestService svc = assetRequestService;
+        java.lang.reflect.Method m = AssetRequestService.class.getDeclaredMethod("applyBorrowApprovalCore",
+                java.util.List.class, models.device.AssetRequest.class, models.main.Employee.class,
+                org.hibernate.Session.class);
+        m.setAccessible(true);
+        models.device.Asset asset = new models.device.Asset();
+        asset.setStatus("Available");
+        AssetRequestItem item = new AssetRequestItem();
+        item.setAsset(asset);
+        AssetRequest req = new AssetRequest();
+        req.setStatus("Pending");
+        req.setRequestType("borrow");
+        Employee approver = new Employee();
+        approver.setRole("Admin");
+        m.invoke(svc, java.util.Arrays.asList(item), req, approver, null);
+        assertEquals("Borrowed", asset.getStatus());
+        assertEquals("Approved", req.getStatus());
+        assertNotNull(req.getApprovalDate());
+    }
+
+    @Test
+    void testRejectRequestNoChangeAsset() throws Exception {
+        AssetRequestService svc = assetRequestService;
+        java.lang.reflect.Method m = AssetRequestService.class.getDeclaredMethod("applyRejectCore",
+                models.device.AssetRequest.class, models.main.Employee.class);
+        m.setAccessible(true);
+        models.device.Asset asset = new models.device.Asset();
+        asset.setStatus("Borrowed");
+        AssetRequest req = new AssetRequest();
+        req.setStatus("Pending");
+        req.setRequestType("borrow");
+        Employee approver = new Employee();
+        approver.setRole("Admin");
+        m.invoke(svc, req, approver);
+        assertEquals("Borrowed", asset.getStatus()); // unchanged
+        assertEquals("Rejected", req.getStatus());
+        assertNotNull(req.getRejectedDate());
+    }
 }

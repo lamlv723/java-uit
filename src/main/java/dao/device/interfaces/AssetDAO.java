@@ -18,4 +18,9 @@ public interface AssetDAO {
 
     List<Asset> getBorrowedAssetsByEmployeeId(int employeeId);
 
+    // Statistics helpers
+    long countAll();
+
+    long countByStatus(String status);
+
 }

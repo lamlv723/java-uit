@@ -11,7 +11,8 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Dialog thêm / sửa Nhà cung cấp (header trắng, không nút X) dùng BaseFormDialog.
+ * Dialog thêm / sửa Nhà cung cấp (header trắng, không nút X) dùng
+ * BaseFormDialog.
  */
 public class VendorFormDialog extends BaseFormDialog {
     private final VendorController vendorController;
@@ -28,7 +29,7 @@ public class VendorFormDialog extends BaseFormDialog {
                 480,
                 420,
                 "box",
-                (vendor==null?"Thêm Nhà cung cấp":"Sửa Nhà cung cấp"));
+                (vendor == null ? "Thêm Nhà cung cấp" : "Sửa Nhà cung cấp"));
         this.vendorController = controller;
         this.editing = vendor;
         buildUI();
@@ -38,10 +39,10 @@ public class VendorFormDialog extends BaseFormDialog {
     protected JPanel buildFormPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setOpaque(false);
-    // Tăng padding trái/phải để canh thẳng với header (header có left = 20)
-    panel.setBorder(BorderFactory.createEmptyBorder(0,20,0,20));
+        // Tăng padding trái/phải để canh thẳng với header (header có left = 20)
+        panel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6,6,6,6);
+        gbc.insets = new Insets(6, 6, 6, 6);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 1;
@@ -52,7 +53,7 @@ public class VendorFormDialog extends BaseFormDialog {
         tfEmail = new JTextField();
         tfAddress = new JTextField();
 
-        if(editing!=null){
+        if (editing != null) {
             tfName.setText(editing.getVendorName());
             tfContact.setText(editing.getContactPerson());
             tfPhone.setText(editing.getPhoneNumber());
@@ -69,10 +70,14 @@ public class VendorFormDialog extends BaseFormDialog {
         return panel;
     }
 
-    private void addLabeled(JPanel panel, GridBagConstraints gbc, int y, String label, JComponent field){
+    private void addLabeled(JPanel panel, GridBagConstraints gbc, int y, String label, JComponent field) {
         gbc.gridy = y;
-        gbc.gridx = 0; gbc.weightx = 0; panel.add(new JLabel(label+":"), gbc);
-        gbc.gridx = 1; gbc.weightx = 1; panel.add(field, gbc);
+        gbc.gridx = 0;
+        gbc.weightx = 0;
+        panel.add(new JLabel(label + ":"), gbc);
+        gbc.gridx = 1;
+        gbc.weightx = 1;
+        panel.add(field, gbc);
     }
 
     @Override
@@ -82,13 +87,14 @@ public class VendorFormDialog extends BaseFormDialog {
         String phone = tfPhone.getText().trim();
         String email = tfEmail.getText().trim();
         String address = tfAddress.getText().trim();
-        if(name.isEmpty()){
-            JOptionPane.showMessageDialog(this, "Tên nhà cung cấp không được để trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        if (name.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Tên nhà cung cấp không được để trống!", "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
         Employee user = UserSession.getInstance().getLoggedInEmployee();
         try {
-            if(editing==null){
+            if (editing == null) {
                 // create new vendor via service helper if exists else manual entity
                 Vendor v = new Vendor();
                 v.setVendorName(name);
@@ -107,8 +113,9 @@ public class VendorFormDialog extends BaseFormDialog {
             }
             saved = true;
             dispose();
-        } catch (Exception ex){
-            UIUtils.showErrorDialog(this, "Đã xảy ra lỗi không mong muốn.\nChi tiết: "+ex.getMessage(), "Lỗi Hệ Thống");
+        } catch (Exception ex) {
+            UIUtils.showErrorDialog(this, "Đã xảy ra lỗi không mong muốn.\nChi tiết: " + ex.getMessage(),
+                    "Lỗi Hệ Thống");
             ex.printStackTrace();
         }
     }

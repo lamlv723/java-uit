@@ -4,8 +4,10 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * BadgeLabel: JLabel tuỳ biến hiển thị trạng thái tài sản với nền gradient & bo góc.
- * Hỗ trợ các trạng thái: Available / Borrowed / Retired (fallback xám cho khác).
+ * BadgeLabel: JLabel tuỳ biến hiển thị trạng thái tài sản với nền gradient & bo
+ * góc.
+ * Hỗ trợ các trạng thái: Available / Borrowed / Retired (fallback xám cho
+ * khác).
  */
 @SuppressWarnings("serial")
 public class BadgeLabel extends JLabel {
@@ -33,17 +35,17 @@ public class BadgeLabel extends JLabel {
         switch (key) {
             case "available":
                 start = new Color(236, 253, 245);
-                end   = new Color(209, 250, 229);
+                end = new Color(209, 250, 229);
                 textColor = new Color(5, 150, 105);
                 break;
             case "borrowed":
                 start = new Color(255, 251, 235);
-                end   = new Color(254, 243, 199);
+                end = new Color(254, 243, 199);
                 textColor = new Color(202, 138, 4);
                 break;
             case "retired":
                 start = new Color(250, 245, 255);
-                end   = new Color(237, 233, 254);
+                end = new Color(237, 233, 254);
                 textColor = new Color(91, 33, 182);
                 break;
             default:
