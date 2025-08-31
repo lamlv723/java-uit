@@ -82,9 +82,25 @@ DB_PASSWORD=your_password
   ```
 - Chạy ứng dụng bằng Maven:
   ```bash
-  mvn exec:java -Dexec.mainClass=App
+  mvn exec:java -Dexec.mainClass=com.assetmanagement.Application
   ```
-- Hoặc chạy file `App.java` trong IDE (nằm trong package `main`)
+- Hoặc chạy file `Application.java` (class chính) trong IDE.
+
+#### (Tuỳ chọn) Dev auto-login
+
+Chỉ dùng trong môi trường phát triển để bỏ qua màn hình đăng nhập (tuyệt đối **không bật trên production**):
+
+```bash
+mvn -Ddev.autoLogin=true exec:java -Dexec.mainClass=com.assetmanagement.Application
+```
+
+Mặc định sẽ đăng nhập bằng tài khoản fallback được khai báo trong code (`nguyenvana1 / matkhau1` nếu chưa seed DB). Có thể đổi username/password tạm thời:
+
+```bash
+mvn -Ddev.autoLogin=true -Ddev.autoLogin.user=manager -Ddev.autoLogin.pass=12345 exec:java -Dexec.mainClass=com.assetmanagement.Application
+```
+
+Muốn tắt, chỉ cần bỏ cờ `-Ddev.autoLogin=true`.
 
 ### 5. Kiểm thử tự động
 
@@ -104,56 +120,72 @@ Tài liệu tham khảo
 
 ## Cấu trúc thư mục
 
+Cấu trúc mã nguồn được tổ chức theo các tầng rõ ràng: `config`, `infrastructure`, `domain`, `security`, `presentation`, `common`. Gốc package thống nhất: `com.assetmanagement`.
+
 ```
 src/
   main/
     java/
-      constants/
-        AppConstants.java
-      controllers/
-        device/
-          AssetController.java
-        main/
-        user/
-      dao/
-        AssetDAO.java
-      database/
-        init.sql
-        sample_data.sql
-      exceptions/
-        DataAccessException.java
-        NotFoundException.java
-        ValidationException.java
-      models/
-        Asset.java
-        AssetCategory.java
-        AssetRequest.java
-        AssetRequestItem.java
-        Department.java
-        Employee.java
-        Vendor.java
-      services/
-        AssetService.java
-      utils/
-        DateUtils.java
-        StringUtils.java
-        ValidationUtils.java
-      views/
+      com/assetmanagement/
+        Application.java                # Điểm vào ứng dụng (main class)
+        config/
+          EnvConfig.java
+          HibernateUtil.java
+        infrastructure/
+          database/
+            MySQLConnection.java        # Kết nối JDBC thuần
+          persistence/
+            repository/                 # Interface (trước đây: dao/*/interfaces)
+              device/
+              main/
+            dao/                        # Triển khai (trước đây: dao/*Impl)
+              device/
+              main/
+        domain/
+          model/
+            device/                     # Asset, AssetCategory, AssetRequest, ...
+            main/                       # Employee, Department, ...
+          service/
+            device/
+            main/
+            user/                       # Dịch vụ nghiệp vụ theo nhóm
+        security/
+          AuthenticationService.java
+          UserSession.java
+        presentation/
+          controller/
+            device/
+            main/
+            user/
+          ui/
+            views/
+              device/
+              main/
+              user/
+              common/
+            components/                 # Thành phần UI tái sử dụng
         common/
-        device/
-        main/
-        user/
-      config/
-        EnvConfig.java
-        HibernateUtil.java
-        MySQLConnection.java
-      App.java
+          constants/
+            AppConstants.java
+          exception/
+            DataAccessException.java
+            NotFoundException.java
+            ValidationException.java
+          util/
+            DateUtils.java
+            StringUtils.java
+            ValidationUtils.java
+            UIUtils.java
+            UITheme.java
     resources/
       hibernate.cfg.xml
+      sql/                               # init.sql, sample_data*.sql
       icons/
       images/
   test/
+    java/ (phản chiếu cùng package com.assetmanagement.* cho các lớp test)
 ```
+`exec-maven-plugin` được cấu hình với `mainClass = com.assetmanagement.Application`.
 
 ## Phân quyền chức năng
 

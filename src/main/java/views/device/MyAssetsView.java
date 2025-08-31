@@ -1,42 +1,64 @@
 package views.device;
 
-import controllers.device.AssetController;
 import controllers.user.UserSession;
 import models.device.Asset;
 import models.main.Employee;
 import services.device.AssetService;
+import views.common.BaseManagementFrame;
 import views.device.components.AssetTable;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.List;
 
-public class MyAssetsView extends JFrame {
-
-    private AssetTable assetTable;
-    private AssetService assetService;
+/**
+ * Màn hình "Tài sản của tôi" (read-only) tái sử dụng layout từ
+ * BaseManagementFrame.
+ * Ẩn các nút hành động Thêm/Sửa/Xóa và chỉ hiển thị danh sách tài sản đang
+ * mượn.
+ */
+public class MyAssetsView extends BaseManagementFrame {
+    private final AssetService assetService;
+    private final AssetTable assetTable;
 
     public MyAssetsView() {
-        setTitle("Tài sản của tôi");
-        setSize(800, 400);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-        assetService = new AssetService();
-        assetTable = new AssetTable();
-        assetTable.setEnabled(false); // Make table read-only
-
-        JScrollPane scrollPane = new JScrollPane(assetTable);
-        add(scrollPane, BorderLayout.CENTER);
-
-        loadAssets();
+        super("Tài sản của tôi", "Tài sản của tôi", "laptop-white", 900, 520,
+                java.awt.Color.decode("#2C3E50"), java.awt.Color.decode("#4CA1AF"));
+        this.assetService = new AssetService();
+        this.assetTable = (AssetTable) this.table; // lấy bảng do createTable cung cấp
+        // Ẩn thanh action (read-only)
+        if (this.actionBarPanel != null)
+            this.actionBarPanel.setVisible(false);
+        // Disable selection editing actions
+        this.table.setEnabled(false);
+        loadData();
     }
 
-    private void loadAssets() {
+    @Override
+    protected JTable createTable() {
+        AssetTable t = new AssetTable();
+        t.setEnabled(false);
+        return t;
+    }
+
+    @Override
+    protected void loadData() {
         Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
-        if (currentUser != null) {
-            List<Asset> myAssets = assetService.getBorrowedAssetsByEmployeeId(currentUser.getEmployeeId());
-            assetTable.setAssetData(myAssets);
-        }
+        if (currentUser == null)
+            return;
+        List<Asset> myAssets = assetService.getBorrowedAssetsByEmployeeId(currentUser.getEmployeeId());
+        assetTable.setAssetData(myAssets);
     }
+
+    // Read-only: override action hooks to no-op
+    @Override
+    protected void onAdd() {
+        /* no-op */ }
+
+    @Override
+    protected void onEdit(int selectedRow) {
+        /* no-op */ }
+
+    @Override
+    protected void onDelete(int selectedRow) {
+        /* no-op */ }
 }

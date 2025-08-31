@@ -30,9 +30,17 @@ public class AssetRequestTable extends JTable {
             AssetRequest r = requests.get(i);
             data[i][0] = r.getRequestId();
             data[i][1] = r.getEmployee() != null
-                    ? (r.getEmployee().getFirstName() + " " + r.getEmployee().getLastName())
+                    ? (r.getEmployee().getFullName())
                     : "";
-            data[i][2] = r.getRequestType();
+            String type = r.getRequestType();
+            if (type != null) {
+                String lower = type.toLowerCase();
+                if ("borrow".equals(lower))
+                    type = "Borrow";
+                else if ("return".equals(lower))
+                    type = "Return"; // map hiển thị chuyên nghiệp
+            }
+            data[i][2] = type;
             data[i][3] = r.getRequestDate();
             data[i][4] = r.getStatus();
         }

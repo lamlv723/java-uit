@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="#FFFFFF" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <!-- White trash icon for colored delete button -->
+  <path d="M4 7h16"/>
+  <path d="M9 7V4h6v3"/>
+  <rect x="6" y="7" width="12" height="13" rx="2" ry="2" fill="#FFFFFF" fill-opacity="0.18" stroke="#FFFFFF"/>
+  <path d="M10 11v6M14 11v6"/>
+</svg>

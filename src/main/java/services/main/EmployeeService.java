@@ -111,4 +111,8 @@ public class EmployeeService {
 
         return null; // Return null on success
     }
+
+    public List<Employee> getEmployeesByRole(String role) {
+        return employeeDAO.getEmployeesByRole(role);
+    }
 }
