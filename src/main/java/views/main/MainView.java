@@ -12,6 +12,9 @@ import ui.IconName;
 import ui.AppIcons;
 
 public class MainView extends JFrame {
+    // Tránh dùng UIManager cho cờ build (gây giữ state giữa các lần đăng nhập)
+    private boolean dashboardBuilt = false;
+
     public MainView() {
         setTitle("Enterprise Asset Management System");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -23,7 +26,8 @@ public class MainView extends JFrame {
         JPanel root = new JPanel(new BorderLayout());
         setContentPane(root);
 
-        /************************ MENU BAR ************************/
+
+        JMenuItem mnuDashboard = menuItem("Dashboard");
         JMenuItem mnuAssetCategory = menuItem("Danh mục tài sản");
         JMenuItem mnuAsset = menuItem("Tài sản");
         JMenuItem mnuAssetRequest = menuItem("Yêu cầu tài sản");
@@ -49,6 +53,8 @@ public class MainView extends JFrame {
         deviceBtn.setIcon(IconName.LAPTOP.icon(16));
         deviceBtn.setIconTextGap(6);
         JPopupMenu deviceMenu = new JPopupMenu();
+        deviceMenu.add(mnuDashboard);
+        deviceMenu.addSeparator();
         deviceMenu.add(mnuAssetCategory);
         deviceMenu.add(mnuAsset);
         deviceMenu.add(mnuAssetRequest);
@@ -73,7 +79,7 @@ public class MainView extends JFrame {
         String displayName = "Người dùng";
         if (UserSession.getInstance().getLoggedInEmployee() != null) {
             displayName = UserSession.getInstance().getLoggedInEmployee().getFirstName() + " " +
-                          UserSession.getInstance().getLoggedInEmployee().getLastName();
+                    UserSession.getInstance().getLoggedInEmployee().getLastName();
         }
         JButton userBtn = menuButton(displayName + " ▾");
         userBtn.setIcon(IconName.USER.icon(16));
@@ -89,60 +95,64 @@ public class MainView extends JFrame {
         topBar.setPreferredSize(new Dimension(1, 56));
         root.add(topBar, BorderLayout.NORTH);
 
-        /************************ CENTER WELCOME ************************/
-        // Gradient background panel
-        JPanel center = new JPanel(new GridBagLayout()) {
+        /************************ CENTER (CardLayout) ************************/
+        CardLayout cardLayout = new CardLayout();
+        JPanel centerCards = new JPanel(cardLayout);
+
+        // Welcome panel (original)
+        JPanel welcomePanelWrapper = new JPanel(new GridBagLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2d = (Graphics2D) g;
                 int w = getWidth();
                 int h = getHeight();
-                // từ #EFF6FF (blue-50) sang #E0E7FF (indigo-100)
                 Color startColor = new Color(239, 246, 255);
-                Color endColor   = new Color(224, 231, 255);
+                Color endColor = new Color(224, 231, 255);
                 GradientPaint gp = new GradientPaint(0, 0, startColor, w, h, endColor);
                 g2d.setPaint(gp);
                 g2d.fillRect(0, 0, w, h);
             }
         };
-        center.setLayout(new GridBagLayout());
-
-        JPanel welcomePanel = new JPanel();
-        welcomePanel.setOpaque(false);
-        welcomePanel.setLayout(new BoxLayout(welcomePanel, BoxLayout.Y_AXIS));
-        welcomePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // KPI Icon
+        JPanel welcomeContent = new JPanel();
+        welcomeContent.setOpaque(false);
+        welcomeContent.setLayout(new BoxLayout(welcomeContent, BoxLayout.Y_AXIS));
         JLabel kpiIcon = new JLabel(IconName.CHART_LINE.icon(64));
         kpiIcon.setAlignmentX(Component.CENTER_ALIGNMENT);
-        welcomePanel.add(kpiIcon);
-
-    JLabel welcome = new JLabel("Chào mừng đến với Hệ thống Quản lý Tài Sản");
+        JLabel welcome = new JLabel("Chào mừng đến với Hệ thống Quản lý Tài Sản");
         welcome.setFont(UITheme.fontBold(24));
         welcome.setForeground(UITheme.GRAY_700);
         welcome.setAlignmentX(Component.CENTER_ALIGNMENT);
-        welcomePanel.add(Box.createVerticalStrut(12));
-    welcomePanel.add(welcome);
-    welcomePanel.add(Box.createVerticalStrut(16)); // extra space after main title
-
-    JLabel subtitle = new JLabel("Enterprise Asset Management System");
+        JLabel subtitle = new JLabel("Enterprise Asset Management System");
         subtitle.setFont(UITheme.fontRegular(16));
         subtitle.setForeground(UITheme.GRAY_600);
         subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-    welcomePanel.add(subtitle);
-    welcomePanel.add(Box.createVerticalStrut(20)); // space before hint line
-
         JLabel hint = new JLabel("Chọn chức năng từ menu để bắt đầu làm việc");
         hint.setFont(UITheme.fontRegular(13));
         hint.setForeground(UITheme.GRAY_500);
         hint.setAlignmentX(Component.CENTER_ALIGNMENT);
-    welcomePanel.add(hint);
+        welcomeContent.add(kpiIcon);
+        welcomeContent.add(Box.createVerticalStrut(12));
+        welcomeContent.add(welcome);
+        welcomeContent.add(Box.createVerticalStrut(16));
+        welcomeContent.add(subtitle);
+        welcomeContent.add(Box.createVerticalStrut(20));
+        welcomeContent.add(hint);
+        welcomePanelWrapper.add(welcomeContent);
+        centerCards.add(welcomePanelWrapper, "WELCOME");
 
-        center.add(welcomePanel);
-        root.add(center, BorderLayout.CENTER);
+        // Dashboard panel (created lazily when first opened)
+        centerCards.add(new JPanel(), "DASHBOARD_PLACEHOLDER");
+        root.add(centerCards, BorderLayout.CENTER);
 
-        /************************ ACTIONS ************************/
+
+        mnuDashboard.addActionListener(e -> {
+            if (!dashboardBuilt) {
+                centerCards.add(new DashboardPanel(), "DASHBOARD");
+                dashboardBuilt = true;
+            }
+            cardLayout.show(centerCards, "DASHBOARD");
+        });
         mnuAssetCategory.addActionListener(e -> new views.device.AssetCategoryManagementView().setVisible(true));
         mnuAsset.addActionListener(e -> new views.device.AssetManagementView().setVisible(true));
         mnuAssetRequest.addActionListener(e -> new views.device.AssetRequestManagementView().setVisible(true));
@@ -159,28 +169,29 @@ public class MainView extends JFrame {
         });
     }
 
-    /**
-     * Create a flat styled menu button for top bar popups with hover effect.
-     */
-    private JButton menuButton(String text){
+    /** Create a flat styled menu button for top bar popups with hover effect. */
+    private JButton menuButton(String text) {
         JButton b = new JButton(text);
         b.setFocusPainted(false);
-        b.setBorder(BorderFactory.createEmptyBorder(8,12,8,12));
+        b.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
         b.setBackground(Color.WHITE);
         b.setFont(UITheme.fontRegular(13));
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         b.setOpaque(true);
-        b.addMouseListener(new java.awt.event.MouseAdapter(){
-            public void mouseEntered(java.awt.event.MouseEvent e){ b.setBackground(new Color(235, 240, 250)); }
-            public void mouseExited(java.awt.event.MouseEvent e){ b.setBackground(Color.WHITE); }
+        b.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                b.setBackground(new Color(235, 240, 250));
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                b.setBackground(Color.WHITE);
+            }
         });
         return b;
     }
 
-    /**
-     * Create a styled JMenuItem with hover effect.
-     */
-    private JMenuItem menuItem(String text){
+    /** Create a styled JMenuItem with hover effect. */
+    private JMenuItem menuItem(String text) {
         JMenuItem item = new JMenuItem(text);
         item.setFont(UITheme.fontRegular(13));
         item.setOpaque(true);
@@ -189,8 +200,9 @@ public class MainView extends JFrame {
         item.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent e) {
-                item.setBackground(new Color(235,240,250));
+                item.setBackground(new Color(235, 240, 250));
             }
+
             @Override
             public void mouseExited(java.awt.event.MouseEvent e) {
                 item.setBackground(Color.WHITE);

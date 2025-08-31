@@ -43,7 +43,9 @@ public class DepartmentManagementView extends BaseManagementFrame {
             data[i][0] = d.getDepartmentId();
             data[i][1] = d.getDepartmentName();
             Employee head = d.getHeadEmployee();
-            data[i][2] = (head != null) ? head.getEmployeeId() + ": " + head.getFullName() + " (" + head.getEmail() + ")" : "";
+            data[i][2] = (head != null)
+                    ? head.getEmployeeId() + ": " + head.getFullName() + " (" + head.getEmail() + ")"
+                    : "";
         }
         departmentTable.setDepartmentData(data);
     }
@@ -88,4 +90,3 @@ public class DepartmentManagementView extends BaseManagementFrame {
         }
     }
 }
-

@@ -18,16 +18,17 @@ public final class AppIcons {
     public static final Icon MYSQL_24 = IconFactory.get("mysql", 24);
     public static final Icon MAVEN_24 = IconFactory.get("maven", 24);
 
-    private AppIcons() {}
+    private AppIcons() {
+    }
 
-    // Default multi-resolution window icons
+
     public static java.util.List<Image> windowIconImages() {
         return windowIconImages(IconName.APP);
     }
 
     /** Generate multi-resolution window icons for a given base icon name. */
     public static java.util.List<Image> windowIconImages(IconName iconName) {
-        int[] sizes = {16, 24, 32, 48, 64, 128};
+        int[] sizes = { 16, 24, 32, 48, 64, 128 };
         List<Image> list = new ArrayList<>();
         for (int s : sizes) {
             list.add(toImage(IconFactory.get(iconName.fileName(), s), s, s));

@@ -38,7 +38,7 @@ mysql -u root -p < src/main/java/database/init.sql
 Sau khi migration xong, để thêm dữ liệu mẫu cho các bảng (phục vụ test/demo), chạy:
 
 ```bash
-mysql -u root -p < src/main/java/database/sample_data_v3__no_request_data.sql
+mysql -u root -p < src/main/java/database/sample_data.sql
 ```
 
 (Có thể chỉnh sửa file sample_data.sql nếu muốn thay đổi dữ liệu mẫu)
@@ -255,4 +255,4 @@ Nếu gặp lỗi hoặc cần hỗ trợ, vui lòng liên hệ nhóm phát tri�
 
 ## License
 
-This project is licensed under the MIT License.
+MIT.

@@ -21,7 +21,7 @@ public class DepartmentFormDialog extends JDialog {
     private final Department department; // null => add
     private JTextField tfName;
     private JComboBox<Employee> cbHead;
-//    private JTextField tfHeadId;
+    // private JTextField tfHeadId;
     private boolean saved = false;
     private Point dragOffset;
 
@@ -35,7 +35,7 @@ public class DepartmentFormDialog extends JDialog {
 
         JPanel content = new JPanel(new BorderLayout());
         content.setBackground(Color.WHITE);
-        content.setBorder(BorderFactory.createLineBorder(new Color(210,210,210),2));
+        content.setBorder(BorderFactory.createLineBorder(new Color(210, 210, 210), 2));
         setContentPane(content);
 
         content.add(buildHeader(), BorderLayout.NORTH);
@@ -48,21 +48,37 @@ public class DepartmentFormDialog extends JDialog {
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(Color.WHITE);
         header.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 8));
-    JLabel icon = new JLabel(IconFactory.get("cogs", 20));
-        icon.setBorder(BorderFactory.createEmptyBorder(0,0,0,8));
+        JLabel icon = new JLabel(IconFactory.get("cogs", 20));
+        icon.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 8));
         JLabel title = new JLabel(department == null ? "Thêm Phòng ban" : "Chỉnh sửa Phòng ban");
         title.setFont(UITheme.fontBold(15));
-        JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT,0,6)); left.setOpaque(false); left.add(icon); left.add(title);
+        JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 6));
+        left.setOpaque(false);
+        left.add(icon);
+        left.add(title);
         header.add(left, BorderLayout.WEST);
-    JButton btnClose = new JButton(IconFactory.get("times", 14));
-    btnClose.setToolTipText("Đóng");
-    btnClose.setBorderPainted(false);
-    btnClose.setFocusPainted(false);
-    btnClose.setContentAreaFilled(false);
-    btnClose.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-    btnClose.addActionListener(e -> dispose());
-    header.add(btnClose, BorderLayout.EAST);
-        MouseAdapter dragger = new MouseAdapter(){ public void mousePressed(MouseEvent e){dragOffset=e.getPoint();} public void mouseDragged(MouseEvent e){ if(dragOffset!=null){ Point p=e.getLocationOnScreen(); setLocation(p.x-dragOffset.x,p.y-dragOffset.y);} } }; header.addMouseListener(dragger); header.addMouseMotionListener(dragger);
+        JButton btnClose = new JButton(IconFactory.get("times", 14));
+        btnClose.setToolTipText("Đóng");
+        btnClose.setBorderPainted(false);
+        btnClose.setFocusPainted(false);
+        btnClose.setContentAreaFilled(false);
+        btnClose.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnClose.addActionListener(e -> dispose());
+        header.add(btnClose, BorderLayout.EAST);
+        MouseAdapter dragger = new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                dragOffset = e.getPoint();
+            }
+
+            public void mouseDragged(MouseEvent e) {
+                if (dragOffset != null) {
+                    Point p = e.getLocationOnScreen();
+                    setLocation(p.x - dragOffset.x, p.y - dragOffset.y);
+                }
+            }
+        };
+        header.addMouseListener(dragger);
+        header.addMouseMotionListener(dragger);
         return header;
     }
 
@@ -92,13 +108,14 @@ public class DepartmentFormDialog extends JDialog {
         EmployeeService employeeService = new EmployeeService();
         List<Employee> employees = employeeService.getEmployeesByRole("Staff");
 
-
         // If we are editing a department that already has a manager,
-        // that manager might not be in the "Staff" list. We should add them to the list.
+        // that manager might not be in the "Staff" list. We should add them to the
+        // list.
         if (department != null && department.getHeadEmployee() != null) {
             Employee currentHead = department.getHeadEmployee();
             // Check if the current head is already in the list to avoid duplicates
-            boolean alreadyInList = employees.stream().anyMatch(e -> e.getEmployeeId().equals(currentHead.getEmployeeId()));
+            boolean alreadyInList = employees.stream()
+                    .anyMatch(e -> e.getEmployeeId().equals(currentHead.getEmployeeId()));
             if (!alreadyInList) {
                 cbHead.addItem(currentHead);
             }
@@ -113,7 +130,8 @@ public class DepartmentFormDialog extends JDialog {
 
         cbHead.setRenderer(new DefaultListCellRenderer() {
             @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
+                    boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof Employee) {
                     Employee emp = (Employee) value;
@@ -127,13 +145,29 @@ public class DepartmentFormDialog extends JDialog {
     }
 
     private JPanel buildFormPanel() {
-        JPanel p = new JPanel(new GridBagLayout()); p.setOpaque(false); p.setBorder(BorderFactory.createEmptyBorder(16,24,8,24));
-        GridBagConstraints gbc = new GridBagConstraints(); gbc.insets=new Insets(6,8,6,8); gbc.anchor=GridBagConstraints.WEST; gbc.fill=GridBagConstraints.HORIZONTAL; gbc.weightx=1; gbc.gridx=0; gbc.gridy=0;
-        addField(p,gbc,"Tên phòng ban *", tfName);
-        addField(p,gbc,"Trưởng phòng", cbHead);
+        JPanel p = new JPanel(new GridBagLayout());
+        p.setOpaque(false);
+        p.setBorder(BorderFactory.createEmptyBorder(16, 24, 8, 24));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 8, 6, 8);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        addField(p, gbc, "Tên phòng ban *", tfName);
+        addField(p, gbc, "Trưởng phòng", cbHead);
         return p;
     }
-    private void addField(JPanel p, GridBagConstraints gbc, String label, JComponent input){ gbc.gridwidth=1; gbc.gridx=0; p.add(new JLabel(label),gbc); gbc.gridx=1; p.add(input,gbc); gbc.gridy++; }
+
+    private void addField(JPanel p, GridBagConstraints gbc, String label, JComponent input) {
+        gbc.gridwidth = 1;
+        gbc.gridx = 0;
+        p.add(new JLabel(label), gbc);
+        gbc.gridx = 1;
+        p.add(input, gbc);
+        gbc.gridy++;
+    }
 
     private JPanel buildButtonBar() {
         JPanel bar = new JPanel(new FlowLayout(FlowLayout.CENTER, 16, 8));
@@ -174,9 +208,9 @@ public class DepartmentFormDialog extends JDialog {
         return b;
     }
 
-    private void onSave(){
-        if(tfName.getText().trim().isEmpty()){
-            UIUtils.showErrorDialog(this,"Tên phòng ban không được rỗng","Lỗi");
+    private void onSave() {
+        if (tfName.getText().trim().isEmpty()) {
+            UIUtils.showErrorDialog(this, "Tên phòng ban không được rỗng", "Lỗi");
             return;
         }
         Department d = department == null ? new Department() : department;
@@ -201,5 +235,7 @@ public class DepartmentFormDialog extends JDialog {
         }
     }
 
-    public boolean isSaved(){ return saved; }
+    public boolean isSaved() {
+        return saved;
+    }
 }

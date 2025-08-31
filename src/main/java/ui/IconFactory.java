@@ -13,7 +13,8 @@ public final class IconFactory {
     private static final Logger log = LoggerFactory.getLogger(IconFactory.class);
     private static final Map<String, Icon> CACHE = new ConcurrentHashMap<>();
 
-    private IconFactory() {}
+    private IconFactory() {
+    }
 
     public static Icon get(String name, int size) {
         String key = name + "#" + size;
@@ -29,9 +30,19 @@ public final class IconFactory {
 
     private static Icon empty(int w, int h) {
         return new Icon() {
-            @Override public void paintIcon(java.awt.Component c, java.awt.Graphics g, int x, int y) {}
-            @Override public int getIconWidth() { return w; }
-            @Override public int getIconHeight() { return h; }
+            @Override
+            public void paintIcon(java.awt.Component c, java.awt.Graphics g, int x, int y) {
+            }
+
+            @Override
+            public int getIconWidth() {
+                return w;
+            }
+
+            @Override
+            public int getIconHeight() {
+                return h;
+            }
         };
     }
 }

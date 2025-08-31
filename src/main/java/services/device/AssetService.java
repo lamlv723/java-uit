@@ -42,6 +42,9 @@ public class AssetService {
             logger.warn("Authorization Error: User {} attempted to delete an asset.", currentUser.getUsername());
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
+        if (asset != null && "Borrowed".equalsIgnoreCase(asset.getStatus())) {
+            throw new IllegalStateException("Không thể xóa tài sản đang được sử dụng (Borrowed/In Use).");
+        }
         assetDAO.delete(asset);
     }
 
@@ -68,5 +71,21 @@ public class AssetService {
 
     public List<Asset> getBorrowedAssetsByEmployeeId(int employeeId) {
         return assetDAO.getBorrowedAssetsByEmployeeId(employeeId);
+    }
+
+    // ===== Statistics =====
+    public long countTotalAssets() {
+        return assetDAO.countAll();
+    }
+
+    public long countAvailableAssets() {
+        return assetDAO.countByStatus("Available");
+    }
+
+    public long countInUseAssets() {
+        // In legacy code status used 'Borrowed'; treat as In Use
+        long borrowed = assetDAO.countByStatus("Borrowed");
+        long inUse = assetDAO.countByStatus("In Use");
+        return borrowed + inUse;
     }
 }

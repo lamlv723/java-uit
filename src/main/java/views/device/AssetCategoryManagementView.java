@@ -26,8 +26,8 @@ public class AssetCategoryManagementView extends views.common.BaseManagementFram
         super("Quản lý Danh mục Tài sản", "Quản lý Danh mục Tài sản", "ruler-combined", 800, 550,
                 Color.decode("#1E3C72"), Color.decode("#2A5298"));
         assetCategoryController = new AssetCategoryController(new AssetCategoryService());
-        assetCategoryTable = (AssetCategoryTable) this.table; // cast an toàn vì createTable trả về loại này
-        loadData(); // gọi sau khi controller đã sẵn sàng
+        assetCategoryTable = (AssetCategoryTable) this.table;
+        loadData();
     }
 
     @Override

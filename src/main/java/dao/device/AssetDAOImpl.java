@@ -105,4 +105,27 @@ public class AssetDAOImpl implements AssetDAO {
             return new java.util.ArrayList<>();
         }
     }
+
+    @Override
+    public long countAll() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<Long> q = session.createQuery("SELECT COUNT(a) FROM Asset a", Long.class);
+            return q.uniqueResult();
+        } catch (Exception e) {
+            logger.error("Error counting all assets: {}", e.getMessage(), e);
+            return 0L;
+        }
+    }
+
+    @Override
+    public long countByStatus(String status) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<Long> q = session.createQuery("SELECT COUNT(a) FROM Asset a WHERE a.status = :st", Long.class);
+            q.setParameter("st", status);
+            return q.uniqueResult();
+        } catch (Exception e) {
+            logger.error("Error counting assets by status {}: {}", status, e.getMessage(), e);
+            return 0L;
+        }
+    }
 }

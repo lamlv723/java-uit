@@ -41,6 +41,14 @@ public class AssetManagementView extends BaseManagementFrame {
             return;
         }
         assetTable.setAssetData(list);
+        triggerDashboardRefresh();
+        triggerDashboardAssetReload();
+    }
+
+    private void triggerDashboardAssetReload() {
+        Runnable r = (Runnable) UIManager.get("dashboard.reloadAssets");
+        if (r != null)
+            SwingUtilities.invokeLater(r);
     }
 
     @Override
@@ -102,5 +110,11 @@ public class AssetManagementView extends BaseManagementFrame {
         }
         if (table.getRowHeight() < 28)
             table.setRowHeight(28);
+    }
+
+    private void triggerDashboardRefresh() {
+        Runnable r = (Runnable) UIManager.get("dashboard.refreshStats");
+        if (r != null)
+            SwingUtilities.invokeLater(r);
     }
 }

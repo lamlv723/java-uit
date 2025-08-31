@@ -38,6 +38,220 @@ public class AssetRequestManagementView extends BaseManagementFrame {
         loadData();
     }
 
+    /**
+     * Show only the creation dialog for Asset Request, without showing the
+     * management frame.
+     */
+    public static void showCreateDialogOnly() {
+        // Use a temporary controller for dialog logic
+        AssetRequestController controller = new AssetRequestController(new AssetRequestService());
+        Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
+        String role = currentUser.getRole();
+        JComponent employeeComponent;
+        if ("Admin".equalsIgnoreCase(role)) {
+            JComboBox<String> employeeComboBox = new JComboBox<>();
+            EmployeeService employeeService = new EmployeeService();
+            java.util.List<Employee> employees = employeeService.getAllEmployees(currentUser);
+            if (employees != null) {
+                for (Employee emp : employees) {
+                    employeeComboBox.addItem(emp.getEmployeeId() + ": " + emp.getFullName());
+                }
+            }
+            employeeComponent = employeeComboBox;
+        } else {
+            JTextField employeeField = new JTextField(currentUser.getFullName());
+            employeeField.setEditable(false);
+            employeeComponent = employeeField;
+        }
+        AssetService assetService = new AssetService();
+        DefaultListModel<String> listModel = new DefaultListModel<>();
+        JList<String> assetList = new JList<>(listModel);
+        assetList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        JScrollPane assetScrollPane = new JScrollPane(assetList);
+        assetScrollPane.setPreferredSize(new Dimension(260, 110));
+        JComboBox<RequestTypeOption> requestTypeComboBox = new JComboBox<>(new RequestTypeOption[] {
+                new RequestTypeOption("borrow", "Borrow"),
+                new RequestTypeOption("return", "Return") });
+        Runnable updater = () -> {
+            RequestTypeOption opt = (RequestTypeOption) requestTypeComboBox.getSelectedItem();
+            if (opt == null)
+                return;
+            String type = opt.value;
+            listModel.clear();
+            int employeeId;
+            if (employeeComponent instanceof JComboBox) {
+                String se = (String) ((JComboBox<?>) employeeComponent).getSelectedItem();
+                if (se == null)
+                    return;
+                employeeId = Integer.parseInt(se.split(":")[0]);
+            } else
+                employeeId = currentUser.getEmployeeId();
+            java.util.List<Asset> assets = "borrow".equals(type) ? assetService.getAllAvailableAssets()
+                    : assetService.getBorrowedAssetsByEmployeeId(employeeId);
+            if (assets != null)
+                for (Asset a : assets)
+                    listModel.addElement(a.getAssetId() + ": " + a.getAssetName());
+        };
+        requestTypeComboBox.addActionListener(e -> updater.run());
+        if (employeeComponent instanceof JComboBox)
+            ((JComboBox<?>) employeeComponent).addActionListener(e -> updater.run());
+        updater.run();
+        JPanel panel = new AssetRequestManagementView().formPanel(
+                new String[] { "Nhân viên:", "Loại yêu cầu:", "Chọn tài sản:" },
+                new JComponent[] { employeeComponent, requestTypeComboBox, assetScrollPane });
+        // Gợi ý chọn nhiều
+        GridBagConstraints tipGbc = new GridBagConstraints();
+        tipGbc.gridx = 0;
+        tipGbc.gridy = 3;
+        tipGbc.gridwidth = 2;
+        tipGbc.insets = new Insets(4, 6, 2, 6);
+        tipGbc.anchor = GridBagConstraints.WEST;
+        JLabel tip = new JLabel("Giữ Ctrl (hoặc Shift) để chọn nhiều tài sản");
+        tip.setFont(tip.getFont().deriveFont(Font.ITALIC, tip.getFont().getSize() - 1f));
+        tip.setForeground(new Color(90, 90, 90));
+        panel.add(tip, tipGbc);
+        int opt = JOptionPane.showConfirmDialog(null, panel, "Tạo Yêu cầu mới", JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE);
+        if (opt == JOptionPane.OK_OPTION) {
+            int employeeId;
+            if ("Admin".equalsIgnoreCase(role)) {
+                String sel = (String) ((JComboBox<?>) employeeComponent).getSelectedItem();
+                employeeId = Integer.parseInt(sel.split(":")[0]);
+            } else
+                employeeId = currentUser.getEmployeeId();
+            java.util.List<String> selAssets = assetList.getSelectedValuesList();
+            if (selAssets.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Vui lòng chọn ít nhất một tài sản!", "Lỗi",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            java.util.List<Integer> assetIds = new java.util.ArrayList<>();
+            for (String s : selAssets)
+                assetIds.add(Integer.parseInt(s.split(":")[0]));
+            RequestTypeOption selOpt = (RequestTypeOption) requestTypeComboBox.getSelectedItem();
+            String error = controller.getAssetRequestService().createRequestWithItems(employeeId,
+                    selOpt == null ? "borrow" : selOpt.value, assetIds);
+            if (error == null) {
+                JOptionPane.showMessageDialog(null, "Tạo yêu cầu thành công!");
+                // Trigger dashboard refresh (stats + request table)
+                Runnable r1 = (Runnable) UIManager.get("dashboard.refreshStats");
+                if (r1 != null)
+                    SwingUtilities.invokeLater(r1);
+                Runnable r2 = (Runnable) UIManager.get("dashboard.reloadRequests");
+                if (r2 != null)
+                    SwingUtilities.invokeLater(r2);
+            } else
+                JOptionPane.showMessageDialog(null, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Show only the edit dialog for Asset Request, without showing the management
+     * frame.
+     */
+    public static void showEditDialogOnly(int id) {
+        AssetRequestController controller = new AssetRequestController(new AssetRequestService());
+        AssetRequest req = controller.getAssetRequestById(id);
+        if (req == null) {
+            JOptionPane.showMessageDialog(null, "Không tìm thấy yêu cầu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (!"Pending".equalsIgnoreCase(req.getStatus())) {
+            JOptionPane.showMessageDialog(null, "Chỉ sửa yêu cầu 'Pending'", "Thông báo",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        JTextField employeeField = new JTextField(req.getEmployee().getFullName());
+        employeeField.setEditable(false);
+        AssetService assetService = new AssetService();
+        DefaultListModel<String> listModel = new DefaultListModel<>();
+        JList<String> assetList = new JList<>(listModel);
+        assetList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        JScrollPane assetScrollPane = new JScrollPane(assetList);
+        assetScrollPane.setPreferredSize(new Dimension(260, 110));
+        JComboBox<RequestTypeOption> typeBox = new JComboBox<>(new RequestTypeOption[] {
+                new RequestTypeOption("borrow", "Borrow"),
+                new RequestTypeOption("return", "Return") });
+        // Chọn option hiện tại
+        for (int i = 0; i < typeBox.getItemCount(); i++) {
+            if (typeBox.getItemAt(i).value.equalsIgnoreCase(req.getRequestType())) {
+                typeBox.setSelectedIndex(i);
+                break;
+            }
+        }
+        typeBox.setEnabled(false);
+        Runnable updater = () -> {
+            RequestTypeOption opt = (RequestTypeOption) typeBox.getSelectedItem();
+            if (opt == null)
+                return;
+            String type = opt.value;
+            listModel.clear();
+            int empId = req.getEmployee().getEmployeeId();
+            java.util.List<Asset> assets = "borrow".equals(type) ? assetService.getAllAvailableAssets()
+                    : assetService.getBorrowedAssetsByEmployeeId(empId);
+            if (assets != null)
+                for (Asset a : assets)
+                    listModel.addElement(a.getAssetId() + ": " + a.getAssetName());
+        };
+        updater.run();
+        // Chọn sẵn tài sản đang có
+        java.util.List<AssetRequestItem> currentItems = new dao.device.AssetRequestItemDAOImpl()
+                .getAssetRequestItemsByRequestId(id);
+        java.util.List<Integer> currentAssetIds = currentItems.stream().map(it -> it.getAsset().getAssetId())
+                .collect(java.util.stream.Collectors.toList());
+        SwingUtilities.invokeLater(() -> {
+            ListSelectionModel m = assetList.getSelectionModel();
+            m.clearSelection();
+            for (int i = 0; i < listModel.size(); i++) {
+                int aid = Integer.parseInt(listModel.get(i).split(":")[0]);
+                if (currentAssetIds.contains(aid))
+                    m.addSelectionInterval(i, i);
+            }
+        });
+        JPanel panel = new AssetRequestManagementView().formPanel(
+                new String[] { "Nhân viên:", "Loại yêu cầu:", "Chọn tài sản:" },
+                new JComponent[] { employeeField, typeBox, assetScrollPane });
+        GridBagConstraints tipGbc2 = new GridBagConstraints();
+        tipGbc2.gridx = 0;
+        tipGbc2.gridy = 3;
+        tipGbc2.gridwidth = 2;
+        tipGbc2.insets = new Insets(4, 6, 2, 6);
+        tipGbc2.anchor = GridBagConstraints.WEST;
+        JLabel tip2 = new JLabel("Giữ Ctrl (hoặc Shift) để chọn nhiều tài sản");
+        tip2.setFont(tip2.getFont().deriveFont(Font.ITALIC, tip2.getFont().getSize() - 1f));
+        tip2.setForeground(new Color(90, 90, 90));
+        panel.add(tip2, tipGbc2);
+        int opt = JOptionPane.showConfirmDialog(null, panel, "Sửa Yêu cầu", JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE);
+        if (opt == JOptionPane.OK_OPTION) {
+            java.util.List<String> selAssets = assetList.getSelectedValuesList();
+            if (selAssets.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Vui lòng chọn ít nhất một tài sản!", "Lỗi",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            java.util.List<Integer> assetIds = new java.util.ArrayList<>();
+            for (String s : selAssets)
+                assetIds.add(Integer.parseInt(s.split(":")[0]));
+            try {
+                String error = controller.updateRequestWithItems(id, assetIds,
+                        UserSession.getInstance().getLoggedInEmployee());
+                if (error == null) {
+                    JOptionPane.showMessageDialog(null, "Cập nhật yêu cầu thành công!");
+                    // Optionally trigger dashboard refresh
+                    Runnable r = (Runnable) UIManager.get("dashboard.refreshStats");
+                    if (r != null)
+                        SwingUtilities.invokeLater(r);
+                } else
+                    JOptionPane.showMessageDialog(null, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception ex) {
+                UIUtils.showErrorDialog(null, "Đã xảy ra lỗi không mong muốn.\nChi tiết: " + ex.getMessage(),
+                        "Lỗi Hệ Thống");
+                ex.printStackTrace();
+            }
+        }
+    }
+
     // Phân quyền hiển thị nút
     @Override
     protected void applyRoles() {
@@ -91,9 +305,9 @@ public class AssetRequestManagementView extends BaseManagementFrame {
     }
 
     private void buildExtraButtons() {
-        btnApprove = createGradientSmallButton("Duyệt", new Color(0x10B981), new Color(0x34D399));
-        btnReject = createGradientSmallButton("Từ chối", new Color(0x7F1D1D), new Color(0xE11D48));
-        btnViewDetails = createGradientSmallButton("Chi tiết", new Color(0x2563EB), new Color(0x3B82F6));
+        btnApprove = createGradientSmallButton("Duyệt", utils.UITheme.APPROVE_START, utils.UITheme.APPROVE_END);
+        btnReject = createGradientSmallButton("Từ chối", utils.UITheme.REJECT_START, utils.UITheme.REJECT_END);
+        btnViewDetails = createGradientSmallButton("Chi tiết", utils.UITheme.DETAIL_START, utils.UITheme.DETAIL_END);
         extraButtonsPanel.add(btnApprove);
         extraButtonsPanel.add(btnReject);
         extraButtonsPanel.add(btnViewDetails);
@@ -248,20 +462,24 @@ public class AssetRequestManagementView extends BaseManagementFrame {
         Integer requestId = (Integer) table.getValueAt(row, 0);
         AssetRequestItemManagementView v = new AssetRequestItemManagementView(requestId);
         v.setVisible(true);
-    }
-
-    private void warnSelect(String action) {
-        JOptionPane.showMessageDialog(this, "Vui lòng chọn một yêu cầu để " + action + "!", "Thông báo",
-                JOptionPane.WARNING_MESSAGE);
+        triggerDashboardRequestReload();
     }
 
     private void reloadAndSync() {
         loadData();
         if (AssetRequestItemManagementView.generalInstance != null)
             AssetRequestItemManagementView.generalInstance.refreshData();
+        triggerDashboardRefresh();
+        triggerDashboardRequestReload();
     }
 
-    // ===== Dialogs =====
+    private void triggerDashboardRequestReload() {
+        Runnable r = (Runnable) UIManager.get("dashboard.reloadRequests");
+        if (r != null)
+            SwingUtilities.invokeLater(r);
+    }
+
+
     private void openCreateDialog() {
         Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
         String role = currentUser.getRole();
@@ -287,7 +505,6 @@ public class AssetRequestManagementView extends BaseManagementFrame {
         assetList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         JScrollPane assetScrollPane = new JScrollPane(assetList);
         assetScrollPane.setPreferredSize(new Dimension(260, 110));
-        // ComboBox hiển thị nhãn đẹp giữ value gốc
         JComboBox<RequestTypeOption> requestTypeComboBox = new JComboBox<>(new RequestTypeOption[] {
                 new RequestTypeOption("borrow", "Borrow"),
                 new RequestTypeOption("return", "Return") });
@@ -328,7 +545,8 @@ public class AssetRequestManagementView extends BaseManagementFrame {
         tip.setFont(tip.getFont().deriveFont(Font.ITALIC, tip.getFont().getSize() - 1f));
         tip.setForeground(new Color(90, 90, 90));
         panel.add(tip, tipGbc);
-        int opt = JOptionPane.showConfirmDialog(this, panel, "Tạo Yêu cầu mới", JOptionPane.OK_CANCEL_OPTION,
+        // Always show as modal dialog, not attached to this frame
+        int opt = JOptionPane.showConfirmDialog(null, panel, "Tạo Yêu cầu mới", JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.PLAIN_MESSAGE);
         if (opt == JOptionPane.OK_OPTION) {
             int employeeId;
@@ -339,7 +557,7 @@ public class AssetRequestManagementView extends BaseManagementFrame {
                 employeeId = currentUser.getEmployeeId();
             List<String> selAssets = assetList.getSelectedValuesList();
             if (selAssets.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn ít nhất một tài sản!", "Lỗi",
+                JOptionPane.showMessageDialog(null, "Vui lòng chọn ít nhất một tài sản!", "Lỗi",
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -348,12 +566,18 @@ public class AssetRequestManagementView extends BaseManagementFrame {
                 assetIds.add(Integer.parseInt(s.split(":")[0]));
             RequestTypeOption selOpt = (RequestTypeOption) requestTypeComboBox.getSelectedItem();
             String error = controller.getAssetRequestService().createRequestWithItems(employeeId,
-                selOpt == null ? "borrow" : selOpt.value, assetIds);
+                    selOpt == null ? "borrow" : selOpt.value, assetIds);
             if (error == null) {
-                JOptionPane.showMessageDialog(this, "Tạo yêu cầu thành công!");
-                reloadAndSync();
+                JOptionPane.showMessageDialog(null, "Tạo yêu cầu thành công!");
+                // Trigger dashboard refresh (stats + request table)
+                Runnable r1 = (Runnable) UIManager.get("dashboard.refreshStats");
+                if (r1 != null)
+                    SwingUtilities.invokeLater(r1);
+                Runnable r2 = (Runnable) UIManager.get("dashboard.reloadRequests");
+                if (r2 != null)
+                    SwingUtilities.invokeLater(r2);
             } else
-                JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -490,5 +714,16 @@ public class AssetRequestManagementView extends BaseManagementFrame {
         public String toString() {
             return display;
         }
+    }
+
+    private void triggerDashboardRefresh() {
+        Runnable r = (Runnable) UIManager.get("dashboard.refreshStats");
+        if (r != null)
+            SwingUtilities.invokeLater(r);
+    }
+
+    private void warnSelect(String action) {
+        JOptionPane.showMessageDialog(this, "Vui lòng chọn một yêu cầu để " + action + "!", "Thông báo",
+                JOptionPane.WARNING_MESSAGE);
     }
 }
