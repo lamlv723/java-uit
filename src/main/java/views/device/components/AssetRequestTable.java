@@ -30,7 +30,7 @@ public class AssetRequestTable extends JTable {
             AssetRequest r = requests.get(i);
             data[i][0] = r.getRequestId();
             data[i][1] = r.getEmployee() != null
-                    ? (r.getEmployee().getFirstName() + " " + r.getEmployee().getLastName())
+                    ? (r.getEmployee().getFullName())
                     : "";
             String type = r.getRequestType();
             if (type != null) {

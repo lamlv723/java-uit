@@ -48,7 +48,7 @@ public class AssetFormDialog extends JDialog {
         this.asset = asset;
 
     setUndecorated(true);
-    setSize(520, 540);
+    setSize(520, 560);
     setLocationRelativeTo(owner);
 
     // Panel chính đơn giản với viền 1px, bỏ shadow

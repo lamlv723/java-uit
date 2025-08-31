@@ -272,12 +272,12 @@ public class AssetRequestManagementView extends BaseManagementFrame {
             List<Employee> employees = employeeService.getAllEmployees(currentUser);
             if (employees != null) {
                 for (Employee emp : employees) {
-                    employeeComboBox.addItem(emp.getEmployeeId() + ": " + emp.getFirstName() + " " + emp.getLastName());
+                    employeeComboBox.addItem(emp.getEmployeeId() + ": " + emp.getFullName());
                 }
             }
             employeeComponent = employeeComboBox;
         } else {
-            JTextField employeeField = new JTextField(currentUser.getFirstName() + " " + currentUser.getLastName());
+            JTextField employeeField = new JTextField(currentUser.getFullName());
             employeeField.setEditable(false);
             employeeComponent = employeeField;
         }
@@ -370,7 +370,7 @@ public class AssetRequestManagementView extends BaseManagementFrame {
             return;
         }
         JTextField employeeField = new JTextField(
-                req.getEmployee().getFirstName() + " " + req.getEmployee().getLastName());
+                req.getEmployee().getFullName());
         employeeField.setEditable(false);
         AssetService assetService = new AssetService();
         DefaultListModel<String> listModel = new DefaultListModel<>();
