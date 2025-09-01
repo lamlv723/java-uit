@@ -63,8 +63,8 @@ public class MainView extends JFrame {
         deviceBtn.addActionListener(e -> deviceMenu.show(deviceBtn, 0, deviceBtn.getHeight()));
         leftMenu.add(deviceBtn);
 
-        // Button "Chính" (with icon)
-        JButton mainBtn = menuButton("Chính ▾");
+        // Button "Tổ chức" (with icon)
+        JButton mainBtn = menuButton("Tổ chức ▾");
         mainBtn.setIcon(IconName.COGS.icon(16));
         mainBtn.setIconTextGap(6);
         JPopupMenu mainMenu = new JPopupMenu();

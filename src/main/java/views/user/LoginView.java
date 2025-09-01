@@ -16,6 +16,7 @@ public class LoginView extends JFrame {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginButton;
+    private JButton cancelButton;
     private JLabel statusLabel;
 
     public LoginView() {
@@ -92,6 +93,15 @@ public class LoginView extends JFrame {
         centerPanel.add(loginButton, gbc);
 
         gbc.gridy = 5;
+        cancelButton = new JButton("Hủy bỏ");
+        cancelButton.setForeground(Color.WHITE);
+        cancelButton.setBackground(new Color(239, 68, 68));
+        cancelButton.setFocusPainted(false);
+        cancelButton.setFont(new Font("SansSerif", Font.BOLD, 14));
+        cancelButton.setPreferredSize(new Dimension(220, 44));
+        centerPanel.add(cancelButton, gbc);
+
+        gbc.gridy = 6;
         statusLabel = new JLabel(" ", SwingConstants.CENTER);
         statusLabel.setForeground(new Color(200, 40, 40));
         statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
@@ -123,6 +133,12 @@ public class LoginView extends JFrame {
                 passwordField.setText("");
                 passwordField.requestFocusInWindow();
             }
+        });
+
+        cancelButton.addActionListener((ActionEvent e) -> {
+            // Dispose the window and exit the application
+            dispose();
+            System.exit(0);
         });
     }
 
