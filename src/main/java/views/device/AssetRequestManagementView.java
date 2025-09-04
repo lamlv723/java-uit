@@ -589,7 +589,6 @@ public class AssetRequestManagementView extends BaseManagementFrame {
                     selOpt == null ? "borrow" : selOpt.value, assetIds);
             if (error == null) {
                 JOptionPane.showMessageDialog(null, "Tạo yêu cầu thành công!");
-                // **FIX HERE**: Reload data after successful creation
                 loadData();
                 // Trigger dashboard refresh (stats + request table)
                 Runnable r1 = (Runnable) UIManager.get("dashboard.refreshStats");
@@ -723,7 +722,6 @@ public class AssetRequestManagementView extends BaseManagementFrame {
         return p;
     }
 
-    // ===== Helper class hiển thị nhãn đẹp nhưng giữ value thô =====
     private static final class RequestTypeOption {
         final String value; // "borrow" / "return"
         final String display; // "Borrow" / "Return"

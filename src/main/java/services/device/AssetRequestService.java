@@ -320,7 +320,6 @@ public class AssetRequestService {
 
             List<AssetRequestItem> items = assetRequestItemDAO.getAssetRequestItemsByRequestId(requestId);
             
-            // **FIX BUG 2:** Kiểm tra trạng thái tài sản trước khi duyệt
             for (AssetRequestItem item : items) {
                 session.refresh(item.getAsset()); // Lấy trạng thái mới nhất từ DB
                 if (!"Available".equalsIgnoreCase(item.getAsset().getStatus())) {
