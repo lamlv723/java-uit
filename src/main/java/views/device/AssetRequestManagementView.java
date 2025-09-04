@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// Quản lý Yêu cầu Tài sản (kế thừa BaseManagementFrame + 3 nút phụ)
+// Yêu cầu tài sản (kế thừa BaseManagementFrame + 3 nút phụ)
 public class AssetRequestManagementView extends BaseManagementFrame {
     private final AssetRequestController controller;
     private final AssetRequestTable requestTable;
@@ -33,7 +33,7 @@ public class AssetRequestManagementView extends BaseManagementFrame {
 
 
     public AssetRequestManagementView() {
-        super("Quản lý Yêu cầu Tài sản", "Quản lý Yêu cầu Tài sản", "clipboard-list", 1000, 680,
+        super("Yêu cầu tài sản", "Yêu cầu tài sản", "clipboard-list", 1000, 680,
                 Color.decode("#373B44"), Color.decode("#4286f4"));
         controller = new AssetRequestController();
         requestTable = (AssetRequestTable) this.table;
