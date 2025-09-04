@@ -14,6 +14,8 @@ import views.device.components.AssetRequestTable;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +28,10 @@ public class AssetRequestManagementView extends BaseManagementFrame {
     private JButton btnApprove, btnReject, btnViewDetails;
     private JPanel extraButtonsPanel;
 
+    // Biến static để theo dõi instance của cửa sổ chính
+    public static AssetRequestManagementView generalInstance = null;
+
+
     public AssetRequestManagementView() {
         super("Quản lý Yêu cầu Tài sản", "Quản lý Yêu cầu Tài sản", "clipboard-list", 1000, 680,
                 Color.decode("#373B44"), Color.decode("#4286f4"));
@@ -35,6 +41,18 @@ public class AssetRequestManagementView extends BaseManagementFrame {
         buildExtraButtons();
         applyRoles();
         loadData();
+
+        // Gán instance hiện tại cho biến static
+        generalInstance = this;
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                // Khi cửa sổ đóng, đặt lại biến static
+                if (generalInstance == AssetRequestManagementView.this) {
+                    generalInstance = null;
+                }
+            }
+        });
     }
 
     /**
@@ -138,6 +156,12 @@ public class AssetRequestManagementView extends BaseManagementFrame {
                 Runnable r2 = (Runnable) UIManager.get("dashboard.reloadRequests");
                 if (r2 != null)
                     SwingUtilities.invokeLater(r2);
+                
+                // Tải lại dữ liệu trên cửa sổ chính nếu nó đang mở
+                if (generalInstance != null) {
+                    generalInstance.loadData();
+                }
+
             } else
                 JOptionPane.showMessageDialog(null, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
@@ -565,6 +589,8 @@ public class AssetRequestManagementView extends BaseManagementFrame {
                     selOpt == null ? "borrow" : selOpt.value, assetIds);
             if (error == null) {
                 JOptionPane.showMessageDialog(null, "Tạo yêu cầu thành công!");
+                // **FIX HERE**: Reload data after successful creation
+                loadData();
                 // Trigger dashboard refresh (stats + request table)
                 Runnable r1 = (Runnable) UIManager.get("dashboard.refreshStats");
                 if (r1 != null)

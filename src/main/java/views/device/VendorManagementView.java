@@ -13,14 +13,14 @@ import java.awt.*;
 import java.util.List;
 
 /**
- * Quản lý Nhà cung cấp - refactor dùng BaseManagementFrame & dialog chuẩn
+ * Nhà cung cấp - refactor dùng BaseManagementFrame & dialog chuẩn
  */
 public class VendorManagementView extends BaseManagementFrame {
     private final VendorController vendorController;
     private final VendorTable vendorTable;
 
     public VendorManagementView() {
-        super("Quản lý Nhà cung cấp", "Quản lý Nhà cung cấp", "box", 820, 560,
+        super("Nhà cung cấp", "Nhà cung cấp", "box", 820, 560,
                 Color.decode("#232526"), Color.decode("#414345"));
         vendorController = new VendorController();
         vendorTable = (VendorTable) this.table;
