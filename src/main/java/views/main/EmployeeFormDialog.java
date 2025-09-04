@@ -67,8 +67,8 @@ public class EmployeeFormDialog extends views.common.BaseFormDialog {
         gbc.weightx = 1;
         gbc.gridx = 0;
         gbc.gridy = 0;
-        addField(p, gbc, "Họ *", tfFirstName);
-        addField(p, gbc, "Tên *", tfLastName);
+        addField(p, gbc, "Tên *", tfFirstName);
+        addField(p, gbc, "Họ *", tfLastName);
         addField(p, gbc, "Email *", tfEmail);
         addField(p, gbc, "Số điện thoại", tfPhone);
         addField(p, gbc, "Phòng ban", cbDepartment);

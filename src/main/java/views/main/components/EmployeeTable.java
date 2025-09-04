@@ -11,7 +11,7 @@ public class EmployeeTable extends JTable {
     public EmployeeTable() {
         super();
         model = new DefaultTableModel(new Object[][] {},
-                new String[] { "ID", "Tên", "Họ", "Email", "SĐT", "Chức vụ", "Phòng ban" }) {
+                new String[] { "ID", "Họ", "Tên", "Email", "SĐT", "Chức vụ", "Phòng ban" }) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -21,7 +21,7 @@ public class EmployeeTable extends JTable {
     }
 
     public void setEmployeeData(Object[][] data) {
-        model.setDataVector(data, new String[] { "ID", "Tên", "Họ", "Email", "SĐT", "Chức vụ", "Phòng ban" });
+        model.setDataVector(data, new String[] { "ID", "Họ", "Tên", "Email", "SĐT", "Chức vụ", "Phòng ban" });
     }
 
     public void setEmployeeData(List<Employee> employees) {
