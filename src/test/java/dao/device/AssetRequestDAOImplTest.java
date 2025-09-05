@@ -1,31 +1,53 @@
 package dao.device;
 
+import config.HibernateUtil;
 import models.device.AssetRequest;
 import models.main.Employee;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.query.Query;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import config.HibernateUtil;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 class AssetRequestDAOImplTest {
     private AssetRequestDAOImpl assetRequestDAO;
+    private static MockedStatic<HibernateUtil> hibernateUtilMockedStatic;
     private SessionFactory sessionFactoryMock;
-    private org.hibernate.Session sessionMock;
-    private org.hibernate.Transaction transactionMock;
+    private Session sessionMock;
+    private Transaction transactionMock;
+    private static SessionFactory sessionFactoryStaticHolder;
+
+
+    @BeforeAll
+    static void beforeAll() {
+        hibernateUtilMockedStatic = Mockito.mockStatic(HibernateUtil.class);
+        hibernateUtilMockedStatic.when(HibernateUtil::getSessionFactory)
+                .thenAnswer(invocation -> sessionFactoryStaticHolder);
+    }
+
+    @AfterAll
+    static void afterAll() {
+        hibernateUtilMockedStatic.close();
+    }
 
     @BeforeEach
     void setUp() {
         assetRequestDAO = new AssetRequestDAOImpl();
         sessionFactoryMock = mock(SessionFactory.class);
-        sessionMock = mock(org.hibernate.Session.class);
-        transactionMock = mock(org.hibernate.Transaction.class);
-        HibernateUtil.setSessionFactory(sessionFactoryMock);
+        sessionFactoryStaticHolder = sessionFactoryMock; // Assign to static holder
+        sessionMock = mock(Session.class);
+        transactionMock = mock(Transaction.class);
         when(sessionFactoryMock.openSession()).thenReturn(sessionMock);
         when(sessionMock.beginTransaction()).thenReturn(transactionMock);
     }
@@ -69,8 +91,9 @@ class AssetRequestDAOImplTest {
         currentUser.setRole("Admin");
 
         List<AssetRequest> requests = Arrays.asList(new AssetRequest(), new AssetRequest());
-        org.hibernate.query.Query queryMock = mock(org.hibernate.query.Query.class);
-        when(sessionMock.createQuery("FROM AssetRequest", AssetRequest.class)).thenReturn(queryMock);
+        Query<AssetRequest> queryMock = mock(Query.class);
+        // Corrected HQL query to match implementation
+        when(sessionMock.createQuery("FROM AssetRequest ar ORDER BY ar.requestId ASC", AssetRequest.class)).thenReturn(queryMock);
         when(queryMock.getResultList()).thenReturn(requests);
         List<AssetRequest> result = assetRequestDAO.getAllAssetRequests(currentUser);
         assertEquals(2, result.size());

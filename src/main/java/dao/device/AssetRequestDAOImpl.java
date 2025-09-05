@@ -97,7 +97,7 @@ public class AssetRequestDAOImpl implements AssetRequestDAO {
         }
         } catch (Exception e) {
             logger.error("Error getting filtered list of asset requests: {}", e.getMessage(), e);
-            return null;
+            return new java.util.ArrayList<>();
         }
     }
 }
