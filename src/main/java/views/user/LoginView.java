@@ -2,7 +2,7 @@ package views.user;
 
 import controllers.user.UserSession;
 import models.main.Employee;
-import services.user.AuthenticationService;
+import controllers.user.AuthenticationController;
 import views.main.MainView;
 
 import javax.swing.*;
@@ -115,8 +115,8 @@ public class LoginView extends JFrame {
             String username = usernameField.getText().trim();
             String password = new String(passwordField.getPassword()).trim();
 
-            AuthenticationService authService = new AuthenticationService();
-            Employee employee = authService.authenticate(username, password);
+            AuthenticationController authController = new AuthenticationController();
+            Employee employee = authController.authenticate(username, password);
 
             if (employee != null) {
                 UserSession.getInstance().setLoggedInEmployee(employee);

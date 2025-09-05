@@ -8,14 +8,16 @@ import java.util.List;
 import models.main.Department;
 
 public class DepartmentController {
-    private DepartmentService departmentService;
+    private final DepartmentService departmentService;
 
-    public DepartmentController(DepartmentService departmentService) {
-        this.departmentService = departmentService;
+    // No-arg constructor to hide Service from Views
+    public DepartmentController() {
+        this.departmentService = new DepartmentService();
     }
 
-    public DepartmentService getDepartmentService() {
-        return departmentService;
+    // DI/testing constructor
+    public DepartmentController(DepartmentService departmentService) {
+        this.departmentService = departmentService;
     }
 
     public void addDepartment(Department department, Employee currentUser) {

@@ -6,8 +6,8 @@ import models.device.Asset;
 import models.device.AssetCategory;
 import models.device.Vendor;
 import models.main.Employee;
-import services.device.AssetCategoryService;
-import services.device.VendorService;
+import controllers.device.AssetCategoryController;
+import controllers.device.VendorController;
 import ui.IconFactory;
 import utils.UITheme;
 import utils.UIUtils;
@@ -42,9 +42,16 @@ public class AssetFormDialog extends JDialog {
     private boolean saved = false;
     private Point dragOffset;
 
-    public AssetFormDialog(Frame owner, AssetController assetController, Asset asset) {
+    private final AssetCategoryController assetCategoryController;
+    private final VendorController vendorController;
+
+    public AssetFormDialog(Frame owner, AssetController assetController,
+            AssetCategoryController assetCategoryController,
+            VendorController vendorController, Asset asset) {
         super(owner, true);
         this.assetController = assetController;
+        this.assetCategoryController = assetCategoryController;
+        this.vendorController = vendorController;
         this.asset = asset;
 
         setUndecorated(true);
@@ -104,10 +111,8 @@ public class AssetFormDialog extends JDialog {
     }
 
     private void initForm() {
-        AssetCategoryService categoryService = new AssetCategoryService();
-        VendorService vendorService = new VendorService();
-        List<AssetCategory> categories = categoryService.getAllAssetCategories();
-        List<Vendor> vendors = vendorService.getAllVendors();
+        List<AssetCategory> categories = assetCategoryController.getAllAssetCategories();
+        List<Vendor> vendors = vendorController.getAllVendors();
 
         tfName = new JTextField();
         tfSerial = new JTextField();

@@ -4,7 +4,7 @@ import controllers.main.EmployeeController;
 import controllers.user.UserSession;
 import models.main.Department;
 import models.main.Employee;
-import services.main.DepartmentService;
+import controllers.main.DepartmentController;
 import utils.UIUtils;
 import java.util.List;
 
@@ -80,8 +80,8 @@ public class EmployeeFormDialog extends views.common.BaseFormDialog {
 
     // Method to load departments into the JComboBox
     private void loadDepartmentsIntoComboBox() {
-        DepartmentService departmentService = new DepartmentService();
-        List<Department> departments = departmentService
+        DepartmentController deptController = new DepartmentController();
+        List<Department> departments = deptController
                 .getAllDepartments(UserSession.getInstance().getLoggedInEmployee());
 
         // Add a null option for "No Department"

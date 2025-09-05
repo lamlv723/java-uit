@@ -348,6 +348,19 @@ INSERT INTO `AssetRequestItem` (`request_id`, `asset_id`, `borrow_date`, `return
 UPDATE `Asset` SET `status` = 'Available' WHERE `asset_id` IN (1, 6, 2, 3, 32);
 
 -- 5 Pending Returns
+INSERT INTO `AssetRequest` (`request_id`, `employee_id`, `request_type`, `request_date`, `status`, `approver_id`, `approval_date`, `rejected_date`, `expected_return_date`) VALUES
+(51, 9,  'borrow', '2025-07-10 08:00:00', 'Approved', 1, '2025-07-10 08:05:00', NULL, '2025-08-10'),
+(52, 14, 'borrow', '2025-06-11 09:30:00', 'Approved', 1, '2025-06-11 09:35:00', NULL, '2025-07-11'),
+(53, 19, 'borrow', '2025-05-12 10:30:00', 'Approved', 1, '2025-05-12 10:35:00', NULL, '2025-06-12'),
+(54, 25, 'borrow', '2025-04-13 12:00:00', 'Approved', 1, '2025-04-13 12:05:00', NULL, '2025-05-13'),
+(55, 29, 'borrow', '2025-03-14 13:00:00', 'Approved', 1, '2025-03-14 13:05:00', NULL, '2025-04-14');
+INSERT INTO `AssetRequestItem` (`request_id`, `asset_id`, `borrow_date`, `condition_on_borrow`) VALUES
+(51, 21, '2025-07-10 09:00:00', 'Tốt'),
+(52, 22, '2025-06-11 10:00:00', 'Tốt'),
+(53, 23, '2025-05-12 11:00:00', 'Tốt'),
+(54, 24, '2025-04-13 13:00:00', 'Tốt'),
+(55, 25, '2025-03-14 14:00:00', 'Tốt');
+
 UPDATE `Asset` SET `status` = 'Borrowed' WHERE `asset_id` IN (21, 22, 23, 24, 25);
 INSERT INTO `AssetRequest` (`request_id`, `employee_id`, `request_type`, `request_date`, `status`, `approver_id`, `approval_date`, `rejected_date`, `expected_return_date`) VALUES
 (26, 9, 'return', '2025-08-10 09:00:00', 'Pending', NULL, NULL, NULL, NULL),

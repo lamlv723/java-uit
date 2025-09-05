@@ -1,14 +1,13 @@
 package views.device;
 
 import controllers.device.AssetRequestController;
+import controllers.device.AssetController;
 import controllers.user.UserSession;
 import models.device.Asset;
 import models.device.AssetRequest;
 import models.device.AssetRequestItem;
 import models.main.Employee;
-import services.device.AssetRequestService;
-import services.device.AssetService;
-import services.main.EmployeeService;
+// Removed direct service imports; use controllers only to honor layered architecture
 import utils.UIUtils;
 import views.common.BaseManagementFrame;
 import views.device.components.AssetRequestTable;
@@ -30,7 +29,7 @@ public class AssetRequestManagementView extends BaseManagementFrame {
     public AssetRequestManagementView() {
         super("Quản lý Yêu cầu Tài sản", "Quản lý Yêu cầu Tài sản", "clipboard-list", 1000, 680,
                 Color.decode("#373B44"), Color.decode("#4286f4"));
-        controller = new AssetRequestController(new AssetRequestService());
+        controller = new AssetRequestController();
         requestTable = (AssetRequestTable) this.table;
         reorganizeActionBarForRightButtons();
         buildExtraButtons();
@@ -44,14 +43,13 @@ public class AssetRequestManagementView extends BaseManagementFrame {
      */
     public static void showCreateDialogOnly() {
         // Use a temporary controller for dialog logic
-        AssetRequestController controller = new AssetRequestController(new AssetRequestService());
+        AssetRequestController controller = new AssetRequestController();
         Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
         String role = currentUser.getRole();
         JComponent employeeComponent;
         if ("Admin".equalsIgnoreCase(role)) {
             JComboBox<String> employeeComboBox = new JComboBox<>();
-            EmployeeService employeeService = new EmployeeService();
-            java.util.List<Employee> employees = employeeService.getAllEmployees(currentUser);
+            java.util.List<Employee> employees = new controllers.main.EmployeeController().getAllEmployees(currentUser);
             if (employees != null) {
                 for (Employee emp : employees) {
                     employeeComboBox.addItem(emp.getEmployeeId() + ": " + emp.getFullName());
@@ -63,7 +61,7 @@ public class AssetRequestManagementView extends BaseManagementFrame {
             employeeField.setEditable(false);
             employeeComponent = employeeField;
         }
-        AssetService assetService = new AssetService();
+        AssetController assetController = new AssetController();
         DefaultListModel<String> listModel = new DefaultListModel<>();
         JList<String> assetList = new JList<>(listModel);
         assetList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -86,8 +84,8 @@ public class AssetRequestManagementView extends BaseManagementFrame {
                 employeeId = Integer.parseInt(se.split(":")[0]);
             } else
                 employeeId = currentUser.getEmployeeId();
-            java.util.List<Asset> assets = "borrow".equals(type) ? assetService.getAllAvailableAssets()
-                    : assetService.getBorrowedAssetsByEmployeeId(employeeId);
+            java.util.List<Asset> assets = "borrow".equals(type) ? assetController.getAllAvailableAssets()
+                    : assetController.getBorrowedAssetsByEmployeeId(employeeId);
             if (assets != null)
                 for (Asset a : assets)
                     listModel.addElement(a.getAssetId() + ": " + a.getAssetName());
@@ -129,7 +127,7 @@ public class AssetRequestManagementView extends BaseManagementFrame {
             for (String s : selAssets)
                 assetIds.add(Integer.parseInt(s.split(":")[0]));
             RequestTypeOption selOpt = (RequestTypeOption) requestTypeComboBox.getSelectedItem();
-            String error = controller.getAssetRequestService().createRequestWithItems(employeeId,
+            String error = controller.createRequestWithItems(employeeId,
                     selOpt == null ? "borrow" : selOpt.value, assetIds);
             if (error == null) {
                 JOptionPane.showMessageDialog(null, "Tạo yêu cầu thành công!");
@@ -150,7 +148,7 @@ public class AssetRequestManagementView extends BaseManagementFrame {
      * frame.
      */
     public static void showEditDialogOnly(int id) {
-        AssetRequestController controller = new AssetRequestController(new AssetRequestService());
+        AssetRequestController controller = new AssetRequestController();
         AssetRequest req = controller.getAssetRequestById(id);
         if (req == null) {
             JOptionPane.showMessageDialog(null, "Không tìm thấy yêu cầu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -163,7 +161,7 @@ public class AssetRequestManagementView extends BaseManagementFrame {
         }
         JTextField employeeField = new JTextField(req.getEmployee().getFullName());
         employeeField.setEditable(false);
-        AssetService assetService = new AssetService();
+        AssetController assetController = new AssetController();
         DefaultListModel<String> listModel = new DefaultListModel<>();
         JList<String> assetList = new JList<>(listModel);
         assetList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -187,16 +185,16 @@ public class AssetRequestManagementView extends BaseManagementFrame {
             String type = opt.value;
             listModel.clear();
             int empId = req.getEmployee().getEmployeeId();
-            java.util.List<Asset> assets = "borrow".equals(type) ? assetService.getAllAvailableAssets()
-                    : assetService.getBorrowedAssetsByEmployeeId(empId);
+            java.util.List<Asset> assets = "borrow".equals(type) ? assetController.getAllAvailableAssets()
+                    : assetController.getBorrowedAssetsByEmployeeId(empId);
             if (assets != null)
                 for (Asset a : assets)
                     listModel.addElement(a.getAssetId() + ": " + a.getAssetName());
         };
         updater.run();
         // Chọn sẵn tài sản đang có
-        java.util.List<AssetRequestItem> currentItems = new dao.device.AssetRequestItemDAOImpl()
-                .getAssetRequestItemsByRequestId(id);
+        // Fetch items via controller (respect layered architecture)
+        java.util.List<AssetRequestItem> currentItems = controller.getItemsByRequestId(id);
         java.util.List<Integer> currentAssetIds = currentItems.stream().map(it -> it.getAsset().getAssetId())
                 .collect(java.util.stream.Collectors.toList());
         SwingUtilities.invokeLater(() -> {
@@ -380,7 +378,7 @@ public class AssetRequestManagementView extends BaseManagementFrame {
         if (confirm == JOptionPane.YES_OPTION) {
             Employee user = UserSession.getInstance().getLoggedInEmployee();
             try {
-                String error = controller.getAssetRequestService().deleteAssetRequest(id, user);
+                String error = controller.deleteAssetRequest(id, user);
                 if (error == null) {
                     loadData();
                 } else {
@@ -416,9 +414,9 @@ public class AssetRequestManagementView extends BaseManagementFrame {
         Employee user = UserSession.getInstance().getLoggedInEmployee();
         try {
             if ("borrow".equals(req.getRequestType()))
-                error = controller.getAssetRequestService().approveBorrowRequest(requestId, user);
+                error = controller.approveBorrowRequest(requestId, user);
             else
-                error = controller.getAssetRequestService().approveReturnRequest(requestId, user);
+                error = controller.approveReturnRequest(requestId, user);
             if (error == null) {
                 JOptionPane.showMessageDialog(this, "Đã duyệt yêu cầu thành công!");
                 reloadAndSync();
@@ -440,7 +438,7 @@ public class AssetRequestManagementView extends BaseManagementFrame {
         Integer requestId = (Integer) table.getValueAt(row, 0);
         Employee user = UserSession.getInstance().getLoggedInEmployee();
         try {
-            String error = controller.getAssetRequestService().rejectRequest(requestId, user);
+            String error = controller.rejectRequest(requestId, user);
             if (error == null) {
                 JOptionPane.showMessageDialog(this, "Đã từ chối yêu cầu thành công!");
                 reloadAndSync();
@@ -479,15 +477,13 @@ public class AssetRequestManagementView extends BaseManagementFrame {
             SwingUtilities.invokeLater(r);
     }
 
-
     private void openCreateDialog() {
         Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
         String role = currentUser.getRole();
         JComponent employeeComponent;
         if ("Admin".equalsIgnoreCase(role)) {
             JComboBox<String> employeeComboBox = new JComboBox<>();
-            EmployeeService employeeService = new EmployeeService();
-            List<Employee> employees = employeeService.getAllEmployees(currentUser);
+            List<Employee> employees = new controllers.main.EmployeeController().getAllEmployees(currentUser);
             if (employees != null) {
                 for (Employee emp : employees) {
                     employeeComboBox.addItem(emp.getEmployeeId() + ": " + emp.getFullName());
@@ -499,7 +495,7 @@ public class AssetRequestManagementView extends BaseManagementFrame {
             employeeField.setEditable(false);
             employeeComponent = employeeField;
         }
-        AssetService assetService = new AssetService();
+        AssetController assetController2 = new AssetController();
         DefaultListModel<String> listModel = new DefaultListModel<>();
         JList<String> assetList = new JList<>(listModel);
         assetList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -522,8 +518,8 @@ public class AssetRequestManagementView extends BaseManagementFrame {
                 employeeId = Integer.parseInt(se.split(":")[0]);
             } else
                 employeeId = currentUser.getEmployeeId();
-            List<Asset> assets = "borrow".equals(type) ? assetService.getAllAvailableAssets()
-                    : assetService.getBorrowedAssetsByEmployeeId(employeeId);
+            List<Asset> assets = "borrow".equals(type) ? assetController2.getAllAvailableAssets()
+                    : assetController2.getBorrowedAssetsByEmployeeId(employeeId);
             if (assets != null)
                 for (Asset a : assets)
                     listModel.addElement(a.getAssetId() + ": " + a.getAssetName());
@@ -565,7 +561,7 @@ public class AssetRequestManagementView extends BaseManagementFrame {
             for (String s : selAssets)
                 assetIds.add(Integer.parseInt(s.split(":")[0]));
             RequestTypeOption selOpt = (RequestTypeOption) requestTypeComboBox.getSelectedItem();
-            String error = controller.getAssetRequestService().createRequestWithItems(employeeId,
+            String error = controller.createRequestWithItems(employeeId,
                     selOpt == null ? "borrow" : selOpt.value, assetIds);
             if (error == null) {
                 JOptionPane.showMessageDialog(null, "Tạo yêu cầu thành công!");
@@ -596,7 +592,7 @@ public class AssetRequestManagementView extends BaseManagementFrame {
         JTextField employeeField = new JTextField(
                 req.getEmployee().getFullName());
         employeeField.setEditable(false);
-        AssetService assetService = new AssetService();
+        AssetController assetController3 = new AssetController();
         DefaultListModel<String> listModel = new DefaultListModel<>();
         JList<String> assetList = new JList<>(listModel);
         assetList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -620,16 +616,16 @@ public class AssetRequestManagementView extends BaseManagementFrame {
             String type = opt.value;
             listModel.clear();
             int empId = req.getEmployee().getEmployeeId();
-            List<Asset> assets = "borrow".equals(type) ? assetService.getAllAvailableAssets()
-                    : assetService.getBorrowedAssetsByEmployeeId(empId);
+            List<Asset> assets = "borrow".equals(type) ? assetController3.getAllAvailableAssets()
+                    : assetController3.getBorrowedAssetsByEmployeeId(empId);
             if (assets != null)
                 for (Asset a : assets)
                     listModel.addElement(a.getAssetId() + ": " + a.getAssetName());
         };
         updater.run();
         // Chọn sẵn tài sản đang có
-        List<AssetRequestItem> currentItems = new dao.device.AssetRequestItemDAOImpl()
-                .getAssetRequestItemsByRequestId(id);
+        // Fetch items via controller (respect layered architecture)
+        List<AssetRequestItem> currentItems = controller.getItemsByRequestId(id);
         java.util.List<Integer> currentAssetIds = currentItems.stream().map(it -> it.getAsset().getAssetId())
                 .collect(Collectors.toList());
         SwingUtilities.invokeLater(() -> {

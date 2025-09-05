@@ -8,14 +8,14 @@ import java.util.List;
 import models.device.Vendor;
 
 public class VendorController {
-    private VendorService vendorService;
+    private final VendorService vendorService;
+
+    public VendorController() {
+        this.vendorService = new VendorService();
+    }
 
     public VendorController(VendorService vendorService) {
         this.vendorService = vendorService;
-    }
-
-    public VendorService getVendorService() {
-        return vendorService;
     }
 
     public void addVendor(Vendor vendor, Employee currentUser) {

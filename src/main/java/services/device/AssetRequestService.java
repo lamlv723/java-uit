@@ -133,6 +133,21 @@ public class AssetRequestService {
         return assetRequestDAO.getAllAssetRequests(currentUser);
     }
 
+    public List<AssetRequestItem> getItemsByRequestId(int requestId) {
+        return assetRequestItemDAO.getAssetRequestItemsByRequestId(requestId);
+    }
+
+    public List<AssetRequestItem> getItemsReferencingAsset(int assetId) {
+        java.util.List<AssetRequestItem> result = new java.util.ArrayList<>();
+        try {
+            AssetRequestItem active = assetRequestItemDAO.findActiveBorrowItemByAssetId(assetId);
+            if (active != null)
+                result.add(active);
+        } catch (Exception ignored) {
+        }
+        return result; // at most one element currently
+    }
+
     public String addAssetRequestFromInput(String title, String desc, Employee currentUser) {
         if (title == null || title.isEmpty()) {
             return "Tiêu đề không được để trống!";
@@ -253,7 +268,6 @@ public class AssetRequestService {
                 throw new SecurityException("Bạn không có quyền duyệt yêu cầu này.");
             }
 
-
             request.setStatus("Rejected");
             request.setApprover(currentUser);
             request.setRejectedDate(Date.from(Instant.now()));
@@ -307,7 +321,6 @@ public class AssetRequestService {
             List<AssetRequestItem> items = assetRequestItemDAO.getAssetRequestItemsByRequestId(requestId);
             applyBorrowApprovalCore(items, request, currentUser, session);
 
-
             request.setStatus("Approved");
             request.setApprover(currentUser);
             request.setApprovalDate(Date.from(Instant.now()));
@@ -359,7 +372,6 @@ public class AssetRequestService {
                         currentUser.getUsername());
                 throw new SecurityException("Bạn không có quyền duyệt yêu cầu này.");
             }
-
 
             List<AssetRequestItem> tempItemsToReturn = assetRequestItemDAO.getAssetRequestItemsByRequestId(requestId);
             if (tempItemsToReturn.isEmpty()) {
@@ -481,7 +493,6 @@ public class AssetRequestService {
                         currentUser.getUsername());
                 throw new SecurityException("Bạn không có quyền sửa yêu cầu này.");
             }
-
 
             String requestType = request.getRequestType();
 

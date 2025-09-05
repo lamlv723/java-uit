@@ -4,7 +4,6 @@ import controllers.main.DepartmentController;
 import controllers.user.UserSession;
 import models.main.Department;
 import models.main.Employee;
-import services.main.DepartmentService;
 import utils.UIUtils;
 import views.common.BaseManagementFrame;
 import views.main.components.DepartmentTable;
@@ -23,7 +22,7 @@ public class DepartmentManagementView extends BaseManagementFrame {
     public DepartmentManagementView() {
         super("Quản lý Phòng ban", "Quản lý Phòng ban", "cogs", 900, 600,
                 Color.decode("#373B44"), Color.decode("#4286f4"));
-        departmentController = new DepartmentController(new DepartmentService());
+        departmentController = new DepartmentController();
         departmentTable = (DepartmentTable) this.table;
         loadData();
     }

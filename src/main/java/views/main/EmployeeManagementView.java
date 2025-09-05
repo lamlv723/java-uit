@@ -2,7 +2,6 @@ package views.main;
 
 import controllers.main.EmployeeController;
 import models.main.Employee;
-import services.main.EmployeeService;
 import views.common.BaseManagementFrame;
 import views.main.components.EmployeeTable;
 
@@ -20,7 +19,7 @@ public class EmployeeManagementView extends BaseManagementFrame {
     public EmployeeManagementView() {
         super("Quản lý Nhân viên", "Quản lý Nhân viên", "user", 1000, 680,
                 Color.decode("#373B44"), Color.decode("#4286f4"));
-        employeeController = new EmployeeController(new EmployeeService());
+        employeeController = new EmployeeController();
         employeeTable = (EmployeeTable) this.table;
         loadData();
     }

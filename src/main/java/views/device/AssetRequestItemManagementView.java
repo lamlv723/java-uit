@@ -4,7 +4,6 @@ import controllers.device.AssetRequestItemController;
 import controllers.user.UserSession;
 import models.device.AssetRequestItem;
 import models.main.Employee;
-import services.device.AssetRequestItemService;
 import utils.UIUtils;
 import views.common.BaseManagementFrame;
 import views.device.components.AssetRequestItemTable;
@@ -39,7 +38,7 @@ public class AssetRequestItemManagementView extends BaseManagementFrame {
                 "clipboard-list", 950, 580,
                 Color.decode("#1F1C2C"), Color.decode("#928DAB"));
         this.specificRequestId = requestId;
-        assetRequestItemController = new AssetRequestItemController(new AssetRequestItemService());
+        assetRequestItemController = new AssetRequestItemController();
         itemTable = (AssetRequestItemTable) this.table;
         loadData();
         // Luôn ẩn các nút CRUD & action bar vì màn hình chỉ xem

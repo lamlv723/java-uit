@@ -8,14 +8,14 @@ import java.util.List;
 import models.device.AssetCategory;
 
 public class AssetCategoryController {
-    private AssetCategoryService assetCategoryService;
+    private final AssetCategoryService assetCategoryService;
+
+    public AssetCategoryController() {
+        this.assetCategoryService = new AssetCategoryService();
+    }
 
     public AssetCategoryController(AssetCategoryService assetCategoryService) {
         this.assetCategoryService = assetCategoryService;
-    }
-
-    public AssetCategoryService getAssetCategoryService() {
-        return assetCategoryService;
     }
 
     public void addAssetCategory(AssetCategory category, Employee currentUser) {
