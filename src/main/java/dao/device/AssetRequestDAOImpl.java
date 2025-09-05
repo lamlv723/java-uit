@@ -78,23 +78,23 @@ public class AssetRequestDAOImpl implements AssetRequestDAO {
             }
 
             String role = currentUser.getRole();
-            if ("Admin".equalsIgnoreCase(role)) {
-                // Admin thấy tất cả
-                Query<AssetRequest> query = session.createQuery("FROM AssetRequest", AssetRequest.class);
-                return query.getResultList();
-            } else if ("Manager".equalsIgnoreCase(role)) {
-                // Manager thấy yêu cầu của nhân viên trong phòng ban
-                Query<AssetRequest> query = session.createQuery(
-                        "FROM AssetRequest ar WHERE ar.employee.department.departmentId = :deptId", AssetRequest.class);
-                query.setParameter("deptId", currentUser.getDepartmentId());
-                return query.getResultList();
-            } else {
-                // Staff chỉ thấy yêu cầu của chính mình
-                Query<AssetRequest> query = session.createQuery(
-                        "FROM AssetRequest ar WHERE ar.employee.employeeId = :empId", AssetRequest.class);
-                query.setParameter("empId", currentUser.getEmployeeId());
-                return query.getResultList();
-            }
+        if ("Admin".equalsIgnoreCase(role)) {
+            // Admin thấy tất cả, sắp xếp theo ID mới nhất
+            Query<AssetRequest> query = session.createQuery("FROM AssetRequest ar ORDER BY ar.requestId ASC", AssetRequest.class);
+            return query.getResultList();
+        } else if ("Manager".equalsIgnoreCase(role)) {
+            // Manager thấy yêu cầu của nhân viên trong phòng ban, sắp xếp theo ID mới nhất
+            Query<AssetRequest> query = session.createQuery(
+                    "FROM AssetRequest ar WHERE ar.employee.department.departmentId = :deptId ORDER BY ar.requestId ASC", AssetRequest.class);
+            query.setParameter("deptId", currentUser.getDepartmentId());
+            return query.getResultList();
+        } else {
+            // Staff chỉ thấy yêu cầu của chính mình, sắp xếp theo ID mới nhất
+            Query<AssetRequest> query = session.createQuery(
+                    "FROM AssetRequest ar WHERE ar.employee.employeeId = :empId ORDER BY ar.requestId ASC", AssetRequest.class);
+            query.setParameter("empId", currentUser.getEmployeeId());
+            return query.getResultList();
+        }
         } catch (Exception e) {
             logger.error("Error getting filtered list of asset requests: {}", e.getMessage(), e);
             return null;
