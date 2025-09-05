@@ -8,14 +8,14 @@ import java.util.List;
 import models.device.AssetRequestItem;
 
 public class AssetRequestItemController {
-    private AssetRequestItemService assetRequestItemService;
+    private final AssetRequestItemService assetRequestItemService;
+
+    public AssetRequestItemController() {
+        this.assetRequestItemService = new AssetRequestItemService();
+    }
 
     public AssetRequestItemController(AssetRequestItemService assetRequestItemService) {
         this.assetRequestItemService = assetRequestItemService;
-    }
-
-    public AssetRequestItemService getAssetRequestItemService() {
-        return assetRequestItemService;
     }
 
     public void addAssetRequestItem(AssetRequestItem item, Employee currentUser) {
@@ -38,7 +38,7 @@ public class AssetRequestItemController {
         return assetRequestItemService.getAllAssetRequestItems();
     }
 
-    public List<AssetRequestItem> getFilteredRequestItems(Employee currentUser){
+    public List<AssetRequestItem> getFilteredRequestItems(Employee currentUser) {
         return assetRequestItemService.getFilteredRequestItems(currentUser);
     }
 }

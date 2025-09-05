@@ -2,7 +2,7 @@ package views.user;
 
 import controllers.user.UserSession;
 import models.main.Employee;
-import services.main.EmployeeService;
+import controllers.main.EmployeeController;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -153,7 +153,8 @@ public class ChangePasswordView extends JFrame {
             return;
         }
 
-        String error = new EmployeeService().changePassword(currentUser, oldPass, newPass);
+        EmployeeController employeeController = new EmployeeController();
+        String error = employeeController.changePassword(currentUser, oldPass, newPass);
         if (error == null) {
             showSuccess("Đổi mật khẩu thành công!");
             dispose();

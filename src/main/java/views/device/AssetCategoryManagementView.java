@@ -5,7 +5,6 @@ import controllers.device.AssetCategoryController;
 import controllers.user.UserSession;
 import models.device.AssetCategory;
 import models.main.Employee;
-import services.device.AssetCategoryService;
 import utils.UIUtils;
 import views.device.components.AssetCategoryTable;
 
@@ -25,7 +24,7 @@ public class AssetCategoryManagementView extends views.common.BaseManagementFram
     public AssetCategoryManagementView() {
         super("Quản lý Danh mục Tài sản", "Quản lý Danh mục Tài sản", "ruler-combined", 800, 550,
                 Color.decode("#1E3C72"), Color.decode("#2A5298"));
-        assetCategoryController = new AssetCategoryController(new AssetCategoryService());
+        assetCategoryController = new AssetCategoryController();
         assetCategoryTable = (AssetCategoryTable) this.table;
         loadData();
     }

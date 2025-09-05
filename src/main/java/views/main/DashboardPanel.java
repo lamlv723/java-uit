@@ -8,13 +8,10 @@ import java.awt.*;
 import controllers.device.AssetController;
 import controllers.device.AssetRequestController;
 import controllers.user.UserSession;
-import dao.device.AssetRequestItemDAOImpl;
 import models.device.Asset;
 import models.device.AssetRequest;
 import models.device.AssetRequestItem;
 import models.main.Employee;
-import services.device.AssetRequestService;
-import services.device.AssetService;
 import ui.IconName;
 import utils.UITheme;
 import views.device.AssetFormDialog;
@@ -132,10 +129,11 @@ public class DashboardPanel extends JPanel {
     }
 
     private void refreshStats() {
-        AssetService as = new AssetService();
-        lblTotal.setText(String.valueOf(as.countTotalAssets()));
-        lblAvailable.setText(String.valueOf(as.countAvailableAssets()));
-        lblInUse.setText(String.valueOf(as.countInUseAssets()));
+        controllers.device.StatsController stats = new controllers.device.StatsController(
+                new services.device.AssetService());
+        lblTotal.setText(String.valueOf(stats.totalAssets()));
+        lblAvailable.setText(String.valueOf(stats.availableAssets()));
+        lblInUse.setText(String.valueOf(stats.inUseAssets()));
     }
 
     private JPanel quickCard(String title, IconName iconName, Color iconBgStart, Color iconBgEnd, Runnable action) {
@@ -301,13 +299,13 @@ public class DashboardPanel extends JPanel {
         private final JTable table;
         private final DefaultTableModel model;
         private final AssetRequestController controller;
-        private final AssetRequestItemDAOImpl itemDAO = new AssetRequestItemDAOImpl();
+        // Removed direct DAO usage; rely on controller facade to enforce layering
         private final JButton btnAdd, btnEdit, btnDelete, btnApprove, btnReject, btnView;
 
         DashboardRequestPanel() {
             super(new BorderLayout(0, 12));
             setOpaque(false);
-            controller = new AssetRequestController(new AssetRequestService());
+            controller = new AssetRequestController();
             // Tách CRUD trái + nút phụ phải
             JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
             leftPanel.setOpaque(false);
@@ -486,7 +484,7 @@ public class DashboardPanel extends JPanel {
                     else if (type.equalsIgnoreCase("return"))
                         type = "Return";
                 }
-                java.util.List<AssetRequestItem> items = itemDAO.getAssetRequestItemsByRequestId(r.getRequestId());
+                java.util.List<AssetRequestItem> items = controller.getItemsByRequestId(r.getRequestId());
                 String assets = items.stream().map(it -> it.getAsset() != null ? it.getAsset().getAssetName() : "")
                         .filter(s -> !s.isEmpty()).collect(java.util.stream.Collectors.joining(", "));
                 model.addRow(
@@ -518,7 +516,7 @@ public class DashboardPanel extends JPanel {
                 return;
             Employee user = UserSession.getInstance().getLoggedInEmployee();
             try {
-                String err = controller.getAssetRequestService().deleteAssetRequest(id, user);
+                String err = controller.deleteAssetRequest(id, user);
                 if (err == null) {
                     JOptionPane.showMessageDialog(this, "Đã xóa!");
                     reload();
@@ -541,9 +539,9 @@ public class DashboardPanel extends JPanel {
             String err;
             try {
                 if ("borrow".equalsIgnoreCase(req.getRequestType()))
-                    err = controller.getAssetRequestService().approveBorrowRequest(id, user);
+                    err = controller.approveBorrowRequest(id, user);
                 else
-                    err = controller.getAssetRequestService().approveReturnRequest(id, user);
+                    err = controller.approveReturnRequest(id, user);
                 if (err == null) {
                     JOptionPane.showMessageDialog(this, "Đã duyệt!");
                     reload();
@@ -559,7 +557,7 @@ public class DashboardPanel extends JPanel {
             Integer id = rowId(row);
             Employee user = UserSession.getInstance().getLoggedInEmployee();
             try {
-                String err = controller.getAssetRequestService().rejectRequest(id, user);
+                String err = controller.rejectRequest(id, user);
                 if (err == null) {
                     JOptionPane.showMessageDialog(this, "Đã từ chối!");
                     reload();
@@ -587,13 +585,13 @@ public class DashboardPanel extends JPanel {
         private final JTable table;
         private final DefaultTableModel model;
         private final AssetController controller;
-        private final dao.device.AssetRequestItemDAOImpl itemDAO = new dao.device.AssetRequestItemDAOImpl();
+        private final AssetRequestController assetRequestController = new AssetRequestController();
         private final JButton btnAdd, btnEdit, btnDelete;
 
         DashboardAssetPanel() {
             super(new BorderLayout(0, 12));
             setOpaque(false);
-            controller = new AssetController(new AssetService());
+            controller = new AssetController();
             JPanel btnBar = new JPanel();
             btnBar.setLayout(new BoxLayout(btnBar, BoxLayout.X_AXIS));
             btnBar.setOpaque(false);
@@ -781,8 +779,15 @@ public class DashboardPanel extends JPanel {
                 }
                 String currentUser = "";
                 try {
-                    dao.device.AssetRequestItemDAOImpl dao = itemDAO;
-                    models.device.AssetRequestItem active = dao.findActiveBorrowItemByAssetId(id);
+                    java.util.List<AssetRequestItem> relatedItems = assetRequestController
+                            .getActiveBorrowItemsByAssetId(id);
+                    models.device.AssetRequestItem active = null;
+                    for (models.device.AssetRequestItem it : relatedItems) {
+                        if (it.getReturnDate() == null) {
+                            active = it;
+                            break;
+                        }
+                    }
                     if (active != null && active.getAssetRequest() != null
                             && active.getAssetRequest().getEmployee() != null) {
                         currentUser = active.getAssetRequest().getEmployee().getFullName();
@@ -794,9 +799,14 @@ public class DashboardPanel extends JPanel {
         }
 
         private void openCreateDialog() {
-            AssetFormDialog dlg = new AssetFormDialog(SwingUtilities.getWindowAncestor(this) instanceof Frame
-                    ? (Frame) SwingUtilities.getWindowAncestor(this)
-                    : null, controller, null);
+            AssetFormDialog dlg = new AssetFormDialog(
+                    SwingUtilities.getWindowAncestor(this) instanceof Frame
+                            ? (Frame) SwingUtilities.getWindowAncestor(this)
+                            : null,
+                    controller,
+                    new controllers.device.AssetCategoryController(),
+                    new controllers.device.VendorController(),
+                    null);
             dlg.setVisible(true);
             if (dlg.isSaved()) {
                 reload();
@@ -807,9 +817,14 @@ public class DashboardPanel extends JPanel {
         private void openEditDialog(int row) {
             Integer id = rowId(row);
             Asset asset = controller.getAssetById(id);
-            AssetFormDialog dlg = new AssetFormDialog(SwingUtilities.getWindowAncestor(this) instanceof Frame
-                    ? (Frame) SwingUtilities.getWindowAncestor(this)
-                    : null, controller, asset);
+            AssetFormDialog dlg = new AssetFormDialog(
+                    SwingUtilities.getWindowAncestor(this) instanceof Frame
+                            ? (Frame) SwingUtilities.getWindowAncestor(this)
+                            : null,
+                    controller,
+                    new controllers.device.AssetCategoryController(),
+                    new controllers.device.VendorController(),
+                    asset);
             dlg.setVisible(true);
             if (dlg.isSaved()) {
                 reload();

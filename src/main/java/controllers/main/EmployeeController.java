@@ -7,14 +7,14 @@ import java.util.List;
 import models.main.Employee;
 
 public class EmployeeController {
-    private EmployeeService employeeService;
+    private final EmployeeService employeeService;
+
+    public EmployeeController() {
+        this.employeeService = new EmployeeService();
+    }
 
     public EmployeeController(EmployeeService employeeService) {
         this.employeeService = employeeService;
-    }
-
-    public EmployeeService getEmployeeService() {
-        return employeeService;
     }
 
     public void addEmployee(Employee employee, Employee currentUser) {
@@ -35,5 +35,13 @@ public class EmployeeController {
 
     public List<Employee> getAllEmployees(Employee currentUser) {
         return employeeService.getAllEmployees(currentUser);
+    }
+
+    public List<Employee> getEmployeesByRole(String role) {
+        return employeeService.getEmployeesByRole(role);
+    }
+
+    public String changePassword(Employee currentUser, String oldPass, String newPass) {
+        return employeeService.changePassword(currentUser, oldPass, newPass);
     }
 }

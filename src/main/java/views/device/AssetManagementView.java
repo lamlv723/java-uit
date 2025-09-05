@@ -1,6 +1,8 @@
 package views.device;
 
 import controllers.device.AssetController;
+import controllers.device.AssetCategoryController;
+import controllers.device.VendorController;
 import controllers.user.UserSession;
 import models.device.Asset;
 import models.main.Employee;
@@ -23,7 +25,8 @@ public class AssetManagementView extends BaseManagementFrame {
     public AssetManagementView() {
         super("Quản lý Tài sản", "Quản lý Tài sản", "laptop-white", 1000, 700,
                 Color.decode("#373B44"), Color.decode("#4286f4"));
-        assetController = new AssetController(new services.device.AssetService());
+        // Use no-arg controller (hides Service layer from View)
+        assetController = new AssetController();
         assetTable = (AssetTable) this.table; // table do createTable cung cấp
         loadData(); // gọi sau khi controller sẵn sàng
     }
@@ -53,7 +56,11 @@ public class AssetManagementView extends BaseManagementFrame {
 
     @Override
     protected void onAdd() {
-        AssetFormDialog dialog = new AssetFormDialog(this, assetController, null);
+        AssetFormDialog dialog = new AssetFormDialog(this,
+                assetController,
+                new AssetCategoryController(),
+                new VendorController(),
+                null);
         dialog.setVisible(true);
         loadData();
     }
@@ -66,7 +73,11 @@ public class AssetManagementView extends BaseManagementFrame {
             JOptionPane.showMessageDialog(this, "Không tìm thấy tài sản!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        AssetFormDialog dialog = new AssetFormDialog(this, assetController, asset);
+        AssetFormDialog dialog = new AssetFormDialog(this,
+                assetController,
+                new AssetCategoryController(),
+                new VendorController(),
+                asset);
         dialog.setVisible(true);
         loadData();
     }

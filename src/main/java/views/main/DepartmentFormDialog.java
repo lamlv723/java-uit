@@ -4,7 +4,7 @@ import controllers.main.DepartmentController;
 import controllers.user.UserSession;
 import models.main.Department;
 import models.main.Employee;
-import services.main.EmployeeService;
+import controllers.main.EmployeeController;
 import ui.IconFactory;
 import utils.UITheme;
 import utils.UIUtils;
@@ -21,7 +21,6 @@ public class DepartmentFormDialog extends JDialog {
     private final Department department; // null => add
     private JTextField tfName;
     private JComboBox<Employee> cbHead;
-    // private JTextField tfHeadId;
     private boolean saved = false;
     private Point dragOffset;
 
@@ -84,14 +83,11 @@ public class DepartmentFormDialog extends JDialog {
 
     private void initForm() {
         tfName = new JTextField();
-        // Initialize and populate the JComboBox for head employee
         cbHead = new JComboBox<>();
         loadEmployeesIntoComboBox();
-
         if (department != null) {
             tfName.setText(department.getDepartmentName());
             if (department.getHeadEmployee() != null) {
-                // Select the current head employee in the JComboBox
                 for (int i = 0; i < cbHead.getItemCount(); i++) {
                     Employee emp = cbHead.getItemAt(i);
                     if (emp != null && emp.getEmployeeId().equals(department.getHeadEmployee().getEmployeeId())) {
@@ -105,8 +101,8 @@ public class DepartmentFormDialog extends JDialog {
 
     // Method to load employees and set up the JComboBox
     private void loadEmployeesIntoComboBox() {
-        EmployeeService employeeService = new EmployeeService();
-        List<Employee> employees = employeeService.getEmployeesByRole("Staff");
+        EmployeeController employeeController = new EmployeeController();
+        List<Employee> employees = employeeController.getEmployeesByRole("Staff");
 
         // If we are editing a department that already has a manager,
         // that manager might not be in the "Staff" list. We should add them to the

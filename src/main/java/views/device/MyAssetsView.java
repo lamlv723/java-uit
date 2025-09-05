@@ -3,7 +3,7 @@ package views.device;
 import controllers.user.UserSession;
 import models.device.Asset;
 import models.main.Employee;
-import services.device.AssetService;
+import controllers.device.AssetController;
 import views.common.BaseManagementFrame;
 import views.device.components.AssetTable;
 
@@ -17,13 +17,13 @@ import java.util.List;
  * mượn.
  */
 public class MyAssetsView extends BaseManagementFrame {
-    private final AssetService assetService;
+    private final AssetController assetController;
     private final AssetTable assetTable;
 
     public MyAssetsView() {
         super("Tài sản của tôi", "Tài sản của tôi", "laptop-white", 900, 520,
                 java.awt.Color.decode("#2C3E50"), java.awt.Color.decode("#4CA1AF"));
-        this.assetService = new AssetService();
+        this.assetController = new AssetController();
         this.assetTable = (AssetTable) this.table; // lấy bảng do createTable cung cấp
         // Ẩn thanh action (read-only)
         if (this.actionBarPanel != null)
@@ -45,7 +45,7 @@ public class MyAssetsView extends BaseManagementFrame {
         Employee currentUser = UserSession.getInstance().getLoggedInEmployee();
         if (currentUser == null)
             return;
-        List<Asset> myAssets = assetService.getBorrowedAssetsByEmployeeId(currentUser.getEmployeeId());
+        List<Asset> myAssets = assetController.getBorrowedAssetsByEmployeeId(currentUser.getEmployeeId());
         assetTable.setAssetData(myAssets);
     }
 

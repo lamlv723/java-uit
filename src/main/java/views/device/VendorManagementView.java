@@ -4,7 +4,6 @@ import controllers.device.VendorController;
 import controllers.user.UserSession;
 import models.device.Vendor;
 import models.main.Employee;
-import services.device.VendorService;
 import utils.UIUtils;
 import views.common.BaseManagementFrame;
 import views.device.components.VendorTable;
@@ -23,7 +22,7 @@ public class VendorManagementView extends BaseManagementFrame {
     public VendorManagementView() {
         super("Quản lý Nhà cung cấp", "Quản lý Nhà cung cấp", "box", 820, 560,
                 Color.decode("#232526"), Color.decode("#414345"));
-        vendorController = new VendorController(new VendorService());
+        vendorController = new VendorController();
         vendorTable = (VendorTable) this.table;
         loadData();
     }

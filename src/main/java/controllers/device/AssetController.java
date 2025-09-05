@@ -8,14 +8,14 @@ import java.util.List;
 import models.device.Asset;
 
 public class AssetController {
-    private AssetService assetService;
+    private final AssetService assetService;
+
+    public AssetController() {
+        this.assetService = new AssetService();
+    }
 
     public AssetController(AssetService assetService) {
         this.assetService = assetService;
-    }
-
-    public AssetService getAssetService() {
-        return assetService;
     }
 
     public void addAsset(Asset asset, Employee currentUser) {
@@ -28,6 +28,14 @@ public class AssetController {
 
     public List<Asset> getAllAssets() {
         return assetService.getAllAssets();
+    }
+
+    public List<Asset> getAllAvailableAssets() {
+        return assetService.getAllAvailableAssets();
+    }
+
+    public List<Asset> getBorrowedAssetsByEmployeeId(int employeeId) {
+        return assetService.getBorrowedAssetsByEmployeeId(employeeId);
     }
 
     public void updateAsset(Asset asset, Employee currentUser) {
