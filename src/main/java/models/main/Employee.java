@@ -64,7 +64,7 @@ public class Employee {
     }
 
     public String getFullName() {
-        return this.getFirstName() + " " + this.getLastName();
+        return this.getLastName() + " " + this.getFirstName();
     }
 
     public String getEmail() {

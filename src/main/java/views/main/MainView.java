@@ -78,8 +78,8 @@ public class MainView extends JFrame {
         // Right side: User menu
         String displayName = "Người dùng";
         if (UserSession.getInstance().getLoggedInEmployee() != null) {
-            displayName = UserSession.getInstance().getLoggedInEmployee().getFirstName() + " " +
-                    UserSession.getInstance().getLoggedInEmployee().getLastName();
+            displayName = UserSession.getInstance().getLoggedInEmployee().getLastName() + " " +
+                    UserSession.getInstance().getLoggedInEmployee().getFirstName();
         }
         JButton userBtn = menuButton(displayName + " ▾");
         userBtn.setIcon(IconName.USER.icon(16));

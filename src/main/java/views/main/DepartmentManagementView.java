@@ -13,14 +13,14 @@ import java.awt.*;
 import java.util.List;
 
 /**
- * Quản lý Phòng ban - refactor dùng BaseManagementFrame
+ * Phòng ban - refactor dùng BaseManagementFrame
  */
 public class DepartmentManagementView extends BaseManagementFrame {
     private final DepartmentController departmentController;
     private final DepartmentTable departmentTable;
 
     public DepartmentManagementView() {
-        super("Quản lý Phòng ban", "Quản lý Phòng ban", "cogs", 900, 600,
+        super("Phòng ban", "Phòng ban", "cogs", 900, 600,
                 Color.decode("#373B44"), Color.decode("#4286f4"));
         departmentController = new DepartmentController();
         departmentTable = (DepartmentTable) this.table;
