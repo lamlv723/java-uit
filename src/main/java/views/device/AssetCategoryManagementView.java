@@ -13,7 +13,7 @@ import java.awt.*;
 import java.util.List;
 
 /**
- * Quản lý Danh mục Tài sản với UI đồng bộ AssetManagementView.
+ * Danh mục tài sản với UI đồng bộ AssetManagementView.
  */
 @SuppressWarnings("serial")
 public class AssetCategoryManagementView extends views.common.BaseManagementFrame {
@@ -22,7 +22,7 @@ public class AssetCategoryManagementView extends views.common.BaseManagementFram
     private final AssetCategoryTable assetCategoryTable;
 
     public AssetCategoryManagementView() {
-        super("Quản lý Danh mục Tài sản", "Quản lý Danh mục Tài sản", "ruler-combined", 800, 550,
+        super("Danh mục tài sản", "Danh mục tài sản", "ruler-combined", 800, 550,
                 Color.decode("#1E3C72"), Color.decode("#2A5298"));
         assetCategoryController = new AssetCategoryController();
         assetCategoryTable = (AssetCategoryTable) this.table;

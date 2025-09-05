@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Quản lý Chi tiết Yêu cầu Tài sản - dùng BaseManagementFrame
+ * Chi tiết yêu cầu tài sản - dùng BaseManagementFrame
  * Hỗ trợ mở ở chế độ tổng (tất cả) hoặc chỉ cho một request cụ thể.
  */
 public class AssetRequestItemManagementView extends BaseManagementFrame {
@@ -33,8 +33,8 @@ public class AssetRequestItemManagementView extends BaseManagementFrame {
 
     // Cửa sổ chi tiết theo requestId
     public AssetRequestItemManagementView(Integer requestId) {
-        super("Quản lý Chi tiết Yêu cầu Tài sản",
-                (requestId == null ? "Chi tiết Yêu cầu Tài sản (Tất cả)" : "Chi tiết Yêu cầu Tài sản"),
+        super("Chi tiết yêu cầu",
+                (requestId == null ? "Chi tiết yêu cầu" : "Chi tiết yêu cầu"),
                 "clipboard-list", 950, 580,
                 Color.decode("#1F1C2C"), Color.decode("#928DAB"));
         this.specificRequestId = requestId;

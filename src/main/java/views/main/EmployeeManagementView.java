@@ -10,14 +10,14 @@ import java.awt.*;
 import java.util.List;
 
 /**
- * Quản lý Nhân viên - refactor dùng BaseManagementFrame
+ * Nhân viên - refactor dùng BaseManagementFrame
  */
 public class EmployeeManagementView extends BaseManagementFrame {
     private final EmployeeController employeeController;
     private final EmployeeTable employeeTable;
 
     public EmployeeManagementView() {
-        super("Quản lý Nhân viên", "Quản lý Nhân viên", "user", 1000, 680,
+        super("Nhân viên", "Nhân viên", "user", 1000, 680,
                 Color.decode("#373B44"), Color.decode("#4286f4"));
         employeeController = new EmployeeController();
         employeeTable = (EmployeeTable) this.table;
