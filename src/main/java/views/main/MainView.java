@@ -163,8 +163,15 @@ public class MainView extends JFrame {
         mnuChangePassword.addActionListener(e -> new ChangePasswordView().setVisible(true));
         mnuMyAssets.addActionListener(e -> new views.device.MyAssetsView().setVisible(true));
         mnuLogout.addActionListener(e -> {
+            // Xóa thông tin phiên đăng nhập của người dùng hiện tại
             UserSession.getInstance().clearSession();
-            dispose();
+
+            // Lấy tất cả các cửa sổ đang mở của ứng dụng và đóng chúng lại
+            for (Window window : Window.getWindows()) {
+                window.dispose();
+            }
+
+            // Mở lại cửa sổ đăng nhập
             new LoginView().setVisible(true);
         });
     }
