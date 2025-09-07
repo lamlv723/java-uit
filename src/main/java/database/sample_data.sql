@@ -45,9 +45,9 @@ INSERT INTO `Department` (`department_id`, `department_name`, `head_employee_id`
 -- Mật khẩu cho tất cả tài khoản là: 12345
 INSERT INTO `Employee` (`employee_id`, `last_name`, `first_name`, `email`, `phone_number`, `department_id`, `role`, `username`, `password`, `status`) VALUES
 -- Tài khoản đặc biệt
-(1, 'Hệ thống', 'Quản trị', 'admin@company.com', '0901112220', 4, 'Admin', 'admin', '12345', 'Active'),
-(2, 'Cấp cao', 'Quản lý', 'manager@company.com', '0901112221', 5, 'Manager', 'manager', '12345', 'Active'),
-(3, 'Văn phòng', 'Nhân viên', 'staff@company.com', '0901112222', 5, 'Staff', 'staff', '12345', 'Active'),
+(1, '(Admin)', 'Quản trị viên', 'admin@company.com', '0901112220', 4, 'Admin', 'admin', '12345', 'Active'),
+(2, '(Dummy)', 'Quản lý', 'manager@company.com', '0901112221', 5, 'Manager', 'manager', '12345', 'Active'),
+(3, '(Dummy)', 'Nhân viên', 'staff@company.com', '0901112222', 5, 'Staff', 'staff', '12345', 'Active'),
 
 -- Ban Giám đốc (Department ID: 1)
 (4, 'An', 'Nguyễn Văn', 'an.nv@company.com', '0910000001', 1, 'Manager', 'annv', '12345', 'Active'), -- Giám đốc
