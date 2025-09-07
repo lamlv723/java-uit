@@ -93,17 +93,17 @@ public class AssetRequestItemDAOImpl implements AssetRequestItemDAO {
 
             if ("Admin".equalsIgnoreCase(role)) {
                 // Admin thấy tất cả
-                Query<AssetRequestItem> query = session.createQuery(baseQuery, AssetRequestItem.class);
+                Query<AssetRequestItem> query = session.createQuery(baseQuery + " ORDER BY i.requestItemId ASC", AssetRequestItem.class);
                 return query.getResultList();
             } else if ("Manager".equalsIgnoreCase(role)) {
                 // Manager thấy của nhân viên trong phòng ban
-                String hql = baseQuery + " AND i.assetRequest.employee.department.departmentId = :deptId";
+                String hql = baseQuery + " AND i.assetRequest.employee.department.departmentId = :deptId ORDER BY i.requestItemId ASC";
                 Query<AssetRequestItem> query = session.createQuery(hql, AssetRequestItem.class);
                 query.setParameter("deptId", currentUser.getDepartmentId());
                 return query.getResultList();
             } else {
                 // Staff chỉ thấy của chính mình
-                String hql = baseQuery + " AND i.assetRequest.employee.employeeId = :empId";
+                String hql = baseQuery + " AND i.assetRequest.employee.employeeId = :empId ORDER BY i.requestItemId ASC";
                 Query<AssetRequestItem> query = session.createQuery(hql, AssetRequestItem.class);
                 query.setParameter("empId", currentUser.getEmployeeId());
                 return query.getResultList();

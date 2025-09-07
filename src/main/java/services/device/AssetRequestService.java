@@ -319,6 +319,15 @@ public class AssetRequestService {
             }
 
             List<AssetRequestItem> items = assetRequestItemDAO.getAssetRequestItemsByRequestId(requestId);
+            
+            for (AssetRequestItem item : items) {
+                session.refresh(item.getAsset()); // Lấy trạng thái mới nhất từ DB
+                if (!"Available".equalsIgnoreCase(item.getAsset().getStatus())) {
+                    transaction.rollback();
+                    return "Không thể duyệt: Tài sản '" + item.getAsset().getAssetName() + "' đã được mượn hoặc không có sẵn.";
+                }
+            }
+            
             applyBorrowApprovalCore(items, request, currentUser, session);
 
             request.setStatus("Approved");
@@ -344,18 +353,18 @@ public class AssetRequestService {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            AssetRequest request = session.get(AssetRequest.class, requestId);
+            AssetRequest requestToReturn = session.get(AssetRequest.class, requestId);
 
-            if (request == null)
+            if (requestToReturn == null)
                 return "Không tìm thấy yêu cầu.";
-            if (!"return".equals(request.getRequestType()))
+            if (!"return".equals(requestToReturn.getRequestType()))
                 return "Đây không phải là yêu cầu trả.";
-            if (!"Pending".equals(request.getStatus()))
+            if (!"Pending".equals(requestToReturn.getStatus()))
                 return "Chỉ có thể hoàn tất yêu cầu đang 'Pending'.";
 
             boolean canApprove = false;
             String currentUserRole = currentUser.getRole();
-            Employee requestEmployee = request.getEmployee();
+            Employee requestEmployee = requestToReturn.getEmployee();
 
             if ("Admin".equalsIgnoreCase(currentUserRole)) {
                 canApprove = true;
@@ -395,22 +404,17 @@ public class AssetRequestService {
                 originalBorrowItem.setReturnDate(returnDate);
                 session.update(originalBorrowItem);
 
-                // Sao chép ngày mượn và gán ngày trả để cửa sổ chi tiết hiển thị đầy đủ
-                tempReturnItem.setBorrowDate(originalBorrowItem.getBorrowDate());
-                tempReturnItem.setReturnDate(returnDate);
-                session.update(tempReturnItem);
-
                 // Cập nhật trạng thái tài sản
                 Asset asset = originalBorrowItem.getAsset();
                 asset.setStatus("Available");
                 session.update(asset);
+                
+                // Xóa item của yêu cầu trả
+                session.delete(tempReturnItem);
             }
 
-            // Cập nhật trạng thái của yêu cầu trả thành "Approved"
-            request.setStatus("Approved");
-            request.setApprover(currentUser);
-            request.setApprovalDate(Date.from(Instant.now()));
-            session.update(request);
+            // Sau khi xử lý hết các item, xóa luôn yêu cầu trả
+            session.delete(requestToReturn);
 
             transaction.commit();
             return null; // Thành công

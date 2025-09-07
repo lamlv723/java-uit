@@ -16,14 +16,14 @@ import java.awt.*;
 import java.util.List;
 
 /**
- * Quản lý Tài sản - refactor dùng BaseManagementFrame
+ * Tài sản - refactor dùng BaseManagementFrame
  */
 public class AssetManagementView extends BaseManagementFrame {
     private final AssetController assetController;
     private final AssetTable assetTable;
 
     public AssetManagementView() {
-        super("Quản lý Tài sản", "Quản lý Tài sản", "laptop-white", 1000, 700,
+        super("Tài sản", "Tài sản", "laptop-white", 1000, 700,
                 Color.decode("#373B44"), Color.decode("#4286f4"));
         // Use no-arg controller (hides Service layer from View)
         assetController = new AssetController();
