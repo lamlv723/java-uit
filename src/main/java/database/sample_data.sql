@@ -43,7 +43,7 @@ INSERT INTO `Department` (`department_id`, `department_name`, `head_employee_id`
 -- last_name: Họ và tên lót
 -- username: firstname + first character of lastname
 -- Mật khẩu cho tất cả tài khoản là: 12345
-INSERT INTO `Employee` (`employee_id`, `first_name`, `last_name`, `email`, `phone_number`, `department_id`, `role`, `username`, `password`, `status`) VALUES
+INSERT INTO `Employee` (`employee_id`, `last_name`, `first_name`, `email`, `phone_number`, `department_id`, `role`, `username`, `password`, `status`) VALUES
 -- Tài khoản đặc biệt
 (1, 'Hệ thống', 'Quản trị', 'admin@company.com', '0901112220', 4, 'Admin', 'admin', '12345', 'Active'),
 (2, 'Cấp cao', 'Quản lý', 'manager@company.com', '0901112221', 5, 'Manager', 'manager', '12345', 'Active'),
