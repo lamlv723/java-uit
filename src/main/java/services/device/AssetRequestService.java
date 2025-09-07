@@ -16,11 +16,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import config.HibernateUtil;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.hibernate.query.Query;
-
 public class AssetRequestService {
     private AssetRequestDAO assetRequestDAO;
     private AssetRequestItemDAO assetRequestItemDAO;
@@ -177,172 +172,69 @@ public class AssetRequestService {
         if (assetIds == null || assetIds.isEmpty()) {
             return "Phải chọn ít nhất một tài sản.";
         }
-
-        Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-
-            // 1. Tạo đối tượng AssetRequest
-            AssetRequest request = new AssetRequest();
-            Employee employee = session.get(Employee.class, employeeId);
-            if (employee == null) {
-                return "Không tìm thấy nhân viên với ID: " + employeeId;
-            }
-            request.setEmployee(employee);
-            request.setRequestType(requestType);
-            request.setRequestDate(Date.from(Instant.now()));
-            request.setStatus("Pending");
-
-            // 2. Lưu AssetRequest để Hibernate gán ID
-            session.save(request);
-
-            // 3. Tạo và lưu các AssetRequestItem
-            for (Integer assetId : assetIds) {
-                Asset asset = session.get(Asset.class, assetId);
-                if (asset == null) {
-                    // Nếu một asset không tồn tại, hủy toàn bộ giao dịch
-                    transaction.rollback();
-                    return "Không tìm thấy tài sản với ID: " + assetId;
-                }
-                // Logic kiểm tra nếu tài sản không có sẵn (quan trọng)
-                if ("borrow".equalsIgnoreCase(requestType)) {
-                    if (!"Available".equalsIgnoreCase(asset.getStatus())) {
-                        transaction.rollback();
-                        return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId + ") không có sẵn để mượn.";
-                    }
-                } else if ("return".equalsIgnoreCase(requestType)) {
-                    if (!"Borrowed".equalsIgnoreCase(asset.getStatus())) {
-                        transaction.rollback();
-                        return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId
-                                + ") không ở trạng thái 'Borrowed' để có thể trả.";
-                    }
-                }
-
-                AssetRequestItem item = new AssetRequestItem();
-                item.setAssetRequest(request);
-                item.setAsset(asset);
-                session.save(item);
-            }
-
-            // 4. Hoàn tất giao dịch
-            transaction.commit();
-            return null; // Thành công
-
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-            return "Đã xảy ra lỗi khi tạo yêu cầu: " + e.getMessage();
-        }
+        // Ủy quyền xử lý DB xuống DAO
+        return assetRequestDAO.createRequestWithItems(employeeId, requestType, assetIds);
     }
 
     public String rejectRequest(int requestId, Employee currentUser) {
-        Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
+        // Lấy request để kiểm tra quyền
+        AssetRequest request = assetRequestDAO.getAssetRequestById(requestId);
+        if (request == null)
+            return "Không tìm thấy yêu cầu.";
+        if (!"Pending".equals(request.getStatus()))
+            return "Chỉ có thể từ chối yêu cầu ở trạng thái 'Pending'.";
 
-            AssetRequest request = session.get(AssetRequest.class, requestId);
-            if (request == null)
-                return "Không tìm thấy yêu cầu.";
-            if (!"Pending".equals(request.getStatus()))
-                return "Chỉ có thể từ chối yêu cầu ở trạng thái 'Pending'.";
+        boolean canApprove = false;
+        String currentUserRole = currentUser.getRole();
+        Employee requestEmployee = request.getEmployee();
 
-            boolean canApprove = false;
-            String currentUserRole = currentUser.getRole();
-            Employee requestEmployee = request.getEmployee();
-
-            if ("Admin".equalsIgnoreCase(currentUserRole)) {
+        if ("Admin".equalsIgnoreCase(currentUserRole)) {
+            canApprove = true;
+        } else if ("Manager".equalsIgnoreCase(currentUserRole)) {
+            boolean isSameDepartment = currentUser.getDepartmentId().equals(requestEmployee.getDepartmentId());
+            if (isSameDepartment)
                 canApprove = true;
-            } else if ("Manager".equalsIgnoreCase(currentUserRole)) {
-                // Manager có thể duyệt yêu cầu của nhân viên trong phòng ban của mình
-                boolean isSameDepartment = currentUser.getDepartmentId().equals(requestEmployee.getDepartmentId());
-                if (isSameDepartment) {
-                    canApprove = true;
-                }
-            }
-
-            if (!canApprove) {
-                logger.warn("Authorization Error: User {} attempted to approve a request they are not allowed to.",
-                        currentUser.getUsername());
-                throw new SecurityException("Bạn không có quyền duyệt yêu cầu này.");
-            }
-
-            request.setStatus("Rejected");
-            request.setApprover(currentUser);
-            request.setRejectedDate(Date.from(Instant.now()));
-            session.update(request);
-
-            transaction.commit();
-            return null; // Thành công
-        } catch (Exception e) {
-            if (transaction != null)
-                transaction.rollback();
-            return "Lỗi khi từ chối yêu cầu: " + e.getMessage();
         }
+
+        if (!canApprove) {
+            logger.warn("Authorization Error: User {} attempted to approve a request they are not allowed to.",
+                    currentUser.getUsername());
+            throw new SecurityException("Bạn không có quyền duyệt yêu cầu này.");
+        }
+
+        return assetRequestDAO.rejectRequest(requestId, currentUser);
     }
 
     /**
      * Cập nhật trạng thái tài sản thành 'Borrowed' và set borrow_date.
      */
     public String approveBorrowRequest(int requestId, Employee currentUser) {
-        Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            AssetRequest request = session.get(AssetRequest.class, requestId);
+        AssetRequest request = assetRequestDAO.getAssetRequestById(requestId);
+        if (request == null)
+            return "Không tìm thấy yêu cầu.";
+        if (!"borrow".equals(request.getRequestType()))
+            return "Đây không phải là yêu cầu mượn.";
+        if (!"Pending".equals(request.getStatus()))
+            return "Chỉ có thể hoàn tất yêu cầu đang 'Pending'.";
 
-            if (request == null)
-                return "Không tìm thấy yêu cầu.";
-            if (!"borrow".equals(request.getRequestType()))
-                return "Đây không phải là yêu cầu mượn.";
-            if (!"Pending".equals(request.getStatus()))
-                return "Chỉ có thể hoàn tất yêu cầu đang 'Pending'.";
-
-            boolean canApprove = false;
-            String currentUserRole = currentUser.getRole();
-            Employee requestEmployee = request.getEmployee();
-
-            if ("Admin".equalsIgnoreCase(currentUserRole)) {
+        boolean canApprove = false;
+        String currentUserRole = currentUser.getRole();
+        Employee requestEmployee = request.getEmployee();
+        if ("Admin".equalsIgnoreCase(currentUserRole)) {
+            canApprove = true;
+        } else if ("Manager".equalsIgnoreCase(currentUserRole)) {
+            boolean isSameDepartment = currentUser.getDepartmentId().equals(requestEmployee.getDepartmentId());
+            if (isSameDepartment)
                 canApprove = true;
-            } else if ("Manager".equalsIgnoreCase(currentUserRole)) {
-                // Manager có thể duyệt yêu cầu của nhân viên trong phòng ban của mình
-                boolean isSameDepartment = currentUser.getDepartmentId().equals(requestEmployee.getDepartmentId());
-                if (isSameDepartment) {
-                    canApprove = true;
-                }
-            }
-
-            if (!canApprove) {
-                logger.warn("Authorization Error: User {} attempted to approve a request they are not allowed to.",
-                        currentUser.getUsername());
-                throw new SecurityException("Bạn không có quyền duyệt yêu cầu này.");
-            }
-
-            List<AssetRequestItem> items = assetRequestItemDAO.getAssetRequestItemsByRequestId(requestId);
-            
-            for (AssetRequestItem item : items) {
-                session.refresh(item.getAsset()); // Lấy trạng thái mới nhất từ DB
-                if (!"Available".equalsIgnoreCase(item.getAsset().getStatus())) {
-                    transaction.rollback();
-                    return "Không thể duyệt: Tài sản '" + item.getAsset().getAssetName() + "' đã được mượn hoặc không có sẵn.";
-                }
-            }
-            
-            applyBorrowApprovalCore(items, request, currentUser, session);
-
-            request.setStatus("Approved");
-            request.setApprover(currentUser);
-            request.setApprovalDate(Date.from(Instant.now()));
-            session.update(request);
-
-            transaction.commit();
-            return null; // Thành công
-        } catch (Exception e) {
-            if (transaction != null)
-                transaction.rollback();
-            e.printStackTrace();
-            return "Lỗi khi hoàn tất yêu cầu mượn: " + e.getMessage();
         }
+        if (!canApprove) {
+            logger.warn("Authorization Error: User {} attempted to approve a request they are not allowed to.",
+                    currentUser.getUsername());
+            throw new SecurityException("Bạn không có quyền duyệt yêu cầu này.");
+        }
+
+        // Ủy quyền xử lý dữ liệu xuống DAO
+        return assetRequestDAO.approveBorrowRequest(requestId, currentUser);
     }
 
     /**
@@ -350,80 +242,31 @@ public class AssetRequestService {
      * return_date.
      */
     public String approveReturnRequest(int requestId, Employee currentUser) {
-        Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            AssetRequest requestToReturn = session.get(AssetRequest.class, requestId);
+        AssetRequest requestToReturn = assetRequestDAO.getAssetRequestById(requestId);
+        if (requestToReturn == null)
+            return "Không tìm thấy yêu cầu.";
+        if (!"return".equals(requestToReturn.getRequestType()))
+            return "Đây không phải là yêu cầu trả.";
+        if (!"Pending".equals(requestToReturn.getStatus()))
+            return "Chỉ có thể hoàn tất yêu cầu đang 'Pending'.";
 
-            if (requestToReturn == null)
-                return "Không tìm thấy yêu cầu.";
-            if (!"return".equals(requestToReturn.getRequestType()))
-                return "Đây không phải là yêu cầu trả.";
-            if (!"Pending".equals(requestToReturn.getStatus()))
-                return "Chỉ có thể hoàn tất yêu cầu đang 'Pending'.";
-
-            boolean canApprove = false;
-            String currentUserRole = currentUser.getRole();
-            Employee requestEmployee = requestToReturn.getEmployee();
-
-            if ("Admin".equalsIgnoreCase(currentUserRole)) {
+        boolean canApprove = false;
+        String currentUserRole = currentUser.getRole();
+        Employee requestEmployee = requestToReturn.getEmployee();
+        if ("Admin".equalsIgnoreCase(currentUserRole)) {
+            canApprove = true;
+        } else if ("Manager".equalsIgnoreCase(currentUserRole)) {
+            boolean isSameDepartment = currentUser.getDepartmentId().equals(requestEmployee.getDepartmentId());
+            if (isSameDepartment)
                 canApprove = true;
-            } else if ("Manager".equalsIgnoreCase(currentUserRole)) {
-                // Manager có thể duyệt yêu cầu của nhân viên trong phòng ban của mình
-                boolean isSameDepartment = currentUser.getDepartmentId().equals(requestEmployee.getDepartmentId());
-                if (isSameDepartment) {
-                    canApprove = true;
-                }
-            }
-
-            if (!canApprove) {
-                logger.warn("Authorization Error: User {} attempted to approve a request they are not allowed to.",
-                        currentUser.getUsername());
-                throw new SecurityException("Bạn không có quyền duyệt yêu cầu này.");
-            }
-
-            List<AssetRequestItem> tempItemsToReturn = assetRequestItemDAO.getAssetRequestItemsByRequestId(requestId);
-            if (tempItemsToReturn.isEmpty()) {
-                return "Yêu cầu trả không có tài sản nào.";
-            }
-
-            for (AssetRequestItem tempReturnItem : tempItemsToReturn) {
-                int assetId = tempReturnItem.getAsset().getAssetId();
-
-                // Tìm lại record mượn gốc đang hoạt động
-                AssetRequestItem originalBorrowItem = assetRequestItemDAO.findActiveBorrowItemByAssetId(assetId);
-
-                if (originalBorrowItem == null) {
-                    transaction.rollback();
-                    return "Lỗi logic: Không tìm thấy bản ghi mượn đang hoạt động cho tài sản ID: " + assetId;
-                }
-
-                Date returnDate = Date.from(Instant.now());
-
-                // Cập nhật record mượn gốc
-                originalBorrowItem.setReturnDate(returnDate);
-                session.update(originalBorrowItem);
-
-                // Cập nhật trạng thái tài sản
-                Asset asset = originalBorrowItem.getAsset();
-                asset.setStatus("Available");
-                session.update(asset);
-                
-                // Xóa item của yêu cầu trả
-                session.delete(tempReturnItem);
-            }
-
-            // Sau khi xử lý hết các item, xóa luôn yêu cầu trả
-            session.delete(requestToReturn);
-
-            transaction.commit();
-            return null; // Thành công
-        } catch (Exception e) {
-            if (transaction != null)
-                transaction.rollback();
-            e.printStackTrace();
-            return "Lỗi khi hoàn tất yêu cầu trả: " + e.getMessage();
         }
+        if (!canApprove) {
+            logger.warn("Authorization Error: User {} attempted to approve a request they are not allowed to.",
+                    currentUser.getUsername());
+            throw new SecurityException("Bạn không có quyền duyệt yêu cầu này.");
+        }
+
+        return assetRequestDAO.approveReturnRequest(requestId, currentUser);
     }
 
     // ================= Unit-test friendly core logic helpers =================
@@ -433,7 +276,7 @@ public class AssetRequestService {
      * Provided to allow isolated unit tests without a live DB.
      */
     protected void applyBorrowApprovalCore(List<AssetRequestItem> items, AssetRequest request, Employee approver,
-            Session session) {
+            org.hibernate.Session session) {
         Date now = Date.from(Instant.now());
         for (AssetRequestItem item : items) {
             Asset asset = item.getAsset();
@@ -465,85 +308,34 @@ public class AssetRequestService {
             return "Phải chọn ít nhất một tài sản.";
         }
 
-        Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-
-            AssetRequest request = session.get(AssetRequest.class, requestId);
-            if (request == null) {
-                return "Không tìm thấy yêu cầu để cập nhật.";
-            }
-
-            // Prevent changing approved request
-            if (!"Pending".equalsIgnoreCase(request.getStatus())) {
-                logger.warn("User {} attempted to update a non-pending request (ID: {}) with status: {}",
-                        currentUser.getUsername(), requestId, request.getStatus());
-                throw new SecurityException("Chỉ có thể sửa các yêu cầu đang ở trạng thái 'Pending'.");
-            }
-
-            // === LOGIC CHECK OWNERSHIP ===
-            boolean canUpdate = false;
-            if ("Admin".equalsIgnoreCase(currentUser.getRole())) {
-                canUpdate = true;
-            } else {
-                boolean isOwner = currentUser.getEmployeeId().equals(request.getEmployee().getEmployeeId());
-                if (isOwner) {
-                    canUpdate = true;
-                }
-            }
-
-            if (!canUpdate) {
-                logger.warn("Authorization Error: User {} attempted to update a request they don't own.",
-                        currentUser.getUsername());
-                throw new SecurityException("Bạn không có quyền sửa yêu cầu này.");
-            }
-
-            String requestType = request.getRequestType();
-
-            // 1. Xóa các item cũ
-            Query<?> deleteQuery = session
-                    .createQuery("DELETE FROM AssetRequestItem WHERE assetRequest.requestId = :requestId");
-            deleteQuery.setParameter("requestId", requestId);
-            deleteQuery.executeUpdate();
-
-            // 2. Tạo và lưu các AssetRequestItem mới
-            for (Integer assetId : assetIds) {
-                Asset asset = session.get(Asset.class, assetId);
-                if (asset == null) {
-                    transaction.rollback();
-                    return "Không tìm thấy tài sản với ID: " + assetId;
-                }
-
-                if ("borrow".equalsIgnoreCase(requestType)) {
-                    if (!"Available".equalsIgnoreCase(asset.getStatus())) {
-                        transaction.rollback();
-                        return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId + ") không có sẵn để mượn.";
-                    }
-                } else if ("return".equalsIgnoreCase(requestType)) {
-                    if (!"Borrowed".equalsIgnoreCase(asset.getStatus())) {
-                        transaction.rollback();
-                        return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId
-                                + ") không ở trạng thái 'Borrowed' để có thể trả.";
-                    }
-                }
-
-                AssetRequestItem item = new AssetRequestItem();
-                item.setAssetRequest(request);
-                item.setAsset(asset);
-                session.save(item);
-            }
-
-            // 3. Hoàn tất giao dịch
-            transaction.commit();
-            return null; // Thành công
-
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-            return "Đã xảy ra lỗi khi cập nhật yêu cầu: " + e.getMessage();
+        AssetRequest request = assetRequestDAO.getAssetRequestById(requestId);
+        if (request == null) {
+            return "Không tìm thấy yêu cầu để cập nhật.";
         }
+
+        if (!"Pending".equalsIgnoreCase(request.getStatus())) {
+            logger.warn("User {} attempted to update a non-pending request (ID: {}) with status: {}",
+                    currentUser.getUsername(), requestId, request.getStatus());
+            throw new SecurityException("Chỉ có thể sửa các yêu cầu đang ở trạng thái 'Pending'.");
+        }
+
+        boolean canUpdate = false;
+        if ("Admin".equalsIgnoreCase(currentUser.getRole())) {
+            canUpdate = true;
+        } else {
+            boolean isOwner = currentUser.getEmployeeId().equals(request.getEmployee().getEmployeeId());
+            if (isOwner) {
+                canUpdate = true;
+            }
+        }
+
+        if (!canUpdate) {
+            logger.warn("Authorization Error: User {} attempted to update a request they don't own.",
+                    currentUser.getUsername());
+            throw new SecurityException("Bạn không có quyền sửa yêu cầu này.");
+        }
+
+        return assetRequestDAO.updateRequestWithItems(requestId, assetIds);
     }
 
 }
