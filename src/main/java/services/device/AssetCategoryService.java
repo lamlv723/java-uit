@@ -25,6 +25,9 @@ public class AssetCategoryService {
             logger.warn(errorMessage);
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
+        if (assetCategoryDAO.findByName(category.getCategoryName()) != null) {
+            throw new IllegalStateException("Tên danh mục đã tồn tại.");
+        }
         assetCategoryDAO.addAssetCategory(category);
     }
 
@@ -34,6 +37,10 @@ public class AssetCategoryService {
             String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to update an asset category.";
             logger.warn(errorMessage);
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
+        }
+        AssetCategory existing = assetCategoryDAO.findByName(category.getCategoryName());
+        if (existing != null && !existing.getCategoryId().equals(category.getCategoryId())) {
+            throw new IllegalStateException("Tên danh mục đã tồn tại.");
         }
         assetCategoryDAO.updateAssetCategory(category);
     }

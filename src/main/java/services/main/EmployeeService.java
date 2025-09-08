@@ -34,6 +34,20 @@ public class EmployeeService {
             logger.warn(errorMessage);
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
+
+        Employee employeeBeforeUpdate = employeeDAO.getEmployeeById(employee.getEmployeeId());
+
+        if (employeeBeforeUpdate != null && "Admin".equalsIgnoreCase(employeeBeforeUpdate.getRole())) {
+            // Kiểm tra xem vai trò có bị thay đổi từ Admin sang vai trò khác không
+            if (!"Admin".equalsIgnoreCase(employee.getRole())) {
+                List<Employee> admins = employeeDAO.getEmployeesByRole("Admin");
+                // Nếu chỉ có một admin (chính là người sắp bị đổi vai trò), thì không cho phép
+                if (admins != null && admins.size() <= 1) {
+                    throw new SecurityException("Không thể thay đổi vai trò của quản trị viên cuối cùng. Hệ thống phải có ít nhất một quản trị viên.");
+                }
+            }
+        }
+
         employeeDAO.updateEmployee(employee);
     }
 
@@ -44,6 +58,15 @@ public class EmployeeService {
             logger.warn(errorMessage);
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
+
+        Employee employeeToDelete = employeeDAO.getEmployeeById(employeeId);
+        if (employeeToDelete != null && "Admin".equalsIgnoreCase(employeeToDelete.getRole())) {
+            List<Employee> admins = employeeDAO.getEmployeesByRole("Admin");
+            if (admins != null && admins.size() <= 1) {
+                throw new SecurityException("Không thể xóa quản trị viên cuối cùng. Hệ thống phải có ít nhất một quản trị viên.");
+            }
+        }
+
         employeeDAO.deleteEmployee(employeeId);
     }
 

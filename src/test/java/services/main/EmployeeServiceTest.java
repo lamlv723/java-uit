@@ -43,8 +43,14 @@ class EmployeeServiceTest {
     @Test
     void testUpdateEmployee() {
         Employee employee = new Employee();
+        employee.setEmployeeId(1);
+        
         Employee currentUser = new Employee();
         currentUser.setRole("Admin");
+
+        // Giả lập rằng nhân viên này đã tồn tại trong DB
+        when(employeeDAOMock.getEmployeeById(1)).thenReturn(employee);
+
         employeeService.updateEmployee(employee, currentUser);
         verify(employeeDAOMock, times(1)).updateEmployee(employee);
     }
@@ -53,6 +59,12 @@ class EmployeeServiceTest {
     void testDeleteEmployee() {
         Employee currentUser = new Employee();
         currentUser.setRole("Admin");
+        
+        Employee employeeToDelete = new Employee();
+        employeeToDelete.setEmployeeId(1);
+        employeeToDelete.setRole("Staff"); // Giả sử vai trò không phải Admin để qua các bước kiểm tra
+        when(employeeDAOMock.getEmployeeById(1)).thenReturn(employeeToDelete);
+        
         employeeService.deleteEmployee(1, currentUser);
         verify(employeeDAOMock, times(1)).deleteEmployee(1);
     }

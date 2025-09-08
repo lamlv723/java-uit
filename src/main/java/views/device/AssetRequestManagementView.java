@@ -31,7 +31,6 @@ public class AssetRequestManagementView extends BaseManagementFrame {
     // Biến static để theo dõi instance của cửa sổ chính
     public static AssetRequestManagementView generalInstance = null;
 
-
     public AssetRequestManagementView() {
         super("Yêu cầu tài sản", "Yêu cầu tài sản", "clipboard-list", 1000, 680,
                 Color.decode("#373B44"), Color.decode("#4286f4"));
@@ -156,7 +155,7 @@ public class AssetRequestManagementView extends BaseManagementFrame {
                 Runnable r2 = (Runnable) UIManager.get("dashboard.reloadRequests");
                 if (r2 != null)
                     SwingUtilities.invokeLater(r2);
-                
+
                 // Tải lại dữ liệu trên cửa sổ chính nếu nó đang mở
                 if (generalInstance != null) {
                     generalInstance.loadData();
@@ -404,7 +403,7 @@ public class AssetRequestManagementView extends BaseManagementFrame {
             try {
                 String error = controller.deleteAssetRequest(id, user);
                 if (error == null) {
-                    loadData();
+                    reloadAndSync();
                 } else {
                     JOptionPane.showMessageDialog(this, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
@@ -597,6 +596,15 @@ public class AssetRequestManagementView extends BaseManagementFrame {
                 Runnable r2 = (Runnable) UIManager.get("dashboard.reloadRequests");
                 if (r2 != null)
                     SwingUtilities.invokeLater(r2);
+                if (generalInstance != null) {
+                    generalInstance.loadData();
+                }
+
+                // Làm mới cửa sổ "Chi tiết yêu cầu" nếu nó đang mở
+                if (AssetRequestItemManagementView.generalInstance != null) {
+                    AssetRequestItemManagementView.generalInstance.loadData();
+                }
+
             } else
                 JOptionPane.showMessageDialog(null, error, "Lỗi", JOptionPane.ERROR_MESSAGE);
         }

@@ -78,4 +78,17 @@ public class AssetCategoryDAOImpl implements AssetCategoryDAO {
             return null;
         }
     }
+
+    @Override
+    public AssetCategory findByName(String name) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<AssetCategory> query = session.createQuery("FROM AssetCategory WHERE categoryName = :name", AssetCategory.class);
+            query.setParameter("name", name);
+            return query.uniqueResult();
+        } catch (Exception e) {
+            logger.error("Error finding asset category by name {}: {}", name, e.getMessage(), e);
+            return null;
+        }
+    }
+    
 }

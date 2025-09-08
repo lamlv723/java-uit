@@ -14,5 +14,7 @@ public interface DepartmentDAO {
 
     Department getDepartmentById(int departmentId);
 
+    Department findByName(String name);
+
     List<Department> getAllDepartments(Employee currentUser);
 }

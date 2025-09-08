@@ -28,6 +28,11 @@ public class DepartmentService {
             logger.warn(errorMessage);
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
+
+        if (departmentDAO.findByName(department.getDepartmentName()) != null) {
+            throw new IllegalStateException("Tên phòng ban đã tồn tại.");
+        }
+
         departmentDAO.addDepartment(department);
 
         // After adding the department, update the head employee's role and department
@@ -44,6 +49,12 @@ public class DepartmentService {
             logger.warn(errorMessage);
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
+
+        Department existing = departmentDAO.findByName(department.getDepartmentName());
+        if (existing != null && !existing.getDepartmentId().equals(department.getDepartmentId())) {
+            throw new IllegalStateException("Tên phòng ban đã tồn tại.");
+        }
+        
         departmentDAO.updateDepartment(department);
 
         // After adding the department, update the head employee's role and department

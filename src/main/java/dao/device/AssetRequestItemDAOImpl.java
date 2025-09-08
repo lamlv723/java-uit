@@ -89,25 +89,26 @@ public class AssetRequestItemDAOImpl implements AssetRequestItemDAO {
             }
 
             String role = currentUser.getRole();
-            String baseQuery = "FROM AssetRequestItem i WHERE i.assetRequest.status NOT LIKE 'Rejected'";
+            String baseHql;
+            Query<AssetRequestItem> query;
 
             if ("Admin".equalsIgnoreCase(role)) {
                 // Admin thấy tất cả
-                Query<AssetRequestItem> query = session.createQuery(baseQuery + " ORDER BY i.requestItemId ASC", AssetRequestItem.class);
-                return query.getResultList();
+                baseHql = "FROM AssetRequestItem i ORDER BY i.requestItemId ASC";
+                query = session.createQuery(baseHql, AssetRequestItem.class);
             } else if ("Manager".equalsIgnoreCase(role)) {
                 // Manager thấy của nhân viên trong phòng ban
-                String hql = baseQuery + " AND i.assetRequest.employee.department.departmentId = :deptId ORDER BY i.requestItemId ASC";
-                Query<AssetRequestItem> query = session.createQuery(hql, AssetRequestItem.class);
+                baseHql = "FROM AssetRequestItem i WHERE i.assetRequest.employee.department.departmentId = :deptId ORDER BY i.requestItemId ASC";
+                query = session.createQuery(baseHql, AssetRequestItem.class);
                 query.setParameter("deptId", currentUser.getDepartmentId());
-                return query.getResultList();
             } else {
                 // Staff chỉ thấy của chính mình
-                String hql = baseQuery + " AND i.assetRequest.employee.employeeId = :empId ORDER BY i.requestItemId ASC";
-                Query<AssetRequestItem> query = session.createQuery(hql, AssetRequestItem.class);
+                baseHql = "FROM AssetRequestItem i WHERE i.assetRequest.employee.employeeId = :empId ORDER BY i.requestItemId ASC";
+                query = session.createQuery(baseHql, AssetRequestItem.class);
                 query.setParameter("empId", currentUser.getEmployeeId());
-                return query.getResultList();
             }
+            
+            return query.getResultList();
         } catch (Exception e) {
             logger.error("Error getting filtered list of borrowed asset request items: {}", e.getMessage(), e);
             return null;

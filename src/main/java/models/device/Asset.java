@@ -12,7 +12,7 @@ public class Asset {
     @Column(name = "asset_id")
     private Integer assetId;
 
-    @Column(name = "asset_name", nullable = false)
+    @Column(name = "asset_name", nullable = false, unique = true)
     private String assetName;
 
     @Column(name = "description")
