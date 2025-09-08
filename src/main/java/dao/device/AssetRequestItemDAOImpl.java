@@ -93,7 +93,7 @@ public class AssetRequestItemDAOImpl implements AssetRequestItemDAO {
             Query<AssetRequestItem> query;
 
             if ("Admin".equalsIgnoreCase(role)) {
-                // Admin thấy tất cả, không cần điều kiện WHERE
+                // Admin thấy tất cả
                 baseHql = "FROM AssetRequestItem i ORDER BY i.requestItemId ASC";
                 query = session.createQuery(baseHql, AssetRequestItem.class);
             } else if ("Manager".equalsIgnoreCase(role)) {
