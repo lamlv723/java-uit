@@ -26,7 +26,7 @@ SET
 CREATE TABLE
     Department (
         department_id INT PRIMARY KEY AUTO_INCREMENT, -- ID duy nhất của phòng ban, tự động tăng
-        department_name VARCHAR(255) NOT NULL, -- Tên phòng ban
+        department_name VARCHAR(255) NOT NULL UNIQUE, -- Tên phòng ban
         head_employee_id INT -- ID của trưởng phòng (có thể NULL)
     );
 
@@ -76,7 +76,7 @@ CREATE TABLE
 CREATE TABLE
     Asset (
         asset_id INT PRIMARY KEY AUTO_INCREMENT, -- ID duy nhất của tài sản, tự động tăng
-        asset_name VARCHAR(255) NOT NULL, -- Tên tài sản
+        asset_name VARCHAR(255) NOT NULL UNIQUE, -- Tên tài sản
         description TEXT, -- Mô tả chi tiết về tài sản
         serial_number VARCHAR(100) UNIQUE NOT NULL, -- Số seri, duy nhất và không được NULL
         purchase_date DATE, -- Ngày mua

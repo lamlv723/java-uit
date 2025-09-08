@@ -13,4 +13,6 @@ public interface AssetCategoryDAO {
     AssetCategory getAssetCategoryById(int categoryId);
 
     List<AssetCategory> getAllAssetCategories();
+
+    AssetCategory findByName(String name);
 }

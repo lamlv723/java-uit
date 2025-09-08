@@ -263,71 +263,73 @@ public class AssetFormDialog extends JDialog {
     }
 
     private void onSave() {
-        if (tfName.getText().trim().isEmpty()) {
-            UIUtils.showErrorDialog(this, "Tên tài sản không được rỗng", "Lỗi");
-            return;
-        }
-        if (tfSerial.getText().trim().isEmpty()) {
-            UIUtils.showErrorDialog(this, "Serial number không được rỗng", "Lỗi");
-            return;
-        }
-        if (cbCategory.getSelectedItem() == null) {
-            UIUtils.showErrorDialog(this, "Danh mục bắt buộc", "Lỗi");
-            return;
-        }
-        String status = (String) cbStatus.getSelectedItem();
-        if (status == null || status.isEmpty())
-            status = "Available";
+    if (tfName.getText().trim().isEmpty()) {
+        UIUtils.showErrorDialog(this, "Tên tài sản không được rỗng", "Lỗi");
+        return;
+    }
+    if (tfSerial.getText().trim().isEmpty()) {
+        UIUtils.showErrorDialog(this, "Serial number không được rỗng", "Lỗi");
+        return;
+    }
+    if (cbCategory.getSelectedItem() == null) {
+        UIUtils.showErrorDialog(this, "Danh mục bắt buộc", "Lỗi");
+        return;
+    }
+    String status = (String) cbStatus.getSelectedItem();
+    if (status == null || status.isEmpty())
+        status = "Available";
 
-        Asset a = (asset == null ? new Asset() : asset);
+    Asset a = (asset == null ? new Asset() : asset);
+    try {
+        a.setAssetName(tfName.getText().trim());
+    } catch (Throwable ignore) {
         try {
-            a.setAssetName(tfName.getText().trim());
-        } catch (Throwable ignore) {
-            try {
-                a.setName(tfName.getText().trim());
-            } catch (Throwable ignored) {
-            }
-        }
-        a.setSerialNumber(tfSerial.getText().trim());
-        a.setCategory((AssetCategory) cbCategory.getSelectedItem());
-        a.setStatus(status);
-        a.setVendor((Vendor) cbVendor.getSelectedItem());
-        a.setDescription(taDesc.getText().trim());
-
-        if (!tfPrice.getText().trim().isEmpty()) {
-            try {
-                a.setPurchasePrice(new BigDecimal(tfPrice.getText().trim()));
-            } catch (NumberFormatException ex) {
-                UIUtils.showErrorDialog(this, "Giá mua không hợp lệ", "Lỗi");
-                return;
-            }
-        }
-
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        sdf.setLenient(false);
-        try {
-            if (!tfPurchaseDate.getText().trim().isEmpty())
-                a.setPurchaseDate(sdf.parse(tfPurchaseDate.getText().trim()));
-            if (!tfWarrantyDate.getText().trim().isEmpty())
-                a.setWarrantyExpiryDate(sdf.parse(tfWarrantyDate.getText().trim()));
-        } catch (ParseException ex) {
-            UIUtils.showErrorDialog(this, "Ngày không hợp lệ (dd/MM/yyyy)", "Lỗi");
-            return;
-        }
-
-        Employee user = UserSession.getInstance().getLoggedInEmployee();
-        try {
-            if (asset == null)
-                assetController.addAsset(a, user);
-            else
-                assetController.updateAsset(a, user);
-            saved = true;
-            dispose();
-        } catch (Exception ex) {
-            UIUtils.showErrorDialog(this, "Không thể lưu tài sản: " + ex.getMessage(), "Lỗi Hệ thống");
-            ex.printStackTrace();
+            a.setName(tfName.getText().trim());
+        } catch (Throwable ignored) {
         }
     }
+    a.setSerialNumber(tfSerial.getText().trim());
+    a.setCategory((AssetCategory) cbCategory.getSelectedItem());
+    a.setStatus(status);
+    a.setVendor((Vendor) cbVendor.getSelectedItem());
+    a.setDescription(taDesc.getText().trim());
+
+    if (!tfPrice.getText().trim().isEmpty()) {
+        try {
+            a.setPurchasePrice(new BigDecimal(tfPrice.getText().trim()));
+        } catch (NumberFormatException ex) {
+            UIUtils.showErrorDialog(this, "Giá mua không hợp lệ", "Lỗi");
+            return;
+        }
+    }
+
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    sdf.setLenient(false);
+    try {
+        if (!tfPurchaseDate.getText().trim().isEmpty())
+            a.setPurchaseDate(sdf.parse(tfPurchaseDate.getText().trim()));
+        if (!tfWarrantyDate.getText().trim().isEmpty())
+            a.setWarrantyExpiryDate(sdf.parse(tfWarrantyDate.getText().trim()));
+    } catch (ParseException ex) {
+        UIUtils.showErrorDialog(this, "Ngày không hợp lệ (dd/MM/yyyy)", "Lỗi");
+        return;
+    }
+
+    Employee user = UserSession.getInstance().getLoggedInEmployee();
+    try {
+        if (asset == null)
+            assetController.addAsset(a, user);
+        else
+            assetController.updateAsset(a, user);
+        saved = true;
+        dispose();
+    } catch (IllegalStateException ex) {
+        UIUtils.showErrorDialog(this, ex.getMessage(), "Lỗi");
+    } catch (Exception ex) {
+        UIUtils.showErrorDialog(this, "Không thể lưu tài sản: " + ex.getMessage(), "Lỗi Hệ thống");
+        ex.printStackTrace();
+    }
+}
 
     public boolean isSaved() {
         return saved;

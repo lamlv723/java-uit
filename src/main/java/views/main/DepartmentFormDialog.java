@@ -225,6 +225,8 @@ public class DepartmentFormDialog extends JDialog {
             }
             saved = true;
             dispose();
+        } catch (IllegalStateException ex) {
+            UIUtils.showErrorDialog(this, ex.getMessage(), "Lỗi");
         } catch (Exception ex) {
             UIUtils.showErrorDialog(this, "Không thể lưu phòng ban: " + ex.getMessage(), "Lỗi Hệ thống");
             ex.printStackTrace();

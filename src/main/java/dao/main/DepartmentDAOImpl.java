@@ -93,4 +93,16 @@ public class DepartmentDAOImpl implements DepartmentDAO {
             return null;
         }
     }
+
+    @Override
+    public Department findByName(String name) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<Department> query = session.createQuery("FROM Department WHERE departmentName = :name", Department.class);
+            query.setParameter("name", name);
+            return query.uniqueResult();
+        } catch (Exception e) {
+            logger.error("Error finding department by name {}: {}", name, e.getMessage(), e);
+            return null;
+        }
+    }
 }
