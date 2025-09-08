@@ -23,4 +23,5 @@ public interface AssetDAO {
 
     long countByStatus(String status);
 
+    Asset findByName(String name);
 }

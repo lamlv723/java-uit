@@ -35,19 +35,63 @@ class AssetCategoryServiceTest {
     @Test
     void testAddAssetCategory() {
         AssetCategory category = new AssetCategory();
+        category.setCategoryName("New Category");
         Employee currentUser = new Employee();
         currentUser.setRole("Admin");
+
+        when(assetCategoryDAOMock.findByName("New Category")).thenReturn(null);
+
         assetCategoryService.addAssetCategory(category, currentUser);
         verify(assetCategoryDAOMock, times(1)).addAssetCategory(category);
+    }
+    
+    @Test
+    void testAddAssetCategory_throwsOnDuplicateName() {
+        AssetCategory category = new AssetCategory();
+        category.setCategoryName("Duplicate");
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
+
+        when(assetCategoryDAOMock.findByName("Duplicate")).thenReturn(new AssetCategory());
+
+        assertThrows(IllegalStateException.class, () -> {
+            assetCategoryService.addAssetCategory(category, currentUser);
+        });
+        verify(assetCategoryDAOMock, never()).addAssetCategory(category);
     }
 
     @Test
     void testUpdateAssetCategory() {
         AssetCategory category = new AssetCategory();
+        category.setCategoryId(1);
+        category.setCategoryName("Updated");
         Employee currentUser = new Employee();
         currentUser.setRole("Admin");
+
+        when(assetCategoryDAOMock.findByName("Updated")).thenReturn(null);
+
         assetCategoryService.updateAssetCategory(category, currentUser);
         verify(assetCategoryDAOMock, times(1)).updateAssetCategory(category);
+    }
+
+    @Test
+    void testUpdateAssetCategory_throwsOnDuplicateName() {
+        AssetCategory otherCategory = new AssetCategory();
+        otherCategory.setCategoryId(2);
+        otherCategory.setCategoryName("Existing");
+
+        AssetCategory categoryToUpdate = new AssetCategory();
+        categoryToUpdate.setCategoryId(1);
+        categoryToUpdate.setCategoryName("Existing");
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
+
+        when(assetCategoryDAOMock.findByName("Existing")).thenReturn(otherCategory);
+        
+        assertThrows(IllegalStateException.class, () -> {
+            assetCategoryService.updateAssetCategory(categoryToUpdate, currentUser);
+        });
+        verify(assetCategoryDAOMock, never()).updateAssetCategory(categoryToUpdate);
     }
 
     @Test

@@ -189,6 +189,8 @@ public class AssetCategoryFormDialog extends JDialog {
                 controller.updateAssetCategory(c, user);
             saved = true;
             dispose();
+        } catch (IllegalStateException ex) {
+            UIUtils.showErrorDialog(this, ex.getMessage(), "Lỗi");
         } catch (Exception ex) {
             UIUtils.showErrorDialog(this, "Không thể lưu danh mục: " + ex.getMessage(), "Lỗi Hệ thống");
             ex.printStackTrace();

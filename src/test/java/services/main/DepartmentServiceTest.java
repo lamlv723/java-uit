@@ -27,6 +27,11 @@ class DepartmentServiceTest {
             daoField = DepartmentService.class.getDeclaredField("departmentDAO");
             daoField.setAccessible(true);
             daoField.set(departmentService, departmentDAOMock);
+
+            EmployeeService employeeServiceMock = Mockito.mock(EmployeeService.class);
+            java.lang.reflect.Field serviceField = DepartmentService.class.getDeclaredField("employeeService");
+            serviceField.setAccessible(true);
+            serviceField.set(departmentService, employeeServiceMock);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -35,19 +40,63 @@ class DepartmentServiceTest {
     @Test
     void testAddDepartment() {
         Department department = new Department();
+        department.setDepartmentName("New Dept");
         Employee currentUser = new Employee();
         currentUser.setRole("Admin");
+        
+        when(departmentDAOMock.findByName("New Dept")).thenReturn(null);
+
         departmentService.addDepartment(department, currentUser);
         verify(departmentDAOMock, times(1)).addDepartment(department);
     }
 
     @Test
-    void testUpdateDepartment() {
+    void testAddDepartment_throwsOnDuplicateName() {
         Department department = new Department();
+        department.setDepartmentName("Duplicate");
         Employee currentUser = new Employee();
         currentUser.setRole("Admin");
+        
+        when(departmentDAOMock.findByName("Duplicate")).thenReturn(new Department());
+
+        assertThrows(IllegalStateException.class, () -> {
+            departmentService.addDepartment(department, currentUser);
+        });
+        verify(departmentDAOMock, never()).addDepartment(department);
+    }
+
+    @Test
+    void testUpdateDepartment() {
+        Department department = new Department();
+        department.setDepartmentId(1);
+        department.setDepartmentName("Updated");
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
+
+        when(departmentDAOMock.findByName("Updated")).thenReturn(null);
+
         departmentService.updateDepartment(department, currentUser);
         verify(departmentDAOMock, times(1)).updateDepartment(department);
+    }
+
+    @Test
+    void testUpdateDepartment_throwsOnDuplicateName() {
+        Department otherDept = new Department();
+        otherDept.setDepartmentId(2);
+        otherDept.setDepartmentName("Existing");
+
+        Department departmentToUpdate = new Department();
+        departmentToUpdate.setDepartmentId(1);
+        departmentToUpdate.setDepartmentName("Existing");
+        Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
+
+        when(departmentDAOMock.findByName("Existing")).thenReturn(otherDept);
+
+        assertThrows(IllegalStateException.class, () -> {
+            departmentService.updateDepartment(departmentToUpdate, currentUser);
+        });
+        verify(departmentDAOMock, never()).updateDepartment(departmentToUpdate);
     }
 
     @Test

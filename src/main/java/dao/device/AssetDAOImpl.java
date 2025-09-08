@@ -128,4 +128,16 @@ public class AssetDAOImpl implements AssetDAO {
             return 0L;
         }
     }
+
+    @Override
+    public Asset findByName(String name) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<Asset> query = session.createQuery("FROM Asset WHERE assetName = :name", Asset.class);
+            query.setParameter("name", name);
+            return query.uniqueResult();
+        } catch (Exception e) {
+            logger.error("Error finding asset by name {}: {}", name, e.getMessage(), e);
+            return null;
+        }
+    }
 }

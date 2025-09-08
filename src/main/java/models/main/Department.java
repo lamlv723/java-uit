@@ -12,7 +12,7 @@ public class Department {
     @Column(name = "department_id")
     private Integer departmentId;
 
-    @Column(name = "department_name", nullable = false)
+    @Column(name = "department_name", nullable = false, unique = true)
     private String departmentName;
 
     @OneToOne

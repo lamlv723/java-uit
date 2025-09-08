@@ -1,4 +1,3 @@
-
 package services.device;
 
 import dao.device.AssetDAOImpl;
@@ -6,17 +5,22 @@ import models.device.Asset;
 import models.main.Employee;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import dao.device.interfaces.AssetDAO;
 
 import java.util.List;
 
 public class AssetService {
-    private AssetDAOImpl assetDAO = new AssetDAOImpl();
+    private AssetDAO assetDAO = new AssetDAOImpl();
     private static final Logger logger = LoggerFactory.getLogger(AssetService.class);
 
     public void addAsset(Asset asset, Employee currentUser) {
         if (!"Admin".equalsIgnoreCase(currentUser.getRole())) {
             logger.warn("Authorization Error: User {} attempted to add an asset.", currentUser.getUsername());
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
+        }
+        // Kiểm tra tên tài sản đã tồn tại chưa
+        if (assetDAO.findByName(asset.getAssetName()) != null) {
+            throw new IllegalStateException("Tên tài sản đã tồn tại.");
         }
         assetDAO.save(asset);
     }
@@ -33,6 +37,11 @@ public class AssetService {
         if (!"Admin".equalsIgnoreCase(currentUser.getRole())) {
             logger.warn("Authorization Error: User {} attempted to update an asset.", currentUser.getUsername());
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
+        }
+        // Kiểm tra tên tài sản đã tồn tại và không phải là chính nó
+        Asset existingAsset = assetDAO.findByName(asset.getAssetName());
+        if (existingAsset != null && !existingAsset.getAssetId().equals(asset.getAssetId())) {
+            throw new IllegalStateException("Tên tài sản đã tồn tại.");
         }
         assetDAO.update(asset);
     }
