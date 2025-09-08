@@ -4,6 +4,10 @@ import dao.device.AssetRequestDAOImpl;
 import dao.device.interfaces.AssetRequestDAO;
 import dao.device.interfaces.AssetRequestItemDAO;
 import dao.device.AssetRequestItemDAOImpl;
+import dao.device.interfaces.AssetDAO;
+import dao.device.AssetDAOImpl;
+import dao.main.interfaces.EmployeeDAO;
+import dao.main.EmployeeDAOImpl;
 import models.device.Asset;
 import models.device.AssetRequest;
 import models.device.AssetRequestItem;
@@ -17,13 +21,31 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class AssetRequestService {
-    private AssetRequestDAO assetRequestDAO;
-    private AssetRequestItemDAO assetRequestItemDAO;
+    private final AssetRequestDAO assetRequestDAO;
+    private final AssetRequestItemDAO assetRequestItemDAO;
+    // Additional DAOs for business validations
+    private final AssetDAO assetDAO;
+    private final EmployeeDAO employeeDAO;
     private static final Logger logger = LoggerFactory.getLogger(AssetRequestService.class);
 
+    public AssetRequestService(AssetRequestDAO assetRequestDAO, AssetRequestItemDAO assetRequestItemDAO) {
+        this.assetRequestDAO = assetRequestDAO;
+        this.assetRequestItemDAO = assetRequestItemDAO;
+        this.assetDAO = new AssetDAOImpl();
+        this.employeeDAO = new EmployeeDAOImpl();
+    }
+
+    public AssetRequestService(AssetRequestDAO assetRequestDAO, AssetRequestItemDAO assetRequestItemDAO,
+            AssetDAO assetDAO, EmployeeDAO employeeDAO) {
+        this.assetRequestDAO = assetRequestDAO;
+        this.assetRequestItemDAO = assetRequestItemDAO;
+        this.assetDAO = assetDAO;
+        this.employeeDAO = employeeDAO;
+    }
+
+    // Backward-compatible default wiring
     public AssetRequestService() {
-        this.assetRequestDAO = new AssetRequestDAOImpl();
-        this.assetRequestItemDAO = new AssetRequestItemDAOImpl();
+        this(new AssetRequestDAOImpl(), new AssetRequestItemDAOImpl(), new AssetDAOImpl(), new EmployeeDAOImpl());
     }
 
     public void addAssetRequest(AssetRequest request, Employee currentUser) {
@@ -77,7 +99,6 @@ public class AssetRequestService {
             return "Không tìm thấy yêu cầu để xóa.";
         }
 
-        // Chỉ được xóa khi ở trạng thái "Pending"
         if (!"Pending".equalsIgnoreCase(requestToDelete.getStatus())) {
             logger.warn("User {} attempted to delete a non-pending request (ID: {}) with status: {}",
                     currentUser.getUsername(), requestId, requestToDelete.getStatus());
@@ -102,18 +123,15 @@ public class AssetRequestService {
         }
 
         try {
-            // Lấy danh sách các item liên quan đến yêu cầu
             List<AssetRequestItem> itemsToDelete = assetRequestItemDAO.getAssetRequestItemsByRequestId(requestId);
 
-            // Xóa từng item chi tiết trong yêu cầu
             for (AssetRequestItem item : itemsToDelete) {
                 assetRequestItemDAO.deleteAssetRequestItem(item.getRequestItemId());
             }
 
-            // Xóa yêu cầu chính
             assetRequestDAO.deleteAssetRequest(requestId);
 
-            return null; // Trả về null nếu thành công
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
             return "Lỗi khi xóa yêu cầu: " + e.getMessage();
@@ -125,7 +143,20 @@ public class AssetRequestService {
     }
 
     public List<AssetRequest> getAllAssetRequests(Employee currentUser) {
-        return assetRequestDAO.getAllAssetRequests(currentUser);
+        if (currentUser == null) {
+            return new java.util.ArrayList<>();
+        }
+        String role = currentUser.getRole();
+        if ("Admin".equalsIgnoreCase(role)) {
+            return assetRequestDAO.getAll();
+        } else if ("Manager".equalsIgnoreCase(role)) {
+            Integer deptId = currentUser.getDepartmentId();
+            if (deptId == null)
+                return new java.util.ArrayList<>();
+            return assetRequestDAO.getByDepartmentId(deptId);
+        } else {
+            return assetRequestDAO.getByEmployeeId(currentUser.getEmployeeId());
+        }
     }
 
     public List<AssetRequestItem> getItemsByRequestId(int requestId) {
@@ -140,7 +171,7 @@ public class AssetRequestService {
                 result.add(active);
         } catch (Exception ignored) {
         }
-        return result; // at most one element currently
+        return result;
     }
 
     public String addAssetRequestFromInput(String title, String desc, Employee currentUser) {
@@ -148,8 +179,8 @@ public class AssetRequestService {
             return "Tiêu đề không được để trống!";
         }
         AssetRequest req = new AssetRequest();
-        req.setRequestType(title); // Dùng requestType làm tiêu đề
-        req.setStatus(desc); // Dùng status làm mô tả
+        req.setRequestType(title);
+        req.setStatus(desc);
         try {
             addAssetRequest(req, currentUser);
         } catch (Exception ex) {
@@ -159,7 +190,7 @@ public class AssetRequestService {
     }
 
     public List<AssetRequest> getAllAvailableAssets(Employee currentUser) {
-        List<AssetRequest> allAssets = assetRequestDAO.getAllAssetRequests(currentUser);
+        List<AssetRequest> allAssets = getAllAssetRequests(currentUser);
         if (allAssets == null) {
             return new java.util.ArrayList<>();
         }
@@ -172,8 +203,35 @@ public class AssetRequestService {
         if (assetIds == null || assetIds.isEmpty()) {
             return "Phải chọn ít nhất một tài sản.";
         }
-        // Ủy quyền xử lý DB xuống DAO
-        return assetRequestDAO.createRequestWithItems(employeeId, requestType, assetIds);
+
+        String type = requestType == null ? "" : requestType.trim().toLowerCase();
+        if (!"borrow".equals(type) && !"return".equals(type)) {
+            return "Loại yêu cầu không hợp lệ. Chỉ hỗ trợ 'borrow' hoặc 'return'.";
+        }
+
+        Employee employee = employeeDAO.getEmployeeById(employeeId);
+        if (employee == null) {
+            return "Không tìm thấy nhân viên với ID: " + employeeId;
+        }
+
+        for (Integer assetId : assetIds) {
+            Asset asset = assetDAO.getById(assetId);
+            if (asset == null) {
+                return "Không tìm thấy tài sản với ID: " + assetId;
+            }
+            if ("borrow".equals(type)) {
+                if (!"Available".equalsIgnoreCase(asset.getStatus())) {
+                    return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId + ") không có sẵn để mượn.";
+                }
+            } else { // return
+                if (!"Borrowed".equalsIgnoreCase(asset.getStatus())) {
+                    return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId
+                            + ") không ở trạng thái 'Borrowed' để có thể trả.";
+                }
+            }
+        }
+
+        return assetRequestDAO.createRequestWithItems(employeeId, type, assetIds);
     }
 
     public String rejectRequest(int requestId, Employee currentUser) {
@@ -233,7 +291,16 @@ public class AssetRequestService {
             throw new SecurityException("Bạn không có quyền duyệt yêu cầu này.");
         }
 
-        // Ủy quyền xử lý dữ liệu xuống DAO
+        List<AssetRequestItem> items = assetRequestItemDAO.getAssetRequestItemsByRequestId(requestId);
+        for (AssetRequestItem item : items) {
+            int assetId = item.getAsset().getAssetId();
+            Asset fresh = assetDAO.getById(assetId);
+            if (fresh == null || !"Available".equalsIgnoreCase(fresh.getStatus())) {
+                String assetName = (fresh != null ? fresh.getAssetName() : ("#" + assetId));
+                return "Không thể duyệt: Tài sản '" + assetName + "' đã được mượn hoặc không có sẵn.";
+            }
+        }
+
         return assetRequestDAO.approveBorrowRequest(requestId, currentUser);
     }
 
@@ -266,15 +333,22 @@ public class AssetRequestService {
             throw new SecurityException("Bạn không có quyền duyệt yêu cầu này.");
         }
 
+        List<AssetRequestItem> tempItemsToReturn = assetRequestItemDAO.getAssetRequestItemsByRequestId(requestId);
+        if (tempItemsToReturn == null || tempItemsToReturn.isEmpty()) {
+            return "Yêu cầu trả không có tài sản nào.";
+        }
+        for (AssetRequestItem tempReturnItem : tempItemsToReturn) {
+            int assetId = tempReturnItem.getAsset().getAssetId();
+            AssetRequestItem originalBorrowItem = assetRequestItemDAO.findActiveBorrowItemByAssetId(assetId);
+            if (originalBorrowItem == null) {
+                return "Lỗi logic: Không tìm thấy bản ghi mượn đang hoạt động cho tài sản ID: " + assetId;
+            }
+        }
+
         return assetRequestDAO.approveReturnRequest(requestId, currentUser);
     }
 
-    // ================= Unit-test friendly core logic helpers =================
-    /**
-     * Core logic for approving a borrow request (updates items + request) without
-     * starting/committing transaction.
-     * Provided to allow isolated unit tests without a live DB.
-     */
+    // Unit-test helpers
     protected void applyBorrowApprovalCore(List<AssetRequestItem> items, AssetRequest request, Employee approver,
             org.hibernate.Session session) {
         Date now = Date.from(Instant.now());
@@ -333,6 +407,25 @@ public class AssetRequestService {
             logger.warn("Authorization Error: User {} attempted to update a request they don't own.",
                     currentUser.getUsername());
             throw new SecurityException("Bạn không có quyền sửa yêu cầu này.");
+        }
+
+        String requestType = request.getRequestType();
+        String type = requestType == null ? "" : requestType.trim().toLowerCase();
+        for (Integer assetId : assetIds) {
+            Asset asset = assetDAO.getById(assetId);
+            if (asset == null) {
+                return "Không tìm thấy tài sản với ID: " + assetId;
+            }
+            if ("borrow".equals(type)) {
+                if (!"Available".equalsIgnoreCase(asset.getStatus())) {
+                    return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId + ") không có sẵn để mượn.";
+                }
+            } else if ("return".equals(type)) {
+                if (!"Borrowed".equalsIgnoreCase(asset.getStatus())) {
+                    return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId
+                            + ") không ở trạng thái 'Borrowed' để có thể trả.";
+                }
+            }
         }
 
         return assetRequestDAO.updateRequestWithItems(requestId, assetIds);

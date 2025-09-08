@@ -9,18 +9,24 @@ import dao.main.interfaces.EmployeeDAO;
 import models.main.Employee;
 
 public class EmployeeService {
-    private EmployeeDAO employeeDAO;
+    private final EmployeeDAO employeeDAO;
 
     private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 
+    public EmployeeService(EmployeeDAO employeeDAO) {
+        this.employeeDAO = employeeDAO;
+    }
+
+    // Backward-compatible default wiring
     public EmployeeService() {
-        this.employeeDAO = new EmployeeDAOImpl();
+        this(new EmployeeDAOImpl());
     }
 
     public void addEmployee(Employee employee, Employee currentUser) {
         String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
-            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to add an employee.";
+            String errorMessage = "Authorization Error: User with role " + currentUserRole
+                    + " attempted to add an employee.";
             logger.warn(errorMessage);
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
@@ -30,7 +36,8 @@ public class EmployeeService {
     public void updateEmployee(Employee employee, Employee currentUser) {
         String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
-            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to update an employee.";
+            String errorMessage = "Authorization Error: User with role " + currentUserRole
+                    + " attempted to update an employee.";
             logger.warn(errorMessage);
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
@@ -43,7 +50,8 @@ public class EmployeeService {
                 List<Employee> admins = employeeDAO.getEmployeesByRole("Admin");
                 // Nếu chỉ có một admin (chính là người sắp bị đổi vai trò), thì không cho phép
                 if (admins != null && admins.size() <= 1) {
-                    throw new SecurityException("Không thể thay đổi vai trò của quản trị viên cuối cùng. Hệ thống phải có ít nhất một quản trị viên.");
+                    throw new SecurityException(
+                            "Không thể thay đổi vai trò của quản trị viên cuối cùng. Hệ thống phải có ít nhất một quản trị viên.");
                 }
             }
         }
@@ -54,7 +62,8 @@ public class EmployeeService {
     public void deleteEmployee(int employeeId, Employee currentUser) {
         String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
-            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to delete employee with id " + employeeId + ".";
+            String errorMessage = "Authorization Error: User with role " + currentUserRole
+                    + " attempted to delete employee with id " + employeeId + ".";
             logger.warn(errorMessage);
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
@@ -63,7 +72,8 @@ public class EmployeeService {
         if (employeeToDelete != null && "Admin".equalsIgnoreCase(employeeToDelete.getRole())) {
             List<Employee> admins = employeeDAO.getEmployeesByRole("Admin");
             if (admins != null && admins.size() <= 1) {
-                throw new SecurityException("Không thể xóa quản trị viên cuối cùng. Hệ thống phải có ít nhất một quản trị viên.");
+                throw new SecurityException(
+                        "Không thể xóa quản trị viên cuối cùng. Hệ thống phải có ít nhất một quản trị viên.");
             }
         }
 
@@ -75,7 +85,21 @@ public class EmployeeService {
     }
 
     public List<Employee> getAllEmployees(Employee currentUser) {
-        return employeeDAO.getAllEmployees(currentUser);
+        if (currentUser == null) {
+            return java.util.Collections.emptyList();
+        }
+        String role = currentUser.getRole();
+        if ("Admin".equalsIgnoreCase(role)) {
+            return employeeDAO.getAll();
+        } else if ("Manager".equalsIgnoreCase(role)) {
+            Integer deptId = currentUser.getDepartmentId();
+            if (deptId == null)
+                return java.util.Collections.emptyList();
+            return employeeDAO.getByDepartmentId(deptId);
+        } else {
+            Employee self = employeeDAO.getEmployeeById(currentUser.getEmployeeId());
+            return self == null ? java.util.Collections.emptyList() : java.util.Collections.singletonList(self);
+        }
     }
 
     /**
@@ -106,7 +130,7 @@ public class EmployeeService {
         emp.setPassword(password);
         emp.setDepartmentId(deptId);
 
-        // If error, let View layer catch and display to user
+        // Let view layer handle any thrown error
         addEmployee(emp, currentUser);
 
         return null;

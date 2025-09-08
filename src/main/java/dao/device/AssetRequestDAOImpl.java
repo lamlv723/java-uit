@@ -73,50 +73,52 @@ public class AssetRequestDAOImpl implements AssetRequestDAO {
     }
 
     @Override
-    public List<AssetRequest> getAllAssetRequests(Employee currentUser) {
+    public List<AssetRequest> getAll() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            if (currentUser == null) {
-                return new java.util.ArrayList<>();
-            }
-
-            String role = currentUser.getRole();
-        if ("Admin".equalsIgnoreCase(role)) {
-            // Admin thấy tất cả, sắp xếp theo ID mới nhất
-            Query<AssetRequest> query = session.createQuery("FROM AssetRequest ar ORDER BY ar.requestId ASC", AssetRequest.class);
+            Query<AssetRequest> query = session.createQuery("FROM AssetRequest ar ORDER BY ar.requestId ASC",
+                    AssetRequest.class);
             return query.getResultList();
-        } else if ("Manager".equalsIgnoreCase(role)) {
-            // Manager thấy yêu cầu của nhân viên trong phòng ban, sắp xếp theo ID mới nhất
-            Query<AssetRequest> query = session.createQuery(
-                    "FROM AssetRequest ar WHERE ar.employee.department.departmentId = :deptId ORDER BY ar.requestId ASC", AssetRequest.class);
-            query.setParameter("deptId", currentUser.getDepartmentId());
-            return query.getResultList();
-        } else {
-            // Staff chỉ thấy yêu cầu của chính mình, sắp xếp theo ID mới nhất
-            Query<AssetRequest> query = session.createQuery(
-                    "FROM AssetRequest ar WHERE ar.employee.employeeId = :empId ORDER BY ar.requestId ASC", AssetRequest.class);
-            query.setParameter("empId", currentUser.getEmployeeId());
-            return query.getResultList();
-        }
         } catch (Exception e) {
-            logger.error("Error getting filtered list of asset requests: {}", e.getMessage(), e);
+            logger.error("Error getting all asset requests: {}", e.getMessage(), e);
+            return new java.util.ArrayList<>();
+        }
+    }
+
+    @Override
+    public List<AssetRequest> getByDepartmentId(int departmentId) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<AssetRequest> query = session.createQuery(
+                    "FROM AssetRequest ar WHERE ar.employee.department.departmentId = :deptId ORDER BY ar.requestId ASC",
+                    AssetRequest.class);
+            query.setParameter("deptId", departmentId);
+            return query.getResultList();
+        } catch (Exception e) {
+            logger.error("Error getting asset requests by department {}: {}", departmentId, e.getMessage(), e);
+            return new java.util.ArrayList<>();
+        }
+    }
+
+    @Override
+    public List<AssetRequest> getByEmployeeId(int employeeId) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<AssetRequest> query = session.createQuery(
+                    "FROM AssetRequest ar WHERE ar.employee.employeeId = :empId ORDER BY ar.requestId ASC",
+                    AssetRequest.class);
+            query.setParameter("empId", employeeId);
+            return query.getResultList();
+        } catch (Exception e) {
+            logger.error("Error getting asset requests by employee {}: {}", employeeId, e.getMessage(), e);
             return new java.util.ArrayList<>();
         }
     }
 
     @Override
     public String createRequestWithItems(int employeeId, String requestType, java.util.List<Integer> assetIds) {
-        if (assetIds == null || assetIds.isEmpty()) {
-            return "Phải chọn ít nhất một tài sản.";
-        }
+        // Assumes inputs have been validated in the Service layer
         Transaction tx = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
-
             Employee employee = session.get(Employee.class, employeeId);
-            if (employee == null) {
-                return "Không tìm thấy nhân viên với ID: " + employeeId;
-            }
-
             AssetRequest request = new AssetRequest();
             request.setEmployee(employee);
             request.setRequestType(requestType);
@@ -126,22 +128,6 @@ public class AssetRequestDAOImpl implements AssetRequestDAO {
 
             for (Integer assetId : assetIds) {
                 Asset asset = session.get(Asset.class, assetId);
-                if (asset == null) {
-                    tx.rollback();
-                    return "Không tìm thấy tài sản với ID: " + assetId;
-                }
-                if ("borrow".equalsIgnoreCase(requestType)) {
-                    if (!"Available".equalsIgnoreCase(asset.getStatus())) {
-                        tx.rollback();
-                        return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId + ") không có sẵn để mượn.";
-                    }
-                } else if ("return".equalsIgnoreCase(requestType)) {
-                    if (!"Borrowed".equalsIgnoreCase(asset.getStatus())) {
-                        tx.rollback();
-                        return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId
-                                + ") không ở trạng thái 'Borrowed' để có thể trả.";
-                    }
-                }
                 AssetRequestItem item = new AssetRequestItem();
                 item.setAssetRequest(request);
                 item.setAsset(asset);
@@ -160,22 +146,12 @@ public class AssetRequestDAOImpl implements AssetRequestDAO {
 
     @Override
     public String updateRequestWithItems(int requestId, java.util.List<Integer> assetIds) {
-        if (assetIds == null || assetIds.isEmpty()) {
-            return "Phải chọn ít nhất một tài sản.";
-        }
+        // Assumes inputs and permissions have been validated in the Service layer
         Transaction tx = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
 
             AssetRequest request = session.get(AssetRequest.class, requestId);
-            if (request == null) {
-                return "Không tìm thấy yêu cầu để cập nhật.";
-            }
-            if (!"Pending".equalsIgnoreCase(request.getStatus())) {
-                return "Chỉ có thể sửa các yêu cầu đang ở trạng thái 'Pending'.";
-            }
-
-            String requestType = request.getRequestType();
 
             Query<?> deleteQuery = session
                     .createQuery("DELETE FROM AssetRequestItem WHERE assetRequest.requestId = :rid");
@@ -184,22 +160,6 @@ public class AssetRequestDAOImpl implements AssetRequestDAO {
 
             for (Integer assetId : assetIds) {
                 Asset asset = session.get(Asset.class, assetId);
-                if (asset == null) {
-                    tx.rollback();
-                    return "Không tìm thấy tài sản với ID: " + assetId;
-                }
-                if ("borrow".equalsIgnoreCase(requestType)) {
-                    if (!"Available".equalsIgnoreCase(asset.getStatus())) {
-                        tx.rollback();
-                        return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId + ") không có sẵn để mượn.";
-                    }
-                } else if ("return".equalsIgnoreCase(requestType)) {
-                    if (!"Borrowed".equalsIgnoreCase(asset.getStatus())) {
-                        tx.rollback();
-                        return "Tài sản '" + asset.getAssetName() + "' (ID: " + assetId
-                                + ") không ở trạng thái 'Borrowed' để có thể trả.";
-                    }
-                }
                 AssetRequestItem item = new AssetRequestItem();
                 item.setAssetRequest(request);
                 item.setAsset(asset);
@@ -222,25 +182,11 @@ public class AssetRequestDAOImpl implements AssetRequestDAO {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
             AssetRequest request = session.get(AssetRequest.class, requestId);
-            if (request == null)
-                return "Không tìm thấy yêu cầu.";
-            if (!"borrow".equals(request.getRequestType()))
-                return "Đây không phải là yêu cầu mượn.";
-            if (!"Pending".equals(request.getStatus()))
-                return "Chỉ có thể hoàn tất yêu cầu đang 'Pending'.";
-
+            // Inputs and permissions have been validated in Service layer
             List<AssetRequestItem> items = session.createQuery(
                     "FROM AssetRequestItem WHERE assetRequest.requestId = :rid", AssetRequestItem.class)
                     .setParameter("rid", requestId)
                     .getResultList();
-            for (AssetRequestItem item : items) {
-                session.refresh(item.getAsset());
-                if (!"Available".equalsIgnoreCase(item.getAsset().getStatus())) {
-                    tx.rollback();
-                    return "Không thể duyệt: Tài sản '" + item.getAsset().getAssetName()
-                            + "' đã được mượn hoặc không có sẵn.";
-                }
-            }
 
             java.util.Date now = java.util.Date.from(java.time.Instant.now());
             for (AssetRequestItem item : items) {
@@ -271,20 +217,11 @@ public class AssetRequestDAOImpl implements AssetRequestDAO {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
             AssetRequest requestToReturn = session.get(AssetRequest.class, requestId);
-            if (requestToReturn == null)
-                return "Không tìm thấy yêu cầu.";
-            if (!"return".equals(requestToReturn.getRequestType()))
-                return "Đây không phải là yêu cầu trả.";
-            if (!"Pending".equals(requestToReturn.getStatus()))
-                return "Chỉ có thể hoàn tất yêu cầu đang 'Pending'.";
 
             List<AssetRequestItem> tempItemsToReturn = session.createQuery(
                     "FROM AssetRequestItem WHERE assetRequest.requestId = :rid", AssetRequestItem.class)
                     .setParameter("rid", requestId)
                     .getResultList();
-            if (tempItemsToReturn.isEmpty()) {
-                return "Yêu cầu trả không có tài sản nào.";
-            }
 
             for (AssetRequestItem tempReturnItem : tempItemsToReturn) {
                 int assetId = tempReturnItem.getAsset().getAssetId();
@@ -295,11 +232,6 @@ public class AssetRequestDAOImpl implements AssetRequestDAO {
                         .setParameter("assetId", assetId)
                         .setMaxResults(1)
                         .uniqueResultOptional().orElse(null);
-
-                if (originalBorrowItem == null) {
-                    tx.rollback();
-                    return "Lỗi logic: Không tìm thấy bản ghi mượn đang hoạt động cho tài sản ID: " + assetId;
-                }
 
                 java.util.Date returnDate = java.util.Date.from(java.time.Instant.now());
                 originalBorrowItem.setReturnDate(returnDate);
@@ -330,10 +262,7 @@ public class AssetRequestDAOImpl implements AssetRequestDAO {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
             AssetRequest request = session.get(AssetRequest.class, requestId);
-            if (request == null)
-                return "Không tìm thấy yêu cầu.";
-            if (!"Pending".equals(request.getStatus()))
-                return "Chỉ có thể từ chối yêu cầu ở trạng thái 'Pending'.";
+            // Inputs and permissions have been validated in Service layer
             request.setStatus("Rejected");
             request.setApprover(approver);
             request.setRejectedDate(java.util.Date.from(java.time.Instant.now()));

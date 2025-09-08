@@ -13,7 +13,10 @@ public interface EmployeeDAO {
 
     Employee getEmployeeById(int employeeId);
 
-    List<Employee> getAllEmployees(Employee currentUser);
+    // Pure persistence queries (no role/current user decisions)
+    List<Employee> getAll();
+
+    List<Employee> getByDepartmentId(int departmentId);
 
     List<Employee> getEmployeesByRole(String role);
 

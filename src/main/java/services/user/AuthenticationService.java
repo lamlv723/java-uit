@@ -7,16 +7,24 @@ import models.main.Employee;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Xác thực: ưu tiên DB; fallback 3 tài khoản mẫu nếu chưa seed (tắt bằng -Dauth.fallback.enabled=false)
+// Xác thực: ưu tiên DB; có thể bật fallback tài khoản mẫu bằng -Dauth.fallback.enabled=true
 public class AuthenticationService {
     private static final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
-    private final EmployeeDAO employeeDAO = new EmployeeDAOImpl();
+    private final EmployeeDAO employeeDAO;
+
+    public AuthenticationService(EmployeeDAO employeeDAO) {
+        this.employeeDAO = employeeDAO;
+    }
+
+    // Backward-compatible default wiring
+    public AuthenticationService() {
+        this(new EmployeeDAOImpl());
+    }
 
     public Employee authenticate(String username, String password) {
         if (isBlank(username) || isBlank(password))
             return null;
 
-        // DB first
         Employee emp = employeeDAO.getEmployeeByUsernameAndPassword(username.trim(), password.trim());
         if (emp != null && emp.getStatus() != null && emp.getStatus().equalsIgnoreCase("Active")) {
             return emp;
@@ -44,7 +52,6 @@ public class AuthenticationService {
     }
 
     private boolean isFallbackEnabled() {
-        // Allow disabling fallback accounts in higher environments
         return Boolean.parseBoolean(System.getProperty("auth.fallback.enabled", "true"));
     }
 
@@ -59,7 +66,7 @@ public class AuthenticationService {
     private Employee buildDefault(int id, String first, String last, Integer deptId, String role, String username,
             String password) {
         Employee e = new Employee();
-        e.setEmployeeId(id); // tạm thời (DB có thể khác, chỉ dùng trong session)
+        e.setEmployeeId(id);
         e.setFirstName(first);
         e.setLastName(last);
         e.setEmail(username + "@example.com");

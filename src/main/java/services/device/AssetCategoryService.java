@@ -11,17 +11,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AssetCategoryService {
-    private AssetCategoryDAO assetCategoryDAO;
+    private final AssetCategoryDAO assetCategoryDAO;
     private static final Logger logger = LoggerFactory.getLogger(AssetCategoryService.class);
 
+    public AssetCategoryService(AssetCategoryDAO assetCategoryDAO) {
+        this.assetCategoryDAO = assetCategoryDAO;
+    }
+
+    // Backward-compatible default wiring
     public AssetCategoryService() {
-        this.assetCategoryDAO = new AssetCategoryDAOImpl();
+        this(new AssetCategoryDAOImpl());
     }
 
     public void addAssetCategory(AssetCategory category, Employee currentUser) {
         String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
-            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to add an asset category.";
+            String errorMessage = "Authorization Error: User with role " + currentUserRole
+                    + " attempted to add an asset category.";
             logger.warn(errorMessage);
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
@@ -34,7 +40,8 @@ public class AssetCategoryService {
     public void updateAssetCategory(AssetCategory category, Employee currentUser) {
         String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
-            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to update an asset category.";
+            String errorMessage = "Authorization Error: User with role " + currentUserRole
+                    + " attempted to update an asset category.";
             logger.warn(errorMessage);
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
@@ -48,7 +55,8 @@ public class AssetCategoryService {
     public void deleteAssetCategory(int categoryId, Employee currentUser) {
         String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
-            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to delete asset category with id " + categoryId + ".";
+            String errorMessage = "Authorization Error: User with role " + currentUserRole
+                    + " attempted to delete asset category with id " + categoryId + ".";
             logger.warn(errorMessage);
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
@@ -76,7 +84,7 @@ public class AssetCategoryService {
         cat.setCategoryName(name);
         cat.setDescription(desc);
 
-        // Error will propagate and be caught in view layer
+        // Let view layer handle any thrown error
         addAssetCategory(cat, currentUser);
 
         return null;

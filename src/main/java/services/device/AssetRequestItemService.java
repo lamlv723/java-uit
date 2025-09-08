@@ -9,24 +9,26 @@ import models.main.Employee;
 import java.util.List;
 
 public class AssetRequestItemService {
-    private AssetRequestItemDAO assetRequestItemDAO;
+    private final AssetRequestItemDAO assetRequestItemDAO;
 
+    public AssetRequestItemService(AssetRequestItemDAO assetRequestItemDAO) {
+        this.assetRequestItemDAO = assetRequestItemDAO;
+    }
+
+    // Backward-compatible default wiring
     public AssetRequestItemService() {
-        this.assetRequestItemDAO = new AssetRequestItemDAOImpl();
+        this(new AssetRequestItemDAOImpl());
     }
 
     public void addAssetRequestItem(AssetRequestItem item, Employee currentUser) {
-        // TODO: Add role-based logic if needed
         assetRequestItemDAO.addAssetRequestItem(item);
     }
 
     public void updateAssetRequestItem(AssetRequestItem item, Employee currentUser) {
-        // TODO: Add role-based logic if needed
         assetRequestItemDAO.updateAssetRequestItem(item);
     }
 
     public void deleteAssetRequestItem(int id, Employee currentUser) {
-        // TODO: Add role-based logic if needed
         assetRequestItemDAO.deleteAssetRequestItem(id);
     }
 
@@ -38,8 +40,47 @@ public class AssetRequestItemService {
         return assetRequestItemDAO.getAllAssetRequestItems();
     }
 
-    public List<AssetRequestItem> getFilteredRequestItems(Employee currentUser){
-        return assetRequestItemDAO.getFilteredRequestItems(currentUser);
+    public List<AssetRequestItem> getFilteredRequestItems(Employee currentUser) {
+        if (currentUser == null)
+            return java.util.Collections.emptyList();
+
+        // Order by requestItemId ASC
+        java.util.Comparator<AssetRequestItem> byIdAsc = java.util.Comparator.comparing(
+                AssetRequestItem::getRequestItemId,
+                java.util.Comparator.nullsLast(Integer::compareTo));
+
+        List<AssetRequestItem> all = assetRequestItemDAO.getAllAssetRequestItems();
+        if (all == null)
+            return java.util.Collections.emptyList();
+
+        String role = currentUser.getRole();
+        if ("Admin".equalsIgnoreCase(role)) {
+            return all.stream()
+                    .sorted(byIdAsc)
+                    .collect(java.util.stream.Collectors.toList());
+        }
+        if ("Manager".equalsIgnoreCase(role)) {
+            Integer deptId = currentUser.getDepartmentId();
+            if (deptId == null)
+                return java.util.Collections.emptyList();
+            return all.stream()
+                    .filter(i -> i.getAssetRequest() != null
+                            && i.getAssetRequest().getEmployee() != null
+                            && i.getAssetRequest().getEmployee().getDepartmentId() != null
+                            && deptId.equals(i.getAssetRequest().getEmployee().getDepartmentId()))
+                    .sorted(byIdAsc)
+                    .collect(java.util.stream.Collectors.toList());
+        }
+        // Staff
+        Integer empId = currentUser.getEmployeeId();
+        if (empId == null)
+            return java.util.Collections.emptyList();
+        return all.stream()
+                .filter(i -> i.getAssetRequest() != null
+                        && i.getAssetRequest().getEmployee() != null
+                        && empId.equals(i.getAssetRequest().getEmployee().getEmployeeId()))
+                .sorted(byIdAsc)
+                .collect(java.util.stream.Collectors.toList());
     }
 
     /**

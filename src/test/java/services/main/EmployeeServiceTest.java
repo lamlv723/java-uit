@@ -19,16 +19,7 @@ class EmployeeServiceTest {
     @BeforeEach
     void setUp() {
         employeeDAOMock = Mockito.mock(EmployeeDAO.class);
-        employeeService = new EmployeeService();
-        // Inject mock DAO
-        java.lang.reflect.Field daoField;
-        try {
-            daoField = EmployeeService.class.getDeclaredField("employeeDAO");
-            daoField.setAccessible(true);
-            daoField.set(employeeService, employeeDAOMock);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        employeeService = new EmployeeService(employeeDAOMock);
     }
 
     @Test
@@ -44,7 +35,7 @@ class EmployeeServiceTest {
     void testUpdateEmployee() {
         Employee employee = new Employee();
         employee.setEmployeeId(1);
-        
+
         Employee currentUser = new Employee();
         currentUser.setRole("Admin");
 
@@ -59,12 +50,12 @@ class EmployeeServiceTest {
     void testDeleteEmployee() {
         Employee currentUser = new Employee();
         currentUser.setRole("Admin");
-        
+
         Employee employeeToDelete = new Employee();
         employeeToDelete.setEmployeeId(1);
         employeeToDelete.setRole("Staff"); // Giả sử vai trò không phải Admin để qua các bước kiểm tra
         when(employeeDAOMock.getEmployeeById(1)).thenReturn(employeeToDelete);
-        
+
         employeeService.deleteEmployee(1, currentUser);
         verify(employeeDAOMock, times(1)).deleteEmployee(1);
     }
@@ -78,15 +69,38 @@ class EmployeeServiceTest {
     }
 
     @Test
-    void testGetAllEmployees() {
-        // Mock current user
+    void testGetAllEmployees_Admin() {
         Employee currentUser = new Employee();
-        currentUser.setRole("ADMIN");
-
+        currentUser.setRole("Admin");
         List<Employee> employees = Arrays.asList(new Employee(), new Employee());
-        when(employeeDAOMock.getAllEmployees(currentUser)).thenReturn(employees);
+        when(employeeDAOMock.getAll()).thenReturn(employees);
         List<Employee> result = employeeService.getAllEmployees(currentUser);
         assertEquals(2, result.size());
+        verify(employeeDAOMock, times(1)).getAll();
+    }
+
+    @Test
+    void testGetAllEmployees_Manager() {
+        Employee currentUser = new Employee();
+        currentUser.setRole("Manager");
+        currentUser.setDepartmentId(10);
+        List<Employee> employees = Arrays.asList(new Employee());
+        when(employeeDAOMock.getByDepartmentId(10)).thenReturn(employees);
+        List<Employee> result = employeeService.getAllEmployees(currentUser);
+        assertEquals(1, result.size());
+        verify(employeeDAOMock, times(1)).getByDepartmentId(10);
+    }
+
+    @Test
+    void testGetAllEmployees_Staff() {
+        Employee currentUser = new Employee();
+        currentUser.setRole("Staff");
+        currentUser.setEmployeeId(7);
+        Employee self = new Employee();
+        when(employeeDAOMock.getEmployeeById(7)).thenReturn(self);
+        List<Employee> result = employeeService.getAllEmployees(currentUser);
+        assertEquals(1, result.size());
+        verify(employeeDAOMock, times(1)).getEmployeeById(7);
     }
 
     @Test

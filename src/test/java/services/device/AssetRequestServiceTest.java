@@ -25,19 +25,7 @@ class AssetRequestServiceTest {
     void setUp() {
         assetRequestDAOMock = Mockito.mock(AssetRequestDAO.class);
         assetRequestItemDAOMock = Mockito.mock(AssetRequestItemDAO.class);
-        assetRequestService = new AssetRequestService();
-        // Inject mock DAOs
-        try {
-            java.lang.reflect.Field daoField = AssetRequestService.class.getDeclaredField("assetRequestDAO");
-            daoField.setAccessible(true);
-            daoField.set(assetRequestService, assetRequestDAOMock);
-
-            java.lang.reflect.Field itemDaoField = AssetRequestService.class.getDeclaredField("assetRequestItemDAO");
-            itemDaoField.setAccessible(true);
-            itemDaoField.set(assetRequestService, assetRequestItemDAOMock);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        assetRequestService = new AssetRequestService(assetRequestDAOMock, assetRequestItemDAOMock);
     }
 
     @Test
@@ -110,20 +98,44 @@ class AssetRequestServiceTest {
     }
 
     @Test
-    void testGetAllAssetRequests() {
-        // 1. Arrange: Tạo người dùng hiện tại giả
+    void testGetAllAssetRequests_Admin() {
         Employee currentUser = new Employee();
+        currentUser.setRole("Admin");
         List<AssetRequest> requests = Arrays.asList(new AssetRequest(), new AssetRequest());
-
-        // 2. Dạy cho DAO mock phải làm gì khi được gọi với currentUser
-        when(assetRequestDAOMock.getAllAssetRequests(currentUser)).thenReturn(requests);
-
-        // 3. Act: Gọi phương thức của service với currentUser
+        when(assetRequestDAOMock.getAll()).thenReturn(requests);
         List<AssetRequest> result = assetRequestService.getAllAssetRequests(currentUser);
-
-        // 4. Assert & Verify
         assertEquals(2, result.size());
-        verify(assetRequestDAOMock, times(1)).getAllAssetRequests(currentUser);
+        verify(assetRequestDAOMock, times(1)).getAll();
+        verify(assetRequestDAOMock, never()).getByDepartmentId(anyInt());
+        verify(assetRequestDAOMock, never()).getByEmployeeId(anyInt());
+    }
+
+    @Test
+    void testGetAllAssetRequests_Manager() {
+        Employee currentUser = new Employee();
+        currentUser.setRole("Manager");
+        currentUser.setDepartmentId(10);
+        List<AssetRequest> requests = Arrays.asList(new AssetRequest());
+        when(assetRequestDAOMock.getByDepartmentId(10)).thenReturn(requests);
+        List<AssetRequest> result = assetRequestService.getAllAssetRequests(currentUser);
+        assertEquals(1, result.size());
+        verify(assetRequestDAOMock, times(1)).getByDepartmentId(10);
+        verify(assetRequestDAOMock, never()).getAll();
+        verify(assetRequestDAOMock, never()).getByEmployeeId(anyInt());
+    }
+
+    @Test
+    void testGetAllAssetRequests_Staff() {
+        Employee currentUser = new Employee();
+        currentUser.setRole("Staff");
+        currentUser.setEmployeeId(7);
+        List<AssetRequest> requests = Arrays.asList(new AssetRequest());
+        when(assetRequestDAOMock.getByEmployeeId(7)).thenReturn(requests);
+        List<AssetRequest> result = assetRequestService.getAllAssetRequests(currentUser);
+        assertEquals(1, result.size());
+        verify(assetRequestDAOMock, times(1)).getByEmployeeId(7);
+        verify(assetRequestDAOMock, never()).getAll();
+        verify(assetRequestDAOMock, never()).getByDepartmentId(anyInt());
     }
 
     @Test

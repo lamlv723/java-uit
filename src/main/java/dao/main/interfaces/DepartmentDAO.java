@@ -3,7 +3,6 @@ package dao.main.interfaces;
 import java.util.List;
 
 import models.main.Department;
-import models.main.Employee;
 
 public interface DepartmentDAO {
     void addDepartment(Department department);
@@ -14,7 +13,8 @@ public interface DepartmentDAO {
 
     Department getDepartmentById(int departmentId);
 
-    Department findByName(String name);
+    // Pure queries
+    List<Department> getAll();
 
-    List<Department> getAllDepartments(Employee currentUser);
+    Department findByName(String name);
 }

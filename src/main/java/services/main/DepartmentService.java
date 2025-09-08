@@ -2,6 +2,7 @@
 package services.main;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import models.main.Employee;
 import org.slf4j.Logger;
@@ -11,20 +12,26 @@ import dao.main.interfaces.DepartmentDAO;
 import models.main.Department;
 
 public class DepartmentService {
-    private DepartmentDAO departmentDAO;
-    private EmployeeService employeeService;
+    private final DepartmentDAO departmentDAO;
+    private final EmployeeService employeeService;
 
     private static final Logger logger = LoggerFactory.getLogger(DepartmentService.class);
 
+    public DepartmentService(DepartmentDAO departmentDAO, EmployeeService employeeService) {
+        this.departmentDAO = departmentDAO;
+        this.employeeService = employeeService;
+    }
+
+    // Backward-compatible default wiring
     public DepartmentService() {
-        this.departmentDAO = new DepartmentDAOImpl();
-        this.employeeService = new EmployeeService();
+        this(new DepartmentDAOImpl(), new EmployeeService());
     }
 
     public void addDepartment(Department department, Employee currentUser) {
         String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
-            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to add a department.";
+            String errorMessage = "Authorization Error: User with role " + currentUserRole
+                    + " attempted to add a department.";
             logger.warn(errorMessage);
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
@@ -35,7 +42,7 @@ public class DepartmentService {
 
         departmentDAO.addDepartment(department);
 
-        // After adding the department, update the head employee's role and department
+        // Assign head if provided
         Employee head = department.getHeadEmployee();
         if (head != null) {
             promoteAndAssignEmployeeToDepartment(head, department, currentUser);
@@ -45,7 +52,8 @@ public class DepartmentService {
     public void updateDepartment(Department department, Employee currentUser) {
         String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
-            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to update a department.";
+            String errorMessage = "Authorization Error: User with role " + currentUserRole
+                    + " attempted to update a department.";
             logger.warn(errorMessage);
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
@@ -54,10 +62,10 @@ public class DepartmentService {
         if (existing != null && !existing.getDepartmentId().equals(department.getDepartmentId())) {
             throw new IllegalStateException("Tên phòng ban đã tồn tại.");
         }
-        
+
         departmentDAO.updateDepartment(department);
 
-        // After adding the department, update the head employee's role and department
+        // Assign head if provided
         Employee head = department.getHeadEmployee();
         if (head != null) {
             promoteAndAssignEmployeeToDepartment(head, department, currentUser);
@@ -65,20 +73,21 @@ public class DepartmentService {
     }
 
     private void promoteAndAssignEmployeeToDepartment(Employee employee, Department department, Employee currentUser) {
-        // Fetch the latest state of the employee
         Employee employeeToUpdate = employeeService.getEmployeeById(employee.getEmployeeId());
         if (employeeToUpdate != null) {
             employeeToUpdate.setRole("Manager");
             employeeToUpdate.setDepartment(department);
             employeeService.updateEmployee(employeeToUpdate, currentUser);
-            logger.info("Promoted and assigned employee {} to department {}", employeeToUpdate.getUsername(), department.getDepartmentName());
+            logger.info("Promoted and assigned employee {} to department {}", employeeToUpdate.getUsername(),
+                    department.getDepartmentName());
         }
     }
 
     public void deleteDepartment(int departmentId, Employee currentUser) {
         String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
-            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to delete department with id " + departmentId + ".";
+            String errorMessage = "Authorization Error: User with role " + currentUserRole
+                    + " attempted to delete department with id " + departmentId + ".";
             logger.warn(errorMessage);
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
@@ -90,7 +99,23 @@ public class DepartmentService {
     }
 
     public List<Department> getAllDepartments(Employee currentUser) {
-        return departmentDAO.getAllDepartments(currentUser);
+        if (currentUser == null) {
+            return java.util.Collections.emptyList();
+        }
+        String role = currentUser.getRole();
+        if ("Admin".equalsIgnoreCase(role)) {
+            return departmentDAO.getAll();
+        }
+        Integer deptId = currentUser.getDepartmentId();
+        if (deptId == null)
+            return java.util.Collections.emptyList();
+        // Manager/Staff: only their own department
+        List<Department> all = departmentDAO.getAll();
+        if (all == null)
+            return java.util.Collections.emptyList();
+        return all.stream()
+                .filter(d -> java.util.Objects.equals(d.getDepartmentId(), deptId))
+                .collect(Collectors.toList());
     }
 
     /**

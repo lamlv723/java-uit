@@ -226,6 +226,12 @@ Dự án áp dụng nhiều mẫu thiết kế (Design Patterns) nổi bật nh�
   - Tạo các đối tượng (ví dụ: View, Controller) một cách linh hoạt, ẩn đi chi tiết khởi tạo.
   - Giúp dễ dàng mở rộng khi thêm loại đối tượng mới mà không cần sửa code cũ.
 
+- **Observer (Publish/Subscribe):**
+
+  - Cho phép một đối tượng (Subject) phát đi thông báo khi trạng thái thay đổi để nhiều đối tượng quan sát (Observers) nhận và xử lý mà không cần phụ thuộc chặt chẽ.
+  - Giảm coupling giữa Service/Domain và UI: các view/controller có thể đăng ký lắng nghe sự kiện nghiệp vụ (ví dụ: cập nhật trạng thái yêu cầu mượn/trả, thay đổi dữ liệu thiết bị/nhân viên) để tự động refresh hiển thị.
+  - Phù hợp với các màn hình cần đồng bộ hóa khi có thao tác CRUD hoặc workflow, giúp luồng dữ liệu nhất quán và dễ kiểm thử.
+
 ## Tiện ích (Utilities) & Constants
 
 - **AppConstants:** Quản lý các hằng số dùng chung cho toàn bộ ứng dụng (trạng thái thiết bị, thông báo, vai trò, định dạng ngày tháng, ...).
@@ -246,7 +252,6 @@ Việc áp dụng các pattern, tiện ích và exception này giúp dự án c�
 
 - Nhóm phát triển:
   - Trương Công Hiếu
-  - Trịnh Bảo Hoàng
   - Lê Văn Lâm
   - Tạ Kim Phúc
 
@@ -256,4 +261,4 @@ Nếu gặp lỗi hoặc cần hỗ trợ, vui lòng liên hệ nhóm phát tri�
 
 ## License
 
-MIT.
+GPL-3.0 (GNU General Public License v3).
