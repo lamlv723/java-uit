@@ -1,6 +1,6 @@
 package services.device;
 
-import dao.device.AssetDAOImpl;
+import dao.device.interfaces.AssetDAO;
 import models.device.Asset;
 import models.main.Employee;
 import org.slf4j.Logger;
@@ -10,8 +10,18 @@ import dao.device.interfaces.AssetDAO;
 import java.util.List;
 
 public class AssetService {
-    private AssetDAO assetDAO = new AssetDAOImpl();
+    private final AssetDAO assetDAO;
     private static final Logger logger = LoggerFactory.getLogger(AssetService.class);
+
+    // Constructor injection reduces coupling and improves testability
+    public AssetService(AssetDAO assetDAO) {
+        this.assetDAO = assetDAO;
+    }
+
+    // Backward-compatible default wiring
+    public AssetService() {
+        this(new dao.device.AssetDAOImpl());
+    }
 
     public void addAsset(Asset asset, Employee currentUser) {
         if (!"Admin".equalsIgnoreCase(currentUser.getRole())) {
@@ -92,7 +102,7 @@ public class AssetService {
     }
 
     public long countInUseAssets() {
-        // In legacy code status used 'Borrowed'; treat as In Use
+        // Legacy used 'Borrowed'; include it in In Use count
         long borrowed = assetDAO.countByStatus("Borrowed");
         long inUse = assetDAO.countByStatus("In Use");
         return borrowed + inUse;

@@ -70,43 +70,27 @@ public class EmployeeDAOImpl implements EmployeeDAO {
         }
     }
 
-//    @Override
-//    public List<Employee> getAllEmployees() {
-//        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-//            Query<Employee> query = session.createQuery("FROM Employee", Employee.class);
-//            return query.getResultList();
-//        } catch (Exception e) {
-//            logger.error("Error getting all employees: {}", e.getMessage(), e);
-//            return null;
-//        }
-//    }
+    @Override
+    public List<Employee> getAll() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<Employee> query = session.createQuery("FROM Employee", Employee.class);
+            return query.getResultList();
+        } catch (Exception e) {
+            logger.error("Error getting all employees: {}", e.getMessage(), e);
+            return java.util.Collections.emptyList();
+        }
+    }
 
     @Override
-    public List<Employee> getAllEmployees(Employee currentUser) {
+    public List<Employee> getByDepartmentId(int departmentId) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            if (currentUser == null) {
-                return new java.util.ArrayList<>();
-            }
-
-            String role = currentUser.getRole();
-            if ("Admin".equalsIgnoreCase(role)) {
-                // Admin can see everyone
-                Query<Employee> query = session.createQuery("FROM Employee", Employee.class);
-                return query.getResultList();
-            } else if ("Manager".equalsIgnoreCase(role)) {
-                // Manager can see staff in their department
-                Query<Employee> query = session.createQuery("FROM Employee WHERE department.departmentId = :deptId", Employee.class);
-                query.setParameter("deptId", currentUser.getDepartmentId());
-                return query.getResultList();
-            } else {
-                // Staff can only see themselves
-                Query<Employee> query = session.createQuery("FROM Employee WHERE employeeId = :empId", Employee.class);
-                query.setParameter("empId", currentUser.getEmployeeId());
-                return query.getResultList();
-            }
+            Query<Employee> query = session.createQuery("FROM Employee WHERE department.departmentId = :deptId",
+                    Employee.class);
+            query.setParameter("deptId", departmentId);
+            return query.getResultList();
         } catch (Exception e) {
-            logger.error("Error getting filtered list of employees: {}", e.getMessage(), e);
-            return null;
+            logger.error("Error getting employees by department id {}: {}", departmentId, e.getMessage(), e);
+            return java.util.Collections.emptyList();
         }
     }
 

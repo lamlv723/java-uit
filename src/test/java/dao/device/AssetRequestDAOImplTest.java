@@ -2,7 +2,6 @@ package dao.device;
 
 import config.HibernateUtil;
 import models.device.AssetRequest;
-import models.main.Employee;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -27,7 +26,6 @@ class AssetRequestDAOImplTest {
     private Session sessionMock;
     private Transaction transactionMock;
     private static SessionFactory sessionFactoryStaticHolder;
-
 
     @BeforeAll
     static void beforeAll() {
@@ -86,16 +84,14 @@ class AssetRequestDAOImplTest {
     }
 
     @Test
-    void testGetAllAssetRequests() {
-        Employee currentUser = new Employee();
-        currentUser.setRole("Admin");
-
+    void testGetAll() {
         List<AssetRequest> requests = Arrays.asList(new AssetRequest(), new AssetRequest());
-        Query<AssetRequest> queryMock = mock(Query.class);
-        // Corrected HQL query to match implementation
-        when(sessionMock.createQuery("FROM AssetRequest ar ORDER BY ar.requestId ASC", AssetRequest.class)).thenReturn(queryMock);
+        @SuppressWarnings("unchecked")
+        Query<AssetRequest> queryMock = (Query<AssetRequest>) mock(Query.class);
+        when(sessionMock.createQuery("FROM AssetRequest ar ORDER BY ar.requestId ASC", AssetRequest.class))
+                .thenReturn(queryMock);
         when(queryMock.getResultList()).thenReturn(requests);
-        List<AssetRequest> result = assetRequestDAO.getAllAssetRequests(currentUser);
+        List<AssetRequest> result = assetRequestDAO.getAll();
         assertEquals(2, result.size());
     }
 }

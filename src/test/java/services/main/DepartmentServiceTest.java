@@ -23,6 +23,9 @@ class DepartmentServiceTest {
         departmentService = new DepartmentService();
         // Inject mock DAO
         java.lang.reflect.Field daoField;
+        DepartmentService real = new DepartmentService(departmentDAOMock,
+                new EmployeeService(Mockito.mock(dao.main.interfaces.EmployeeDAO.class)));
+        departmentService = real;
         try {
             daoField = DepartmentService.class.getDeclaredField("departmentDAO");
             daoField.setAccessible(true);
@@ -43,7 +46,7 @@ class DepartmentServiceTest {
         department.setDepartmentName("New Dept");
         Employee currentUser = new Employee();
         currentUser.setRole("Admin");
-        
+
         when(departmentDAOMock.findByName("New Dept")).thenReturn(null);
 
         departmentService.addDepartment(department, currentUser);
@@ -56,7 +59,7 @@ class DepartmentServiceTest {
         department.setDepartmentName("Duplicate");
         Employee currentUser = new Employee();
         currentUser.setRole("Admin");
-        
+
         when(departmentDAOMock.findByName("Duplicate")).thenReturn(new Department());
 
         assertThrows(IllegalStateException.class, () -> {
@@ -116,13 +119,14 @@ class DepartmentServiceTest {
     }
 
     @Test
-    void testGetAllDepartments() {
+    void testGetAllDepartments_Admin() {
         Employee currentUser = new Employee();
         currentUser.setRole("Admin");
 
         List<Department> departments = Arrays.asList(new Department(), new Department());
-        when(departmentDAOMock.getAllDepartments(currentUser)).thenReturn(departments);
+        when(departmentDAOMock.getAll()).thenReturn(departments);
         List<Department> result = departmentService.getAllDepartments(currentUser);
         assertEquals(2, result.size());
+        verify(departmentDAOMock, times(1)).getAll();
     }
 }

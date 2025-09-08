@@ -11,17 +11,23 @@ import dao.device.interfaces.VendorDAO;
 import models.device.Vendor;
 
 public class VendorService {
-    private VendorDAO vendorDAO;
+    private final VendorDAO vendorDAO;
     private static final Logger logger = LoggerFactory.getLogger(VendorService.class);
 
+    public VendorService(VendorDAO vendorDAO) {
+        this.vendorDAO = vendorDAO;
+    }
+
+    // Backward-compatible default wiring
     public VendorService() {
-        this.vendorDAO = new VendorDAOImpl();
+        this(new VendorDAOImpl());
     }
 
     public void addVendor(Vendor vendor, Employee currentUser) {
         String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
-            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to add a vendor.";
+            String errorMessage = "Authorization Error: User with role " + currentUserRole
+                    + " attempted to add a vendor.";
             logger.warn(errorMessage);
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
@@ -31,7 +37,8 @@ public class VendorService {
     public void updateVendor(Vendor vendor, Employee currentUser) {
         String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
-            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to update a vendor.";
+            String errorMessage = "Authorization Error: User with role " + currentUserRole
+                    + " attempted to update a vendor.";
             logger.warn(errorMessage);
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
@@ -41,7 +48,8 @@ public class VendorService {
     public void deleteVendor(int vendorId, Employee currentUser) {
         String currentUserRole = currentUser.getRole();
         if (!"Admin".equalsIgnoreCase(currentUserRole)) {
-            String errorMessage = "Authorization Error: User with role " + currentUserRole + " attempted to delete vendor with id " + vendorId + ".";
+            String errorMessage = "Authorization Error: User with role " + currentUserRole
+                    + " attempted to delete vendor with id " + vendorId + ".";
             logger.warn(errorMessage);
             throw new SecurityException("Bạn không có quyền thực hiện hành động này.");
         }
@@ -72,7 +80,7 @@ public class VendorService {
         vendor.setEmail(email);
         vendor.setAddress(address);
 
-        // Let error propagate and be caught in view layer
+        // Let view layer handle any thrown error
         addVendor(vendor, currentUser);
 
         return null;

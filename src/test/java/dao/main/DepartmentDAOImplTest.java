@@ -1,7 +1,6 @@
 package dao.main;
 
 import models.main.Department;
-import models.main.Employee;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,15 +64,13 @@ class DepartmentDAOImplTest {
     }
 
     @Test
-    void testGetAllDepartments() {
-        Employee currentUser = new Employee();
-        currentUser.setRole("Admin");
-
+    void testGetAll() {
         List<Department> departments = Arrays.asList(new Department(), new Department());
-        Query queryMock = mock(Query.class);
+        @SuppressWarnings("unchecked")
+        Query<Department> queryMock = (Query<Department>) mock(Query.class);
         when(sessionMock.createQuery("FROM Department", Department.class)).thenReturn(queryMock);
         when(queryMock.getResultList()).thenReturn(departments);
-        List<Department> result = departmentDAO.getAllDepartments(currentUser);
+        List<Department> result = departmentDAO.getAll();
         assertEquals(2, result.size());
     }
 }

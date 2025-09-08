@@ -15,8 +15,14 @@ public interface AssetRequestDAO {
 
     AssetRequest getAssetRequestById(int requestId);
 
-    List<AssetRequest> getAllAssetRequests(Employee currentUser);
+    // Pure persistence queries
+    List<AssetRequest> getAll();
 
+    List<AssetRequest> getByDepartmentId(int departmentId);
+
+    List<AssetRequest> getByEmployeeId(int employeeId);
+
+    // Workflow methods kept for now (can be moved to Service in a later refactor)
     String createRequestWithItems(int employeeId, String requestType, java.util.List<Integer> assetIds);
 
     String updateRequestWithItems(int requestId, java.util.List<Integer> assetIds);
